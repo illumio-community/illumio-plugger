@@ -254,6 +254,24 @@ different mechanisms — this is the single most important design consequence of
 Plugger plugin invokes the engine, shows dry-run diffs in its dashboard, and routes approvals
 through the reporting bus. Clean separation: **compute in Plugger, enforce in the engine.**
 
+### Repo boundary
+
+**Stays in `illumio-plugger`:** `policy-resolver` (emits intent), the existing membership
+sync plugins `palo-alto-dag-sync` / `fortigate-sync` (fast-path; their vendor-client code is
+extracted into the engine as a shared library in a later phase), `pce-events` (event source),
+the reporting/output bus (approval + audit), and a **new thin `fw-enforcer` plugin** — the
+control surface that invokes the engine, renders dry-run diffs, and routes approvals.
+
+**Goes into `illumio-policy-enforcer`:** the engine core (`DesiredPolicy` model, two-speed
+reconciler, diff/plan, drift detection), rule-model strategies, delivery backends (gitops +
+direct-api), vendor adapters (checkpoint/panos/fortimanager), the safety core, per-vendor
+Terraform modules, CI/CD plan-apply pipelines, and the engine's tests.
+
+**The seam:** `policy-resolver` emits **`DesiredPolicy` as a versioned JSON schema**; the
+engine consumes it. That single contract is the entire API boundary — testable on both sides
+and consumable by non-Plugger users. The engine ships as a **Go module + CLI + container
+image**, so both the `fw-enforcer` plugin and standalone CI can drive it.
+
 ---
 
 ## 8. Phasing
