@@ -1,6 +1,6 @@
 # Plugger — Plugin Framework for Illumio PCE
 
-**Community project by Alex Goller, Illumio Solutions Architect**
+**An Illumio community project, created by Alex Goller, Illumio Solutions Architect**
 GitHub: https://github.com/illumio-community/illumio-plugger | Portal: https://illumio-community.github.io/illumio-plugger/
 
 ---
@@ -127,5 +127,5 @@ Plugins are standard Docker containers with a `plugin.yaml` manifest. Publish to
 
 ---
 
-*Plugger is an open-source community project. Not an official Illumio product.*
+*Plugger is an open-source Illumio community project, created by Alex Goller.*
 *MIT License — contributions welcome.*

@@ -15,7 +15,7 @@
 
 Plugger is a Go CLI that manages Illumio PCE extensions as Docker containers — install, schedule, health-check, auto-restart, and expose them through a unified web dashboard. Includes a Python SDK for rapid plugin development and a shared reporting bus (Slack/Teams/email/webhook). No patch cycles. No custom integrations hardwired into your environment. Just `plugger install <name> && plugger run`.
 
-> Community project by [Alex Goller](https://github.com/alexgoller), Illumio Solutions Architect. Not an official Illumio product.
+> An Illumio community project, created by [Alex Goller](https://github.com/alexgoller), Illumio Solutions Architect.
 
 ---
 
