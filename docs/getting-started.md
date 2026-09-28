@@ -231,4 +231,4 @@ See the [Plugin Development Guide](plugin-development.md) for details.
 - [Operations Guide](operations.md) — production deployment, troubleshooting
 - [Example Plugins](example-plugins.md) — six ready-to-use plugins
 - [Event-Driven Architecture](events.md) — webhook-triggered plugins
-- [Plugin Portal](https://alexgoller.github.io/illumio-plugger/) — browse and install plugins online
+- [Plugin Portal](https://illumio-community.github.io/illumio-plugger/) — browse and install plugins online

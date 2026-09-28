@@ -85,4 +85,4 @@ info:
   description: "Sync OT/ICS/IoT asset inventory from Nozomi Networks (Vantage or Guardian) into Illumio as unmanaged workloads with labels (type, zone, Purdue level, vendor, criticality)."
   author: Illumio
   license: Apache-2.0
-  homepage: https://github.com/alexgoller/illumio-plugger/tree/main/nozomi-sync
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/nozomi-sync

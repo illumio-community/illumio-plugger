@@ -1,6 +1,6 @@
 {
   "name": "Illumio Official Plugin Registry",
-  "url": "https://alexgoller.github.io/illumio-plugger/registry.json",
+  "url": "https://illumio-community.github.io/illumio-plugger/registry.json",
   "updated": "2026-04-19T00:00:00Z",
   "plugins": [
     {
@@ -17,7 +17,7 @@
         "dashboard"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/pce-health-monitor",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/pce-health-monitor",
       "maturity": "example"
     },
     {
@@ -35,7 +35,7 @@
         "dashboard"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/traffic-reporter",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/traffic-reporter",
       "maturity": "production"
     },
     {
@@ -54,7 +54,7 @@
         "dashboard"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/policy-diff",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/policy-diff",
       "maturity": "production"
     },
     {
@@ -72,7 +72,7 @@
         "scoring"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/pce-posture-report",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/pce-posture-report",
       "maturity": "production"
     },
     {
@@ -112,7 +112,7 @@
         "dashboard"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/ai-assisted-rules",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/ai-assisted-rules",
       "maturity": "prototype"
     },
     {
@@ -132,7 +132,7 @@
         "dashboard"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/stale-workloads",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/stale-workloads",
       "maturity": "preview"
     },
     {
@@ -152,7 +152,7 @@
         "pan-os"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/palo-alto-dag-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/palo-alto-dag-sync",
       "maturity": "preview"
     },
     {
@@ -172,7 +172,7 @@
         "analytics"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/ad-label-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/ad-label-sync",
       "maturity": "production"
     },
     {
@@ -191,7 +191,7 @@
         "automation"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/rule-scheduler",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/rule-scheduler",
       "maturity": "production"
     },
     {
@@ -213,7 +213,7 @@
         "dashboard"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/ai-security-report",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/ai-security-report",
       "maturity": "prototype"
     },
     {
@@ -234,7 +234,7 @@
         "integration"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/remedy-cmdb-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/remedy-cmdb-sync",
       "maturity": "production"
     },
     {
@@ -254,7 +254,7 @@
         "migration"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/policy-resolver",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/policy-resolver",
       "maturity": "production"
     },
     {
@@ -276,7 +276,7 @@
         "sync"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/ztna-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/ztna-sync",
       "maturity": "production"
     },
     {
@@ -297,7 +297,7 @@
         "extensible-attributes"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/infoblox-ipam-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/infoblox-ipam-sync",
       "maturity": "production"
     },
     {
@@ -357,7 +357,7 @@
         "webhook"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/workload-isolator",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/workload-isolator",
       "maturity": "example"
     },
     {
@@ -378,7 +378,7 @@
         "d3js"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/app-dependency-intel",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/app-dependency-intel",
       "maturity": "production"
     },
     {
@@ -399,7 +399,7 @@
         "operations"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/ven-fleet-manager",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/ven-fleet-manager",
       "maturity": "production"
     },
     {
@@ -420,7 +420,7 @@
         "sync"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/fortigate-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/fortigate-sync",
       "maturity": "production"
     },
     {
@@ -441,7 +441,7 @@
         "sync"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/vcenter-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/vcenter-sync",
       "maturity": "production"
     },
     {
@@ -461,7 +461,7 @@
         "labels"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/network-discovery",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/network-discovery",
       "maturity": "preview"
     },
     {
@@ -481,7 +481,7 @@
         "security"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/vmaps-handler",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/vmaps-handler",
       "maturity": "beta"
     },
     {
@@ -501,7 +501,7 @@
         "restore"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/policy-backup",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/policy-backup",
       "maturity": "preview"
     },
     {
@@ -521,7 +521,7 @@
         "integration"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/dragos-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/dragos-sync",
       "maturity": "preview"
     },
     {
@@ -542,7 +542,7 @@
         "integration"
       ],
       "author": "Illumio",
-      "homepage": "https://github.com/alexgoller/illumio-plugger/tree/main/nozomi-sync",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/nozomi-sync",
       "maturity": "preview"
     }
   ]

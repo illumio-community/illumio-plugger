@@ -54,4 +54,4 @@ info:
   description: "Snapshot PCE policy objects and workload inventory to versioned JSON backups, diff over time, and restore to draft policy with a guarded preview."
   author: Illumio
   license: Apache-2.0
-  homepage: https://github.com/alexgoller/illumio-plugger/tree/main/policy-backup
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/policy-backup

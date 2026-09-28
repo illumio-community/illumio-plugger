@@ -96,7 +96,7 @@ info:
   description: One-line description of what this plugin does
   author: Illumio
   license: Apache-2.0
-  homepage: https://github.com/alexgoller/illumio-plugger/tree/main/my-plugin
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/my-plugin
 ```
 
 **Key rules:**

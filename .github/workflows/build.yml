@@ -9,9 +9,6 @@ permissions:
   contents: write
   packages: write
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ghcr.io/alexgoller/plugger-
 
 jobs:
   # Plugin images are built by the "Build Plugin Images" workflow

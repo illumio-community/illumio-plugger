@@ -22,8 +22,8 @@ Want to build your own? There's a built-in Claude Code skill — point Claude at
 
 Open source, community-driven. Would love to hear what you'd want to see next.
 
-GitHub: https://github.com/alexgoller/illumio-plugger
-Portal: https://alexgoller.github.io/illumio-plugger/
+GitHub: https://github.com/illumio-community/illumio-plugger
+Portal: https://illumio-community.github.io/illumio-plugger/
 Policy GitOps: https://github.com/alexgoller/illumio-policy-gitops
 
 #Illumio #ZeroTrust #NetworkSecurity #MicroSegmentation #SecOps #SecurityAutomation #PolicyAsCode #OpenSource

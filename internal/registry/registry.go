@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	OfficialRegistryURL = "https://alexgoller.github.io/illumio-plugger/registry.json"
+	OfficialRegistryURL = "https://illumio-community.github.io/illumio-plugger/registry.json"
 	OfficialRegistryName = "official"
 )
 

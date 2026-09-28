@@ -199,7 +199,7 @@ func (h *Handler) handlePluginDetail(w http.ResponseWriter, r *http.Request) {
 		homepage = p.Metadata.Info.Homepage
 	}
 	if homepage == "" {
-		homepage = "https://github.com/alexgoller/illumio-plugger/tree/main/" + name
+		homepage = "https://github.com/illumio-community/illumio-plugger/tree/main/" + name
 	}
 	readmeContent = fetchReadme(name, homepage)
 
@@ -255,8 +255,8 @@ func (h *Handler) json(w http.ResponseWriter, status int, v any) {
 // fetchReadme tries to get the plugin README from GitHub.
 func fetchReadme(name, homepage string) string {
 	// Convert GitHub tree URL to raw URL
-	// https://github.com/alexgoller/illumio-plugger/tree/main/pce-health-monitor
-	// → https://raw.githubusercontent.com/alexgoller/illumio-plugger/main/pce-health-monitor/README.md
+	// https://github.com/illumio-community/illumio-plugger/tree/main/pce-health-monitor
+	// → https://raw.githubusercontent.com/illumio-community/illumio-plugger/main/pce-health-monitor/README.md
 	rawURL := ""
 	if strings.Contains(homepage, "github.com") && strings.Contains(homepage, "/tree/") {
 		rawURL = strings.Replace(homepage, "github.com", "raw.githubusercontent.com", 1)

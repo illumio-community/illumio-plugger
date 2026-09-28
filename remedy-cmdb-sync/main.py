@@ -12,7 +12,7 @@ Two modes:
 
 NOTE: This plugin is UNTESTED against a live Remedy instance.
       The API integration follows BMC Helix CMDB REST API documentation.
-      Please report issues at https://github.com/alexgoller/illumio-plugger/issues
+      Please report issues at https://github.com/illumio-community/illumio-plugger/issues
 """
 
 import json

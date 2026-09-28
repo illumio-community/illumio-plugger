@@ -1,7 +1,7 @@
 # Plugger — Plugin Framework for Illumio PCE
 
 **Community project by Alex Goller, Illumio Solutions Architect**
-GitHub: https://github.com/alexgoller/illumio-plugger | Portal: https://alexgoller.github.io/illumio-plugger/
+GitHub: https://github.com/illumio-community/illumio-plugger | Portal: https://illumio-community.github.io/illumio-plugger/
 
 ---
 
@@ -30,7 +30,7 @@ Plugger is an open-source Go CLI that manages PCE extensions as Docker container
 
 ```
 Step 1: Build
-  git clone https://github.com/alexgoller/illumio-plugger && make build
+  git clone https://github.com/illumio-community/illumio-plugger && make build
 
 Step 2: Initialize
   plugger init          # creates ~/.plugger/config.yaml with PCE connection
@@ -120,10 +120,10 @@ Plugins are standard Docker containers with a `plugin.yaml` manifest. Publish to
 
 | Resource | URL |
 |----------|-----|
-| GitHub | https://github.com/alexgoller/illumio-plugger |
-| Plugin Portal | https://alexgoller.github.io/illumio-plugger/ |
+| GitHub | https://github.com/illumio-community/illumio-plugger |
+| Plugin Portal | https://illumio-community.github.io/illumio-plugger/ |
 | Policy GitOps | https://github.com/alexgoller/illumio-policy-gitops |
-| Documentation | https://github.com/alexgoller/illumio-plugger/tree/main/docs |
+| Documentation | https://github.com/illumio-community/illumio-plugger/tree/main/docs |
 
 ---
 

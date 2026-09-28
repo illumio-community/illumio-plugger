@@ -171,7 +171,7 @@ than the local one (catches :latest tag updates).`,
 
 func checkLatestRelease() (string, error) {
 	client := &http.Client{Timeout: 5 * time.Second}
-	resp, err := client.Get("https://api.github.com/repos/alexgoller/illumio-plugger/releases/latest")
+	resp, err := client.Get("https://api.github.com/repos/illumio-community/illumio-plugger/releases/latest")
 	if err != nil {
 		return "", err
 	}

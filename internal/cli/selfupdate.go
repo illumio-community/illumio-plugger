@@ -16,7 +16,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const releaseBase = "https://github.com/alexgoller/illumio-plugger/releases/download"
+const releaseBase = "https://github.com/illumio-community/illumio-plugger/releases/download"
 
 func newSelfUpdateCmd() *cobra.Command {
 	var force bool

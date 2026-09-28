@@ -1,7 +1,7 @@
 """illumio_vuln_import — Python port of the illumio-cli vulnerability-map import.
 
 Reconstructed from illumio-cli 3.0.537 (compiled Ruby). Prototype intended to be
-folded into github.com/alexgoller/illumio-plugger.
+folded into github.com/illumio-community/illumio-plugger.
 
 Two families of processors, both ending in the same PCE upload:
   * file processors  - parse a saved scan export (process_report)

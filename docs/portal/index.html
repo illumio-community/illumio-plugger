@@ -83,7 +83,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         <a href="#handbook" class="hover:text-white transition-colors">Handbook</a>
         <a href="#docs" class="hover:text-white transition-colors">Docs</a>
         <a href="#quickstart" class="hover:text-white transition-colors">Quick Start</a>
-        <a href="https://github.com/alexgoller/illumio-plugger" class="flex items-center gap-1 hover:text-white transition-colors">
+        <a href="https://github.com/illumio-community/illumio-plugger" class="flex items-center gap-1 hover:text-white transition-colors">
             <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
             GitHub
         </a>
@@ -1437,7 +1437,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
             <span class="text-xs text-gray-400 ml-2">terminal</span>
         </div>
         <pre class="p-5 text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed"><span class="text-gray-400"># Install</span>
-<span class="text-blue-400">$</span> git clone https://github.com/alexgoller/illumio-plugger.git
+<span class="text-blue-400">$</span> git clone https://github.com/illumio-community/illumio-plugger.git
 <span class="text-blue-400">$</span> cd illumio-plugger && make build
 
 <span class="text-gray-400"># Setup (auto-detects Docker, reads .env)</span>
@@ -1477,7 +1477,7 @@ Dashboard: http://localhost:8800</pre>
         <code class="bg-dark-800 border border-gray-700 rounded-lg px-4 py-2 text-sm font-mono text-orange-300">plugger create my-plugin -t javascript</code>
     </div>
     <p class="text-gray-300 text-sm">
-        <a href="https://github.com/alexgoller/illumio-plugger/blob/main/docs/plugin-development.md" class="text-blue-400 hover:text-blue-300">Plugin Development Guide →</a>
+        <a href="https://github.com/illumio-community/illumio-plugger/blob/main/docs/plugin-development.md" class="text-blue-400 hover:text-blue-300">Plugin Development Guide →</a>
     </p>
 </div>
 </section>
@@ -1486,8 +1486,8 @@ Dashboard: http://localhost:8800</pre>
 <footer class="border-t border-gray-800 py-8 px-6">
 <div class="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
     <div class="flex items-center gap-4">
-        <a href="https://github.com/alexgoller/illumio-plugger" class="hover:text-gray-400">GitHub</a>
-        <a href="https://github.com/alexgoller/illumio-plugger/tree/main/docs" class="hover:text-gray-400">Documentation</a>
+        <a href="https://github.com/illumio-community/illumio-plugger" class="hover:text-gray-400">GitHub</a>
+        <a href="https://github.com/illumio-community/illumio-plugger/tree/main/docs" class="hover:text-gray-400">Documentation</a>
         <a href="registry.json" class="hover:text-gray-400">Registry API</a>
     </div>
     <div>Built with Plugger · Illumio</div>
@@ -1552,7 +1552,7 @@ General install index: [docs.docker.com/get-docker](https://docs.docker.com/get-
 Download the latest release from GitHub:
 
 \`\`\`bash
-curl -LO https://github.com/alexgoller/illumio-plugger/releases/latest/download/plugger-$(uname -s)-$(uname -m)
+curl -LO https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$(uname -s)-$(uname -m)
 chmod +x plugger-*
 sudo mv plugger-* /usr/local/bin/plugger
 \`\`\`
@@ -1560,7 +1560,7 @@ sudo mv plugger-* /usr/local/bin/plugger
 ### Build from source
 
 \`\`\`bash
-git clone https://github.com/alexgoller/illumio-plugger.git
+git clone https://github.com/illumio-community/illumio-plugger.git
 cd illumio-plugger
 make build
 # Binary is at ./bin/plugger
@@ -2535,7 +2535,7 @@ plugger repo add my-org https://my-org.github.io/plugger-plugins/registry.json
 \`\`\`bash
 plugger repo list
 # NAME      URL
-# official  https://alexgoller.github.io/illumio-plugger/registry.json
+# official  https://illumio-community.github.io/illumio-plugger/registry.json
 # my-org    https://my-org.github.io/plugger-plugins/registry.json
 
 plugger search my-custom
@@ -2655,7 +2655,7 @@ function toggleHandbook(id) {
 const PRODUCT_DOCS = {
 "getting-started": {
     title: "Getting Started",
-    github: "https://github.com/alexgoller/illumio-plugger/blob/main/docs/getting-started.md",
+    github: "https://github.com/illumio-community/illumio-plugger/blob/main/docs/getting-started.md",
     readme: `# Getting Started with Plugger
 
 This guide walks you through installing plugger, connecting to your PCE, and running your first plugin.
@@ -2747,7 +2747,7 @@ plugger upgrade <name>              # Upgrade a plugin
 },
 "installation": {
     title: "Installation & Configuration",
-    github: "https://github.com/alexgoller/illumio-plugger/blob/main/docs/installation.md",
+    github: "https://github.com/illumio-community/illumio-plugger/blob/main/docs/installation.md",
     readme: `# Installation & Configuration
 
 ## Prerequisites
@@ -2816,7 +2816,7 @@ Four install sources:
 },
 "cli-reference": {
     title: "CLI Reference",
-    github: "https://github.com/alexgoller/illumio-plugger/blob/main/docs/cli-reference.md",
+    github: "https://github.com/illumio-community/illumio-plugger/blob/main/docs/cli-reference.md",
     readme: `# CLI Reference
 
 ## Commands
@@ -2902,7 +2902,7 @@ Print the plugger version.
 },
 "plugin-development": {
     title: "Plugin Development Guide",
-    github: "https://github.com/alexgoller/illumio-plugger/blob/main/docs/plugin-development.md",
+    github: "https://github.com/illumio-community/illumio-plugger/blob/main/docs/plugin-development.md",
     readme: `# Plugin Development Guide
 
 Plugins are Docker containers that interact with the Illumio PCE. Plugger handles the container lifecycle, credential injection, scheduling, health checks, and web UI proxying.
@@ -2995,7 +2995,7 @@ Declare \`type: ui\` in metadata ports. UI is accessible at \`http://plugger:880
 },
 "operations": {
     title: "Operations Guide",
-    github: "https://github.com/alexgoller/illumio-plugger/blob/main/docs/operations.md",
+    github: "https://github.com/illumio-community/illumio-plugger/blob/main/docs/operations.md",
     readme: `# Operations Guide
 
 Running plugger in production: deployment, monitoring, authentication, troubleshooting, and maintenance.
@@ -3096,7 +3096,7 @@ When auth is disabled (\`enabled: false\`, the default), all endpoints are open.
 },
 "events": {
     title: "Event-Driven Architecture",
-    github: "https://github.com/alexgoller/illumio-plugger/blob/main/docs/events.md",
+    github: "https://github.com/illumio-community/illumio-plugger/blob/main/docs/events.md",
     readme: `# Event-Driven Architecture
 
 Plugger supports event-driven plugins that spawn ephemeral containers in response to webhooks.
@@ -4703,7 +4703,7 @@ function showDocs(pluginId) {
     const plugin = PLUGIN_DOCS[pluginId];
     if (!plugin) return;
     const externalPlugins = {'policy-gitops': 'https://github.com/alexgoller/illumio-policy-gitops', 'policy-workflow': 'https://github.com/alexgoller/illumio-policy-gitops'};
-    const ghUrl = externalPlugins[pluginId] || ('https://github.com/alexgoller/illumio-plugger/tree/main/' + pluginId);
+    const ghUrl = externalPlugins[pluginId] || ('https://github.com/illumio-community/illumio-plugger/tree/main/' + pluginId);
     document.getElementById('docs-modal-title').textContent = plugin.title;
     // Prominent banner: this modal is an overview; the full README (setup,
     // credentials, full config tables, troubleshooting) lives on GitHub.

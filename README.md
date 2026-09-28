@@ -6,10 +6,10 @@
 
 <p align="center">
 
-[![Plugins](https://img.shields.io/badge/plugins-27-blue)](https://alexgoller.github.io/illumio-plugger/)
+[![Plugins](https://img.shields.io/badge/plugins-27-blue)](https://illumio-community.github.io/illumio-plugger/)
 [![Languages](https://img.shields.io/badge/templates-Go%20%7C%20Python%20%7C%20Shell%20%7C%20JavaScript-green)](docs/plugin-development.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey)](LICENSE)
-[![Portal](https://img.shields.io/badge/portal-live-brightgreen)](https://alexgoller.github.io/illumio-plugger/)
+[![Portal](https://img.shields.io/badge/portal-live-brightgreen)](https://illumio-community.github.io/illumio-plugger/)
 
 </p>
 
@@ -23,7 +23,7 @@ Plugger is a Go CLI that manages Illumio PCE extensions as Docker containers —
 
 ```bash
 # 1. Build
-git clone https://github.com/alexgoller/illumio-plugger
+git clone https://github.com/illumio-community/illumio-plugger
 cd illumio-plugger && make build
 
 # 2. Initialize — writes ~/.plugger/config.yaml with PCE connection details
@@ -130,7 +130,7 @@ plugger repo add myco https://internal.example.com/registry.json  # Custom regis
 
 The web dashboard at `http://localhost:8800/registry` lets you browse, filter, and install with one click.
 
-Custom registries: host a `registry.json` at any URL using the same format as the [official registry](https://alexgoller.github.io/illumio-plugger/registry.json).
+Custom registries: host a `registry.json` at any URL using the same format as the [official registry](https://illumio-community.github.io/illumio-plugger/registry.json).
 
 ---
 
@@ -227,7 +227,7 @@ health:
 | [Operations Guide](docs/operations.md) | Production deployment, monitoring, troubleshooting |
 | [Event-Driven Architecture](docs/events.md) | Webhook triggers, pce-events integration, auth |
 
-**Plugin Portal:** [alexgoller.github.io/illumio-plugger](https://alexgoller.github.io/illumio-plugger/)
+**Plugin Portal:** [illumio-community.github.io/illumio-plugger](https://illumio-community.github.io/illumio-plugger/)
 
 **Policy-as-Code (standalone):** [illumio-policy-gitops](https://github.com/alexgoller/illumio-policy-gitops)
 

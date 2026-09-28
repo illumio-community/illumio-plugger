@@ -1,6 +1,6 @@
 # vmaps-handler
 
-[![Plugin](https://img.shields.io/badge/plugger-vmaps--handler-blue)](https://alexgoller.github.io/illumio-plugger/)
+[![Plugin](https://img.shields.io/badge/plugger-vmaps--handler-blue)](https://illumio-community.github.io/illumio-plugger/)
 [![Version](https://img.shields.io/badge/version-0.1.0-green)]()
 [![Mode](https://img.shields.io/badge/mode-daemon-orange)]()
 

@@ -1,6 +1,6 @@
 # network-discovery
 
-[![Plugin](https://img.shields.io/badge/plugger-network--discovery-blue)](https://alexgoller.github.io/illumio-plugger/)
+[![Plugin](https://img.shields.io/badge/plugger-network--discovery-blue)](https://illumio-community.github.io/illumio-plugger/)
 [![Version](https://img.shields.io/badge/version-0.2.0-green)]()
 [![Mode](https://img.shields.io/badge/mode-daemon-orange)]()
 

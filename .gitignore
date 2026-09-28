@@ -11,3 +11,6 @@ __pycache__/
 vmaps-handler/.coverage
 __pycache__/
 .pytest_cache/
+.claude/agent-memory/
+.claude/worktrees/
+.superpowers/

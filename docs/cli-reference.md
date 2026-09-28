@@ -289,7 +289,7 @@ plugger repo add <name> <url>                        # Add a custom registry
 plugger repo remove <name>                           # Remove a custom registry
 ```
 
-The official registry (`alexgoller.github.io/illumio-plugger/registry.json`) is always present and cannot be removed.
+The official registry (`illumio-community.github.io/illumio-plugger/registry.json`) is always present and cannot be removed.
 
 ---
 

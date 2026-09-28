@@ -66,4 +66,4 @@ info:
   description: "Scan traffic flows for unknown IPs, reverse-DNS resolve them, and create unmanaged workloads with optional hostname-based label inference"
   author: Illumio
   license: Apache-2.0
-  homepage: https://github.com/alexgoller/illumio-plugger/tree/main/network-discovery
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/network-discovery

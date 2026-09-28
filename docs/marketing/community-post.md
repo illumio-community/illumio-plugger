@@ -96,8 +96,8 @@ The template wires up credential injection, a health endpoint, and a Dockerfile.
 
 ## Links
 
-- GitHub: https://github.com/alexgoller/illumio-plugger
-- Plugin portal: https://alexgoller.github.io/illumio-plugger/
+- GitHub: https://github.com/illumio-community/illumio-plugger
+- Plugin portal: https://illumio-community.github.io/illumio-plugger/
 - Policy GitOps (standalone): https://github.com/alexgoller/illumio-policy-gitops
 
 This is a community project — not an official Illumio product. I build what I see customers needing in the field, but I'd rather build what you actually need.

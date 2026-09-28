@@ -1,6 +1,6 @@
 # Example Plugins
 
-Plugger ships with twenty-one plugins that demonstrate different capabilities and are useful out of the box. Nineteen are built from this repository and available from the [plugin registry](https://alexgoller.github.io/illumio-plugger/). Two additional plugins (Policy GitOps and Policy Workflow) live in a dedicated repository. All can be installed with `plugger install <name>`.
+Plugger ships with twenty-one plugins that demonstrate different capabilities and are useful out of the box. Nineteen are built from this repository and available from the [plugin registry](https://illumio-community.github.io/illumio-plugger/). Two additional plugins (Policy GitOps and Policy Workflow) live in a dedicated repository. All can be installed with `plugger install <name>`.
 
 ## PCE Health Monitor
 
