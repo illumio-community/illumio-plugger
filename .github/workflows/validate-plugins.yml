@@ -8,6 +8,8 @@ on:
       - '*/Dockerfile'
       - 'docs/portal/registry.json'
       - '.github/workflows/build.yml'
+      - '.github/workflows/validate-plugins.yml'
+      - '.github/scripts/**'
   pull_request:
     paths:
       - '*/plugin.yaml'
@@ -15,6 +17,9 @@ on:
       - '*/Dockerfile'
       - 'docs/portal/registry.json'
       - '.github/workflows/build.yml'
+      - '.github/workflows/validate-plugins.yml'
+      - '.github/scripts/**'
+  workflow_dispatch:
 
 jobs:
   validate:
