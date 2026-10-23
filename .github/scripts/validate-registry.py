@@ -31,6 +31,13 @@ EXTERNAL_PLUGINS = {"policy-gitops", "policy-workflow"}
 EXTERNAL_IMAGE_PREFIX = "ghcr.io/alexgoller/illumio-"
 INTERNAL_IMAGE_PREFIX = "ghcr.io/alexgoller/plugger-"
 
+# Plugins whose directory exists but that are intentionally NOT yet in
+# registry.json because their image can't be published/installed yet (e.g. a
+# binary that isn't released). They are the validator counterpart to the CI
+# EXCLUDE list in plugins.yaml. Remove from here and add the registry entry
+# when the plugin becomes installable.
+PENDING_PUBLISH = {"flowpilot"}
+
 
 def find_plugins():
     plugins = []
@@ -60,11 +67,15 @@ def main():
 
     print(f"Found {len(plugins)} plugins, {len(registry_by_name)} registry entries\n")
 
-    # Check 1: Every plugin has a registry entry
+    # Check 1: Every plugin has a registry entry (except pending-publish ones)
     for plugin in plugins:
-        if plugin not in registry_by_name:
-            print(f"❌ {plugin}: missing from registry.json")
-            errors += 1
+        if plugin in registry_by_name:
+            continue
+        if plugin in PENDING_PUBLISH:
+            print(f"⏭  {plugin}: pending publish — not yet in registry.json (intentional)")
+            continue
+        print(f"❌ {plugin}: missing from registry.json")
+        errors += 1
 
     # Check 2: Every registry entry points to a real plugin
     for name in registry_by_name:
