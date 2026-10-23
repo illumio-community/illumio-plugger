@@ -1,0 +1,189 @@
+plugger: v1
+ports:
+- port: 8080
+  protocol: tcp
+  name: ui
+  description: FlowPilot ingestion-health dashboard
+  type: ui
+  path: /
+- port: 2055
+  protocol: udp
+  name: netflow
+  description: NetFlow collector (container port)
+- port: 4739
+  protocol: udp
+  name: ipfix
+  description: IPFIX collector (container port)
+- port: 6343
+  protocol: udp
+  name: sflow
+  description: sFlow collector (container port)
+- port: 514
+  protocol: udp
+  name: text
+  description: Syslog-style text collector (container port)
+config:
+- name: NETFLOW_ENABLED
+  description: 'Collector: enable the NetFlow (v5/v7/v9) collector'
+  required: false
+  type: bool
+  default: 'true'
+- name: NETFLOW_PORT
+  description: 'Collector: NetFlow UDP port'
+  required: false
+  type: int
+  default: '2055'
+- name: NETFLOW_REMOTE_ADDRS
+  description: 'Collector: NetFlow allowed exporter addresses (comma-separated IPs/CIDRs; empty = accept all)'
+  required: false
+  type: string
+- name: IPFIX_ENABLED
+  description: 'Collector: enable the IPFIX collector'
+  required: false
+  type: bool
+  default: 'false'
+- name: IPFIX_PORT
+  description: 'Collector: IPFIX UDP port'
+  required: false
+  type: int
+  default: '4739'
+- name: IPFIX_REMOTE_ADDRS
+  description: 'Collector: IPFIX allowed exporter addresses (comma-separated; empty = accept all)'
+  required: false
+  type: string
+- name: SFLOW_ENABLED
+  description: 'Collector: enable the sFlow collector'
+  required: false
+  type: bool
+  default: 'false'
+- name: SFLOW_PORT
+  description: 'Collector: sFlow UDP port'
+  required: false
+  type: int
+  default: '6343'
+- name: SFLOW_REMOTE_ADDRS
+  description: 'Collector: sFlow allowed exporter addresses (comma-separated; empty = accept all)'
+  required: false
+  type: string
+- name: TEXT_ENABLED
+  description: 'Collector: enable the syslog-style text collector'
+  required: false
+  type: bool
+  default: 'false'
+- name: TEXT_PORT
+  description: 'Collector: text UDP port'
+  required: false
+  type: int
+  default: '514'
+- name: TEXT_REMOTE_ADDRS
+  description: 'Collector: text allowed exporter addresses (comma-separated; empty = accept all)'
+  required: false
+  type: string
+- name: TEXT_SRC_IP
+  description: 'Text parser: field holding the source IP (required when text is enabled)'
+  required: false
+  type: string
+- name: TEXT_DST_IP
+  description: 'Text parser: field holding the destination IP (required when text is enabled)'
+  required: false
+  type: string
+- name: TEXT_DST_PORT
+  description: 'Text parser: field holding the destination port (required when text is enabled)'
+  required: false
+  type: string
+- name: TEXT_PROTOCOL
+  description: 'Text parser: field holding the protocol (required when text is enabled)'
+  required: false
+  type: string
+- name: TEXT_ICMP_TYPE
+  description: 'Text parser: field holding the ICMP type (optional)'
+  required: false
+  type: string
+- name: TEXT_ICMP_CODE
+  description: 'Text parser: field holding the ICMP code (optional)'
+  required: false
+  type: string
+- name: TEXT_OCTETS
+  description: 'Text parser: field holding the byte count (optional)'
+  required: false
+  type: string
+- name: TEXT_TIMESTAMP
+  description: 'Text parser: field holding the timestamp (optional)'
+  required: false
+  type: string
+- name: TEXT_TIMESTAMP_FORMAT
+  description: 'Text parser: timestamp format (optional)'
+  required: false
+  type: string
+- name: TEXT_ONLY_RECS
+  description: 'Text parser: only parse lines that contain this text (optional)'
+  required: false
+  type: string
+- name: TEXT_FIELD_SEPARATOR
+  description: 'Text parser: field separator (passed through untrimmed)'
+  required: false
+  type: string
+- name: TEXT_ATTRIBUTE_SEPARATOR
+  description: 'Text parser: attribute (key/value) separator (passed through untrimmed)'
+  required: false
+  type: string
+- name: AGGREGATION_MINUTES
+  description: 'Basics: aggregation window in minutes before flows are uploaded to the PCE'
+  required: false
+  type: int
+  default: '10'
+- name: VERIFY_PCE_CERT
+  description: 'Basics: verify the PCE TLS certificate'
+  required: false
+  type: bool
+  default: 'true'
+- name: UNMANAGED_ENABLED
+  description: 'Unmanaged: create unmanaged workloads for unknown IPs seen in flows'
+  required: false
+  type: bool
+  default: 'false'
+- name: UNMANAGED_DRY_RUN
+  description: 'Unmanaged: dry run - log what would be created, create nothing'
+  required: false
+  type: bool
+  default: 'false'
+- name: UNMANAGED_NETWORKS
+  description: 'Unmanaged: internal networks to consider (comma-separated CIDRs)'
+  required: false
+  type: string
+- name: UNMANAGED_MIN_FLOWS
+  description: 'Unmanaged: flows an IP needs before a workload is created'
+  required: false
+  type: int
+  default: '10'
+- name: UNMANAGED_MAX_CREATES_PER_WINDOW
+  description: 'Unmanaged: maximum workloads created per aggregation window'
+  required: false
+  type: int
+  default: '100'
+- name: UNMANAGED_MAX_CREATES_PER_DAY
+  description: 'Unmanaged: maximum workloads created per 24 hours'
+  required: false
+  type: int
+  default: '500'
+- name: UNMANAGED_LABEL_RULES
+  description: 'Unmanaged: label rules per network, compact ''cidr=key:value,...;...'' or JSON'
+  required: false
+  type: string
+- name: SILENT_EXPORTER_MINUTES
+  description: 'Alerts: minutes without new flows before an exporter is reported silent'
+  required: false
+  type: int
+  default: '15'
+volumes:
+- path: /data
+  description: FlowPilot data directory + chart/alert history
+  required: false
+info:
+  title: FlowPilot
+  version: 0.1.0
+  description: Collect NetFlow/IPFIX/sFlow/text flows and send them to the Illumio PCE, with an ingestion-health dashboard
+    and silent-exporter alerts — runs the FlowPilot collector, no FlowLink install.
+  author: Illumio
+  license: Apache-2.0
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/flowpilot

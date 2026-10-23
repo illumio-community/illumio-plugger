@@ -19,7 +19,11 @@ env:
   REGISTRY: ghcr.io
   OWNER: ${{ github.repository_owner }}
   # External plugins published from their own repos (ghcr.io/.../illumio-*).
-  EXCLUDE: "policy-gitops policy-workflow"
+  # flowpilot is excluded until a FlowPilot release/static binary exists
+  # (flowcollector "project 3"): its Dockerfile COPYs a `flowlink` binary that
+  # isn't in the build context yet, so CI would fail. Remove from EXCLUDE and
+  # switch the Dockerfile to a pinned-release download when the binary ships.
+  EXCLUDE: "policy-gitops policy-workflow flowpilot"
 
 jobs:
   discover:

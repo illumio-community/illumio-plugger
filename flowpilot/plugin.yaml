@@ -1,0 +1,54 @@
+apiVersion: plugger/v1
+name: flowpilot
+version: 0.1.0
+image: plugger-flowpilot:latest
+
+schedule:
+  mode: daemon
+
+env:
+  - { name: NETFLOW_ENABLED, required: false, default: "true" }
+  - { name: NETFLOW_PORT, required: false, default: "2055" }
+  - { name: NETFLOW_REMOTE_ADDRS, required: false }
+  - { name: IPFIX_ENABLED, required: false, default: "false" }
+  - { name: IPFIX_PORT, required: false, default: "4739" }
+  - { name: IPFIX_REMOTE_ADDRS, required: false }
+  - { name: SFLOW_ENABLED, required: false, default: "false" }
+  - { name: SFLOW_PORT, required: false, default: "6343" }
+  - { name: SFLOW_REMOTE_ADDRS, required: false }
+  - { name: TEXT_ENABLED, required: false, default: "false" }
+  - { name: TEXT_PORT, required: false, default: "514" }
+  - { name: TEXT_REMOTE_ADDRS, required: false }
+  - { name: TEXT_SRC_IP, required: false }
+  - { name: TEXT_DST_IP, required: false }
+  - { name: TEXT_DST_PORT, required: false }
+  - { name: TEXT_PROTOCOL, required: false }
+  - { name: TEXT_ICMP_TYPE, required: false }
+  - { name: TEXT_ICMP_CODE, required: false }
+  - { name: TEXT_OCTETS, required: false }
+  - { name: TEXT_TIMESTAMP, required: false }
+  - { name: TEXT_TIMESTAMP_FORMAT, required: false }
+  - { name: TEXT_ONLY_RECS, required: false }
+  - { name: TEXT_FIELD_SEPARATOR, required: false }
+  - { name: TEXT_ATTRIBUTE_SEPARATOR, required: false }
+  - { name: AGGREGATION_MINUTES, required: false, default: "10" }
+  - { name: VERIFY_PCE_CERT, required: false, default: "true" }
+  - { name: UNMANAGED_ENABLED, required: false, default: "false" }
+  - { name: UNMANAGED_DRY_RUN, required: false, default: "false" }
+  - { name: UNMANAGED_NETWORKS, required: false }
+  - { name: UNMANAGED_MIN_FLOWS, required: false, default: "10" }
+  - { name: UNMANAGED_MAX_CREATES_PER_WINDOW, required: false, default: "100" }
+  - { name: UNMANAGED_MAX_CREATES_PER_DAY, required: false, default: "500" }
+  - { name: UNMANAGED_LABEL_RULES, required: false }
+  - { name: SILENT_EXPORTER_MINUTES, required: false, default: "15" }
+
+health:
+  endpoint: /api/health
+  port: 8080
+  interval: 30s
+  timeout: 5s
+  retries: 3
+
+resources:
+  memoryLimit: 256m
+  cpuLimit: "0.5"
