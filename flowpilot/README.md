@@ -14,7 +14,9 @@ Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firew
 
 ## Binary
 
-The image needs a linux `flowlink` binary (static linux-amd64 build of FlowPilot) in the `flowpilot/` directory **before `docker build`**; the Dockerfile copies it to `/usr/local/bin/flowlink`. Until a FlowPilot release exists, build it locally from the `illumio-flowcollector` repository and copy it in. Without it, the image build fails.
+The image needs a linux `flowlink` binary (a static build of **FlowPilot**, [github.com/alexgoller/flowpilot](https://github.com/alexgoller/flowpilot), Apache-2.0) in the `flowpilot/` directory **before `docker build`**; the Dockerfile copies it to `/usr/local/bin/flowlink`. Without it, the image build fails.
+
+Until FlowPilot cuts its first tagged release, build the binary locally from that repo and copy it in. Once a release exists, the image switches to downloading the pinned release asset (`flowpilot-<ver>-x86_64-linux`) and verifying `SHA256SUMS`. (`flowpilot -version` prints the running version, e.g. `FlowPilot version: 0.9.0`.)
 
 ## Install
 

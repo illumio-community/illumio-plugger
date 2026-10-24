@@ -9,7 +9,7 @@ routers and firewalls and send them to the PCE without installing FlowLink, and 
 exporter's flows are actually arriving. The failure that matters most: **exporters stop sending and nobody
 notices.** Everything in the design serves "flows are arriving, and you'll hear about it when they stop".
 
-FlowPilot is a standalone flow collector (repo `illumio-flowcollector`, a Rust reimplementation of FlowLink). It
+FlowPilot is a standalone flow collector ([github.com/alexgoller/flowpilot](https://github.com/alexgoller/flowpilot), Apache-2.0, a Rust reimplementation of FlowLink). It
 already does all the collecting, aggregation, PCE upload and unmanaged workload creation, takes its whole
 configuration from `FLOWPILOT_*` environment variables, picks up plugger's `PCE_*` credentials, and exposes
 `/healthz`, `/stats` (JSON) and `/metrics` (Prometheus) on an optional local HTTP endpoint. Field reference: the

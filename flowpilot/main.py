@@ -50,7 +50,7 @@ UNMANAGED_FIELDS = (
     "DRY_RUN", "NETWORKS", "MIN_FLOWS", "MAX_CREATES_PER_WINDOW",
     "MAX_CREATES_PER_DAY", "LABEL_RULES",
 )
-ERROR_MARKERS = ("is not valid", "is set but", "Unable to", "exit")
+ERROR_MARKERS = ("is not valid", "is set but", "Unable to", "Error:", "exit")
 CONTAINER_PORTS = {"netflow": 2055, "ipfix": 4739, "sflow": 6343, "text": 514}
 
 
@@ -226,9 +226,15 @@ def supervise():
         pump.join(timeout=2)
 
         ran = time.time() - started
-        app.log.warning("FlowPilot exited with code %s after %.0fs", proc.returncode, ran)
+        rc = proc.returncode
+        # FlowPilot exits 0 on SIGTERM/SIGINT/SIGQUIT (a clean stop); only a
+        # non-zero code is a crash or a rejected configuration.
+        if rc == 0:
+            app.log.info("FlowPilot exited cleanly (code 0) after %.0fs", ran)
+        else:
+            app.log.warning("FlowPilot exited with code %s after %.0fs", rc, ran)
         delay = backoff
-        if ran < 15 and error_lines:
+        if rc not in (0, None) and ran < 15 and error_lines:
             with lock:
                 state["config_error"] = "\n".join(error_lines[-5:])
             delay = 30
