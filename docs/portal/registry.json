@@ -544,6 +544,27 @@
       "author": "Illumio",
       "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/nozomi-sync",
       "maturity": "preview"
+    },
+    {
+      "name": "flowpilot",
+      "version": "0.1.0",
+      "image": "ghcr.io/illumio-community/plugger-flowpilot:0.1.0",
+      "description": "Collect NetFlow/IPFIX/sFlow/text flows to the Illumio PCE with an ingestion-health dashboard and silent-exporter alerts \u2014 runs the FlowPilot collector, no FlowLink install",
+      "mode": "daemon",
+      "has_ui": true,
+      "language": "python",
+      "tags": [
+        "flows",
+        "netflow",
+        "ipfix",
+        "sflow",
+        "collector",
+        "flowpilot",
+        "monitoring"
+      ],
+      "author": "Illumio",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/flowpilot",
+      "maturity": "preview"
     }
   ]
 }

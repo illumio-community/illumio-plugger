@@ -6,7 +6,7 @@
 
 <p align="center">
 
-[![Plugins](https://img.shields.io/badge/plugins-27-blue)](https://illumio-community.github.io/illumio-plugger/)
+[![Plugins](https://img.shields.io/badge/plugins-28-blue)](https://illumio-community.github.io/illumio-plugger/)
 [![Languages](https://img.shields.io/badge/templates-Go%20%7C%20Python%20%7C%20Shell%20%7C%20JavaScript-green)](docs/plugin-development.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey)](LICENSE)
 [![Portal](https://img.shields.io/badge/portal-live-brightgreen)](https://illumio-community.github.io/illumio-plugger/)
@@ -64,7 +64,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 
 ---
 
-## All 27 Plugins
+## All 28 Plugins
 
 > ⚠️ **Maturity note:** plugins marked **preview** (and **example**) may not have been tested against a live PCE or the target integration. Validate them in a non-production environment before relying on them.
 
@@ -114,6 +114,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 | [vcenter-sync](vcenter-sync/) | Bi-directional VMware vCenter sync | Daemon + UI |
 | [dragos-sync](dragos-sync/) | Sync OT/ICS asset inventory from the Dragos Platform to labeled unmanaged workloads | Daemon + UI |
 | [nozomi-sync](nozomi-sync/) | Sync OT/ICS/IoT asset inventory from Nozomi Networks (Vantage or Guardian) to labeled unmanaged workloads | Daemon + UI |
+| [flowpilot](flowpilot/) | Collect NetFlow/IPFIX/sFlow/text flows to the PCE with an ingestion-health dashboard and silent-exporter alerts (preview) | Daemon + UI |
 
 ---
 

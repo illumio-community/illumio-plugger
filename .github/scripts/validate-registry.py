@@ -38,7 +38,7 @@ IMAGE_OWNERS = ("ghcr.io/alexgoller", "ghcr.io/illumio-community")
 # binary that isn't released). They are the validator counterpart to the CI
 # EXCLUDE list in plugins.yaml. Remove from here and add the registry entry
 # when the plugin becomes installable.
-PENDING_PUBLISH = {"flowpilot"}
+PENDING_PUBLISH = set()  # flowpilot now has a registry entry
 
 
 def find_plugins():
