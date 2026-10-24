@@ -27,9 +27,11 @@ SKIP_DIRS = {
 # Plugins that live in an external repo and are NOT built by this CI
 EXTERNAL_PLUGINS = {"policy-gitops", "policy-workflow"}
 
-# External plugins use a different image prefix
-EXTERNAL_IMAGE_PREFIX = "ghcr.io/alexgoller/illumio-"
-INTERNAL_IMAGE_PREFIX = "ghcr.io/alexgoller/plugger-"
+# Accepted GHCR owner namespaces during the alexgoller -> illumio-community
+# migration. A registry image is valid under either owner: existing plugins
+# still point to alexgoller until the full cutover, while new ones (e.g.
+# flowpilot) publish natively under illumio-community.
+IMAGE_OWNERS = ("ghcr.io/alexgoller", "ghcr.io/illumio-community")
 
 # Plugins whose directory exists but that are intentionally NOT yet in
 # registry.json because their image can't be published/installed yet (e.g. a
@@ -91,17 +93,18 @@ def main():
         image = entry.get("image", "")
         version = entry.get("version", "")
         if name in EXTERNAL_PLUGINS:
-            expected_image = f"{EXTERNAL_IMAGE_PREFIX}{name}:latest"
+            suffix = f"/illumio-{name}:latest"
         else:
-            expected_image = f"{INTERNAL_IMAGE_PREFIX}{name}:{version}"
+            suffix = f"/plugger-{name}:{version}"
+        expected = [owner + suffix for owner in IMAGE_OWNERS]
 
         if not image:
             print(f"❌ {name}: missing image field in registry")
             errors += 1
-        elif image != expected_image:
-            print(f"❌ {name}: image must be tagged with the plugin version")
+        elif image not in expected:
+            print(f"❌ {name}: image must be tagged with the plugin version, under a known owner")
             print(f"     got:      {image}")
-            print(f"     expected: {expected_image}")
+            print(f"     expected one of: {', '.join(expected)}")
             errors += 1
 
     # Checks 4 & 5 (static CI build matrix) are obsolete: plugin images are now
