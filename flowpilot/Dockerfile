@@ -1,16 +1,40 @@
+# Fetch stage: download the pinned FlowPilot release and verify it against
+# SHA256SUMS. FlowPilot (github.com/alexgoller/flowpilot, Apache-2.0) ships a
+# static linux binary per arch plus LICENSE/NOTICE/THIRD_PARTY_LICENSES.md,
+# which the BSD/MIT licences of its ported+bundled code require us to ship too.
+FROM python:3.12-slim AS fetch
+ARG FLOWPILOT_VERSION=0.9.0
+ARG TARGETARCH=amd64
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+RUN set -eux; \
+    case "$TARGETARCH" in \
+      amd64) A=x86_64 ;; \
+      arm64) A=aarch64 ;; \
+      *) echo "unsupported TARGETARCH: $TARGETARCH" >&2; exit 1 ;; \
+    esac; \
+    base="https://github.com/alexgoller/flowpilot/releases/download/v${FLOWPILOT_VERSION}"; \
+    cd /tmp; \
+    curl -fsSL -o flowlink "$base/flowpilot-${FLOWPILOT_VERSION}-${A}-linux"; \
+    curl -fsSL -o SHA256SUMS "$base/SHA256SUMS"; \
+    curl -fsSL -o LICENSE "$base/LICENSE"; \
+    curl -fsSL -o NOTICE "$base/NOTICE"; \
+    curl -fsSL -o THIRD_PARTY_LICENSES.md "$base/THIRD_PARTY_LICENSES.md"; \
+    grep "flowpilot-${FLOWPILOT_VERSION}-${A}-linux" SHA256SUMS \
+      | sed "s#flowpilot-${FLOWPILOT_VERSION}-${A}-linux#flowlink#" \
+      | sha256sum -c -; \
+    chmod +x flowlink
+
 FROM python:3.12-slim
 
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# FlowPilot collector binary (invoked as `flowlink`), supplied at build time
-# from github.com/alexgoller/flowpilot (Apache-2.0). Until the first release is
-# tagged, build it locally and drop the `flowlink` binary into this directory
-# before `docker build`. After the first tag, switch this to download the
-# pinned release asset (flowpilot-<ver>-x86_64-linux) + verify SHA256SUMS.
-COPY flowlink /usr/local/bin/flowlink
-RUN chmod +x /usr/local/bin/flowlink
+# FlowPilot binary (invoked as `flowlink`) + the licence files it ships with.
+COPY --from=fetch /tmp/flowlink /usr/local/bin/flowlink
+COPY --from=fetch /tmp/LICENSE /tmp/NOTICE /tmp/THIRD_PARTY_LICENSES.md /usr/local/share/flowpilot/
 
 COPY . .
 

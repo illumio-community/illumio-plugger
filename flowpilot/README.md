@@ -14,9 +14,9 @@ Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firew
 
 ## Binary
 
-The image needs a linux `flowlink` binary (a static build of **FlowPilot**, [github.com/alexgoller/flowpilot](https://github.com/alexgoller/flowpilot), Apache-2.0) in the `flowpilot/` directory **before `docker build`**; the Dockerfile copies it to `/usr/local/bin/flowlink`. Without it, the image build fails.
+The image downloads a pinned **FlowPilot** release ([github.com/alexgoller/flowpilot](https://github.com/alexgoller/flowpilot), Apache-2.0) at build time and verifies it against the release's `SHA256SUMS` — no local binary needed. The version is pinned by the `FLOWPILOT_VERSION` build arg (default `0.9.0`); the build picks the `x86_64`/`aarch64` asset from `TARGETARCH`. The binary is installed as `/usr/local/bin/flowlink`, and FlowPilot's `LICENSE`, `NOTICE` and `THIRD_PARTY_LICENSES.md` are shipped alongside it under `/usr/local/share/flowpilot/`. (`flowlink -version` prints e.g. `FlowPilot version: 0.9.0`.)
 
-Until FlowPilot cuts its first tagged release, build the binary locally from that repo and copy it in. Once a release exists, the image switches to downloading the pinned release asset (`flowpilot-<ver>-x86_64-linux`) and verifying `SHA256SUMS`. (`flowpilot -version` prints the running version, e.g. `FlowPilot version: 0.9.0`.)
+To bump FlowPilot, change the default `FLOWPILOT_VERSION` in the Dockerfile (and this plugin's version) to the new release tag.
 
 ## Install
 
