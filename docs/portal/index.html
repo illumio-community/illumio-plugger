@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plugger — Plugin Framework for Illumio PCE</title>
-<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 27 plugins with full documentation.">
+<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 28 plugins with full documentation.">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
@@ -99,7 +99,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         Plugin Framework for<br><span class="gradient-text">Illumio PCE</span>
     </h1>
     <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-10 fade-in fade-d1">
-        Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 27 plugins.
+        Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 28 plugins.
     </p>
     <div class="flex flex-wrap gap-4 justify-center fade-in fade-d2">
         <a href="#quickstart" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors">Get Started</a>
@@ -116,7 +116,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 <!-- Stats -->
 <section class="py-8 px-6 border-y border-gray-800">
 <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">27</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
+    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">28</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
     <div class="fade-in fade-d1"><div class="text-3xl font-bold text-green-400">4</div><div class="text-xs text-gray-400 mt-1">Output Channels</div></div>
     <div class="fade-in fade-d2"><div class="text-3xl font-bold text-purple-400">Python</div><div class="text-xs text-gray-400 mt-1">SDK Included</div></div>
     <div class="fade-in fade-d3"><div class="text-3xl font-bold text-yellow-400">Multi</div><div class="text-xs text-gray-400 mt-1">Arch (amd64/arm64)</div></div>
@@ -218,7 +218,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <!-- Category filters -->
     <div class="flex flex-wrap gap-2 justify-center mb-8">
-        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (27)</button>
+        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (28)</button>
         <button onclick="filterPlugins('monitoring')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="monitoring">Monitoring</button>
         <button onclick="filterPlugins('policy')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="policy">Policy & Compliance</button>
         <button onclick="filterPlugins('ai')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="ai">AI-Powered</button>
@@ -648,6 +648,22 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
             </div>
         </div>
 
+        <!-- FlowPilot -->
+        <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in cursor-pointer" data-plugin="flowpilot" data-categories="integration,monitoring" data-maturity="preview" onclick="showDocs('flowpilot')">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-white font-semibold">FlowPilot</h3>
+                <div class="flex gap-1">
+                    <span class="text-xs px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">daemon</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">new</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-300 mb-3">Collect NetFlow/IPFIX/sFlow/text flows to the Illumio PCE with an ingestion-health dashboard and silent-exporter alerts &mdash; runs the FlowPilot collector, no FlowLink install.</p>
+            <div class="flex items-center justify-between">
+                <code class="text-xs text-gray-400 select-all">plugger install flowpilot</code>
+                <span class="text-xs text-blue-400 hover:text-blue-300">Docs &rarr;</span>
+            </div>
+        </div>
+
     </div>
 </div>
 </section>
@@ -660,12 +676,30 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <div class="space-y-8">
 
+        <!-- v0.15.0 -->
+        <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-white">v0.15.0</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                </div>
+                <span class="text-sm text-gray-500">October 24, 2026</span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-blue-400 mb-1">New Plugins</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>flowpilot</strong> &mdash; collect NetFlow/IPFIX/sFlow/text flows to the PCE with an ingestion-health dashboard and silent-exporter alerts (<em>preview</em>).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- v0.12.1 - v0.14.0 -->
         <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <span class="text-lg font-bold text-white">v0.12.1 &ndash; v0.14.0</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
                 </div>
                 <span class="text-sm text-gray-500">September 14, 2026</span>
             </div>
@@ -2428,7 +2462,7 @@ plugger search --repo my-registry
     icon: "share",
     readme: `# Publishing Your Own Plugin Registry
 
-Plugger supports multiple plugin registries. The official registry ships with 27 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
+Plugger supports multiple plugin registries. The official registry ships with 28 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
 
 ## How Plugin Registries Work
 
@@ -4576,6 +4610,74 @@ Dragos asset schemas vary by site and sensor deployment, so the default field ma
 - Dashboard with sync stats, a Sync Now button, and a debug view for tuning the field map
 - \`DRY_RUN\` mode to preview label assignments before writing to the PCE`
 },
+"flowpilot": {
+    title: "FlowPilot",
+    mode: "daemon",
+    tags: ["integration","monitoring","netflow","ipfix","sflow","flows"],
+    readme: `# FlowPilot
+
+Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firewalls and send them to the Illumio PCE, without installing FlowLink. The plugin runs the FlowPilot flow collector, shows an ingestion-health dashboard, and raises plugger notifications when something stops.
+
+**Maturity: preview.** The core promise: **you'll know when an exporter goes silent.**
+
+## Install
+
+\`\`\`bash
+plugger install flowpilot
+\`\`\`
+
+Then open the settings form, enable the collectors you need and point your exporters at the plugin's UDP port.
+
+## How It Works
+
+- The image contains the FlowPilot collector binary (\`/usr/local/bin/flowlink\`, unchanged)
+- \`main.py\` maps the plugger settings to \`FLOWPILOT_*\` environment variables and runs the binary as a child process, restarting it with a backoff (1s up to 30s) if it exits and stopping it cleanly on shutdown
+- FlowPilot's log, including its \`FLOWPILOT_STATS\` lines, goes to the plugin's stdout, so \`plugger logs flowpilot\` shows it
+- FlowPilot's stats endpoint listens on \`127.0.0.1:9180\` inside the container only; the plugin polls \`/stats\` every 5 seconds to drive the dashboard and the alerts
+- PCE address, org and API credentials come from plugger (\`PCE_*\`); there is nothing to enter for them
+
+## Settings
+
+| Group | Settings |
+|---|---|
+| Collectors | \`NETFLOW_*\`, \`IPFIX_*\`, \`SFLOW_*\`, \`TEXT_*\`: \`_ENABLED\` and \`_PORT\` (defaults 2055, 4739, 6343, 514; only NetFlow is on by default) plus \`_REMOTE_ADDRS\`, an optional allow-list of exporter addresses |
+| Text parser | \`TEXT_SRC_IP\`, \`TEXT_DST_IP\`, \`TEXT_DST_PORT\`, \`TEXT_PROTOCOL\` (required when text is on), plus optional octets, ICMP, timestamp and separator settings |
+| Basics | \`AGGREGATION_MINUTES\` (10), \`VERIFY_PCE_CERT\` (true) |
+| Unmanaged workloads | \`UNMANAGED_ENABLED\`, \`UNMANAGED_DRY_RUN\`, \`UNMANAGED_NETWORKS\`, \`UNMANAGED_MIN_FLOWS\`, create limits per window/day, \`UNMANAGED_LABEL_RULES\` |
+| Alerts | \`SILENT_EXPORTER_MINUTES\` (15) |
+
+Each setting maps to \`FLOWPILOT_<NAME>\`. FlowPilot validates the configuration at start; if it rejects a setting, its error is shown as a red banner on the dashboard and the plugin reports unhealthy.
+
+## Dashboard
+
+Served through plugger at \`/plugins/flowpilot/ui/\`:
+
+- **Status line** &mdash; flows arriving, exporter silent, no flows, or uploads failing (same evaluation as the alerts)
+- **Flows per second chart** &mdash; total plus one line per exporter, ranges 15m / 1h / 24h
+- **Exporter table** &mdash; status dot, address, protocol, last flow, flows/s with trend, templates, decode errors; datagrams rejected by an allow-list appear as their own row
+- **Panels** &mdash; uploads to the PCE, unmanaged workloads, ingestion
+- **UDP container ports** &mdash; check \`plugger status flowpilot\` for the mapped host port to point exporters at
+
+## Alerts
+
+Sent through plugger's report framework, once when a problem starts and once when it clears.
+
+| Alert | Severity | Fires when |
+|---|---|---|
+| \`exporter_silent\` | warning | An exporter that sent flows has sent no new flows for \`SILENT_EXPORTER_MINUTES\` |
+| \`no_flows\` | warning | A collector is on and no flow arrived for \`SILENT_EXPORTER_MINUTES\` |
+| \`uploads_failing\` | critical | FlowPilot status is \`upload_failing\` |
+
+Only exporters seen at least once can be reported silent. Silence is measured while the plugin is running, so a restart does not cause an immediate false alert. A silent exporter or failing upload never makes the plugin unhealthy.
+
+## Binary
+
+The image downloads a pinned **FlowPilot** release ([github.com/alexgoller/flowpilot](https://github.com/alexgoller/flowpilot), Apache-2.0) at build time and verifies it against the release's \`SHA256SUMS\`; no local binary is needed. The version is pinned by the \`FLOWPILOT_VERSION\` build arg (default \`0.9.0\`).
+
+## Volume
+
+\`/data\` holds FlowPilot's data directory (queued uploads, unmanaged workload state) and the plugin's chart history, alert state and exporter last-seen. Alert state is persisted so a restart does not re-send open alerts.`
+},
 "nozomi-sync": {
     title: "Nozomi Sync",
     mode: "daemon",
@@ -4655,7 +4757,7 @@ Nozomi asset schemas vary by product (Vantage vs. Guardian), version, and sensor
 // Render docs accordion
 function renderDocsAccordion() {
     const container = document.getElementById('docs-accordion');
-    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync'];
+    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','flowpilot'];
     let html = '';
     for (const id of order) {
         const plugin = PLUGIN_DOCS[id];
