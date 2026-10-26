@@ -6,22 +6,33 @@ ports:
   description: FlowPilot ingestion-health dashboard
   type: ui
   path: /
+# Collector ports are pinned 1:1 to the host (hostPort == port) so external
+# exporters can send to host:<port>. Without hostPort, Docker auto-assigns a
+# random host port and flows sent to the standard port are silently dropped.
 - port: 2055
   protocol: udp
   name: netflow
-  description: NetFlow collector (container port)
+  description: NetFlow collector
+  type: service
+  hostPort: 2055
 - port: 4739
   protocol: udp
   name: ipfix
-  description: IPFIX collector (container port)
+  description: IPFIX collector
+  type: service
+  hostPort: 4739
 - port: 6343
   protocol: udp
   name: sflow
-  description: sFlow collector (container port)
+  description: sFlow collector
+  type: service
+  hostPort: 6343
 - port: 514
   protocol: udp
   name: text
-  description: Syslog-style text collector (container port)
+  description: Syslog-style text collector
+  type: service
+  hostPort: 514
 config:
 - name: NETFLOW_ENABLED
   description: 'Collector: enable the NetFlow (v5/v7/v9) collector'
@@ -181,7 +192,7 @@ volumes:
   required: false
 info:
   title: FlowPilot
-  version: 0.1.0
+  version: 0.2.0
   description: Collect NetFlow/IPFIX/sFlow/text flows and send them to the Illumio PCE, with an ingestion-health dashboard
     and silent-exporter alerts — runs the FlowPilot collector, no FlowLink install.
   author: Illumio

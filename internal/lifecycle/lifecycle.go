@@ -65,7 +65,7 @@ func StartPlugin(ctx context.Context, d *Deps, p *plugin.Plugin) error {
 		for _, ps := range p.Metadata.Ports {
 			ports = append(ports, ct.PortMapping{
 				ContainerPort: ps.Port,
-				HostPort:      0,
+				HostPort:      ps.HostPort, // 0 = auto-assign; pinned for collectors
 				Protocol:      ps.Protocol,
 			})
 		}

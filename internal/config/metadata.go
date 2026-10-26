@@ -27,6 +27,12 @@ type PortSpec struct {
 	Description string `yaml:"description,omitempty"`
 	Type        string `yaml:"type,omitempty"`         // ui, api, service, metrics
 	Path        string `yaml:"path,omitempty"`         // base path for ui/api
+	// HostPort pins the published host port (0 = let Docker auto-assign an
+	// ephemeral port). UI/API ports are reached through the dashboard proxy,
+	// so they can float; collectors that external exporters target on a
+	// well-known port (e.g. NetFlow 2055/udp) must set this so traffic sent to
+	// host:<port> actually reaches the container.
+	HostPort    int    `yaml:"hostPort,omitempty"`
 }
 
 // ConfigSpec declares a configuration variable the plugin requires.

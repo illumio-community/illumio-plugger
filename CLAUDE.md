@@ -73,6 +73,12 @@ ports:
     description: My plugin dashboard
     type: ui                   # ui = proxied through plugger dashboard
     path: /                    # base path inside the container
+  - port: 2055
+    protocol: udp
+    name: netflow
+    description: NetFlow collector
+    type: service
+    hostPort: 2055             # pin the published host port (see rule below)
 
 config:
   - name: POLL_INTERVAL
@@ -101,6 +107,7 @@ info:
 
 **Key rules:**
 - `type: ui` ports get proxied through the plugger dashboard
+- `hostPort` pins the published host port; omit it (the default) and Docker auto-assigns an ephemeral host port. UI/API ports are reached through the dashboard proxy, so they can float — but a **collector** that external systems target on a well-known port (NetFlow 2055, IPFIX 4739, sFlow 6343, syslog 514, etc.) **must** set `hostPort` equal to the port, or traffic sent to `host:<port>` is silently dropped.
 - `config` entries appear in the dashboard settings UI with descriptions
 - `volumes` are auto-created under `{dataDir}/volumes/{plugin-name}/`
 - `info.title` is the display name in the dashboard
