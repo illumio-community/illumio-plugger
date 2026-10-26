@@ -231,11 +231,17 @@ func (m *Manager) loadRepos() (*RepoConfig, error) {
 			},
 		}, nil
 	}
-	// Ensure official is always present
+	// Ensure official is always present AND points at the canonical URL.
+	// The official registry is tool-managed and non-removable, so its URL is
+	// authoritative: reconcile any stale value (e.g. a config persisted before
+	// the alexgoller -> illumio-community move) instead of freezing it forever.
 	hasOfficial := false
-	for _, r := range config.Repos {
+	for i, r := range config.Repos {
 		if r.Name == OfficialRegistryName {
 			hasOfficial = true
+			if r.URL != OfficialRegistryURL {
+				config.Repos[i].URL = OfficialRegistryURL
+			}
 			break
 		}
 	}
