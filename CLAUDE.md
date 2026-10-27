@@ -78,7 +78,7 @@ ports:
     name: netflow
     description: NetFlow collector
     type: service
-    hostPort: 2055             # pin the published host port (see rule below)
+    portEnv: NETFLOW_PORT      # host==container, tracks this env (default: port)
 
 config:
   - name: POLL_INTERVAL
@@ -107,7 +107,9 @@ info:
 
 **Key rules:**
 - `type: ui` ports get proxied through the plugger dashboard
-- `hostPort` pins the published host port; omit it (the default) and Docker auto-assigns an ephemeral host port. UI/API ports are reached through the dashboard proxy, so they can float — but a **collector** that external systems target on a well-known port (NetFlow 2055, IPFIX 4739, sFlow 6343, syslog 514, etc.) **must** set `hostPort` equal to the port, or traffic sent to `host:<port>` is silently dropped.
+- Collector port publishing: by default a port gets an ephemeral host port (fine for UI/API ports — they're reached through the dashboard proxy), so a **collector** that external systems target on a well-known port (NetFlow 2055, IPFIX 4739, sFlow 6343, syslog 514, etc.) would be unreachable. Two opt-in fields fix that:
+  - `portEnv: NETFLOW_PORT` — the port is operator-configurable via that env var (defaulting to `port`); plugger maps it **host == container** and tracks overrides. Preferred for collectors.
+  - `hostPort: 2055` — pins a fixed host port when the container port differs. `portEnv` takes precedence if both are set.
 - `config` entries appear in the dashboard settings UI with descriptions
 - `volumes` are auto-created under `{dataDir}/volumes/{plugin-name}/`
 - `info.title` is the display name in the dashboard

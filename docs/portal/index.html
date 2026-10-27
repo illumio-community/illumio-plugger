@@ -689,13 +689,13 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
                 <div>
                     <h4 class="font-semibold text-red-400 mb-1">Bug Fixes</h4>
                     <ul class="text-gray-300 space-y-1 ml-4 list-disc">
-                        <li><strong>flowpilot collector ports unreachable</strong> &mdash; the NetFlow/IPFIX/sFlow/syslog UDP ports were published to random host ports, so flows sent to the standard port (e.g. 2055) never reached the collector. They are now pinned 1:1 to the host (flowpilot 0.2.0).</li>
+                        <li><strong>flowpilot collector ports unreachable</strong> &mdash; the NetFlow/IPFIX/sFlow/syslog UDP ports were published to random host ports, so flows sent to the standard port (e.g. 2055) never reached the collector. They are now published host==container and track their config port (<code>NETFLOW_PORT</code> etc., default 2055/4739/6343/514) &mdash; flowpilot 0.2.1.</li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-semibold text-purple-400 mb-1">Features</h4>
                     <ul class="text-gray-300 space-y-1 ml-4 list-disc">
-                        <li><strong>Manifest <code>hostPort</code></strong> &mdash; a plugin's <code>metadata.yaml</code> port can now pin a fixed host port (unset = auto-assign, unchanged for UI/API ports). Required for collectors that external systems target on a well-known port.</li>
+                        <li><strong>Manifest <code>portEnv</code> / <code>hostPort</code></strong> &mdash; a plugin's <code>metadata.yaml</code> port can now publish on a fixed host port. <code>portEnv</code> makes the port operator-configurable (host==container, tracks the env var, defaults to <code>port</code>); <code>hostPort</code> pins a fixed number. Unset = auto-assign, unchanged for UI/API ports.</li>
                         <li><strong>Registry self-heal</strong> &mdash; installs created before the illumio-community move now reconcile the stale <code>official</code> registry URL automatically instead of staying pinned to the old one.</li>
                     </ul>
                 </div>
@@ -4681,7 +4681,7 @@ Served through plugger at \`/plugins/flowpilot/ui/\`:
 - **Flows per second chart** &mdash; total plus one line per exporter, ranges 15m / 1h / 24h
 - **Exporter table** &mdash; status dot, address, protocol, last flow, flows/s with trend, templates, decode errors; datagrams rejected by an allow-list appear as their own row
 - **Panels** &mdash; uploads to the PCE, unmanaged workloads, ingestion
-- **UDP collector ports** &mdash; NetFlow 2055, IPFIX 4739, sFlow 6343, syslog 514 are published 1:1 to the host; point exporters at the plugger host on the standard port (e.g. \`<host>:2055\`)
+- **UDP collector ports** &mdash; NetFlow 2055, IPFIX 4739, sFlow 6343, syslog 514 are published on the plugger host (host == container); point exporters at the plugger host on the standard port (e.g. \`<host>:2055\`). Override with \`NETFLOW_PORT\` / \`IPFIX_PORT\` / \`SFLOW_PORT\` / \`TEXT_PORT\` &mdash; the host mapping follows.
 
 ## Alerts
 

@@ -59,13 +59,14 @@ func StartPlugin(ctx context.Context, d *Deps, p *plugin.Plugin) error {
 		cpus = p.Manifest.Resources.CPULimit
 	}
 
-	// Build port mappings from discovered metadata
+	// Build port mappings from discovered metadata.
 	var ports []ct.PortMapping
 	if p.Metadata != nil {
 		for _, ps := range p.Metadata.Ports {
+			containerPort, hostPort := resolvePortMapping(ps, env)
 			ports = append(ports, ct.PortMapping{
-				ContainerPort: ps.Port,
-				HostPort:      ps.HostPort, // 0 = auto-assign; pinned for collectors
+				ContainerPort: containerPort,
+				HostPort:      hostPort,
 				Protocol:      ps.Protocol,
 			})
 		}
@@ -316,4 +317,40 @@ func ParseMemory(s string) int64 {
 		}
 	}
 	return n * multiplier
+}
+
+// resolvePortMapping returns the (containerPort, hostPort) Docker should use
+// for a manifest port, given the resolved container env (KEY=VALUE slice).
+//
+//   - PortEnv set: operator-configurable port. The effective value is the env
+//     var (defaulting to Port), mapped host==container so traffic sent to
+//     host:<port> reaches the collector even when the port is overridden.
+//   - otherwise: container port is Port and the host port is HostPort
+//     (0 = let Docker auto-assign an ephemeral port).
+//
+// PortEnv takes precedence over HostPort.
+func resolvePortMapping(ps config.PortSpec, env []string) (containerPort, hostPort int) {
+	if ps.PortEnv != "" {
+		effective := ps.Port
+		if v, ok := envValue(env, ps.PortEnv); ok {
+			if n, err := strconv.Atoi(strings.TrimSpace(v)); err == nil && n > 0 {
+				effective = n
+			}
+		}
+		return effective, effective
+	}
+	return ps.Port, ps.HostPort
+}
+
+// envValue returns the value of key from a KEY=VALUE env slice. The last
+// occurrence wins, matching how BuildEnv layers manifest defaults first and
+// user overrides after.
+func envValue(env []string, key string) (string, bool) {
+	val, found := "", false
+	for _, kv := range env {
+		if i := strings.IndexByte(kv, '='); i >= 0 && kv[:i] == key {
+			val, found = kv[i+1:], true
+		}
+	}
+	return val, found
 }

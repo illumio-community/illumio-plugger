@@ -430,9 +430,11 @@ def api_state(request):
             "status_level": state["status_level"],
             "config_error": state["config_error"],
             "flowpilot_running": child_running(),
-            "host_ports_note": ("These are the container ports. Until plugger issue #43 "
-                                "(fixed host ports), check `plugger status flowpilot` for the "
-                                "mapped host port to point exporters at."),
+            "host_ports_note": ("These ports are published 1:1 on the plugger host "
+                                "(host == container), so point exporters at the plugger "
+                                "host on the standard port. Change NETFLOW_PORT / IPFIX_PORT "
+                                "/ SFLOW_PORT / TEXT_PORT to move a collector; the host "
+                                "mapping follows."),
             "collectors_enabled": collectors_enabled(),
             "container_ports": CONTAINER_PORTS,
             "silent_minutes": SILENT_MINUTES,

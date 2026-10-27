@@ -27,12 +27,19 @@ type PortSpec struct {
 	Description string `yaml:"description,omitempty"`
 	Type        string `yaml:"type,omitempty"`         // ui, api, service, metrics
 	Path        string `yaml:"path,omitempty"`         // base path for ui/api
-	// HostPort pins the published host port (0 = let Docker auto-assign an
-	// ephemeral port). UI/API ports are reached through the dashboard proxy,
-	// so they can float; collectors that external exporters target on a
-	// well-known port (e.g. NetFlow 2055/udp) must set this so traffic sent to
-	// host:<port> actually reaches the container.
+	// HostPort pins the published host port to a fixed number (0 = let Docker
+	// auto-assign an ephemeral port). UI/API ports are reached through the
+	// dashboard proxy, so they can float. Use HostPort only when you need a
+	// fixed host port that differs from the container port; for an
+	// operator-configurable collector port, prefer PortEnv.
 	HostPort    int    `yaml:"hostPort,omitempty"`
+	// PortEnv names an env var that sets this port's effective value (the
+	// plugin's config default, e.g. NETFLOW_PORT=2055). When set, both the
+	// container and host port resolve to that value, defaulting to Port, and
+	// the mapping stays host==container so traffic sent to host:<port> reaches
+	// the collector even when the operator overrides the port. Takes
+	// precedence over HostPort.
+	PortEnv     string `yaml:"portEnv,omitempty"`
 }
 
 // ConfigSpec declares a configuration variable the plugin requires.

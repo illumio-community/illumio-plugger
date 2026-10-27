@@ -547,8 +547,8 @@
     },
     {
       "name": "flowpilot",
-      "version": "0.2.0",
-      "image": "ghcr.io/illumio-community/plugger-flowpilot:0.2.0",
+      "version": "0.2.1",
+      "image": "ghcr.io/illumio-community/plugger-flowpilot:0.2.1",
       "description": "Collect NetFlow/IPFIX/sFlow/text flows to the Illumio PCE with an ingestion-health dashboard and silent-exporter alerts \u2014 runs the FlowPilot collector, no FlowLink install",
       "mode": "daemon",
       "has_ui": true,
