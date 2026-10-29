@@ -56,6 +56,14 @@ func (d *DaemonScheduler) reloadFromStore() {
 func (d *DaemonScheduler) Start(ctx context.Context) error {
 	ctx, d.cancel = context.WithCancel(ctx)
 
+	// Fresh done channel per Start. A reload is Stop (which closes done) followed
+	// by Start, so reusing the constructor's channel would make this run's
+	// watchLoop close an already-closed channel on exit ("close of closed
+	// channel" panic). Each Start/watchLoop lifecycle owns its own channel.
+	d.mu.Lock()
+	d.done = make(chan struct{})
+	d.mu.Unlock()
+
 	// Pick up any manifest changes made while the daemon was down.
 	d.reloadFromStore()
 
@@ -77,9 +85,12 @@ func (d *DaemonScheduler) Stop(ctx context.Context) error {
 	if d.cancel != nil {
 		d.cancel()
 	}
+	d.mu.Lock()
+	done := d.done
+	d.mu.Unlock()
 	// Wait for watch loop to exit (with timeout)
 	select {
-	case <-d.done:
+	case <-done:
 	case <-time.After(35 * time.Second):
 		slog.Warn("daemon scheduler stop timed out", "plugin", d.plugin.Name)
 	}
@@ -95,7 +106,10 @@ func (d *DaemonScheduler) TriggerRestart() {
 }
 
 func (d *DaemonScheduler) watchLoop(ctx context.Context) {
-	defer close(d.done)
+	d.mu.Lock()
+	done := d.done
+	d.mu.Unlock()
+	defer close(done)
 
 	for {
 		// Wait for container exit or forced restart
