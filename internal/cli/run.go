@@ -393,20 +393,28 @@ func setupHealthChecker(ctx context.Context, deps *lifecycle.Deps, p *plugin.Plu
 		return nil
 	}
 
-	// Discover actual host port
-	if p.ContainerID != "" {
-		info, err := deps.Runtime.Inspect(ctx, p.ContainerID)
-		if err == nil {
-			if hostPort, ok := info.Ports[port]; ok && hostPort > 0 {
-				port = hostPort
-			}
+	// Resolve the probe URL on every check, not once here. A plugin's published
+	// host port is ephemeral and gets a new value on every restart, so we must
+	// look it up live (by container name, which is stable across restarts) and
+	// map the container port to its current host port. Dial 127.0.0.1 explicitly:
+	// Docker publishes on IPv4 0.0.0.0, but "localhost" can resolve to [::1] and
+	// be refused.
+	containerPort := port
+	containerName := p.ContainerName()
+	resolveURL := func() (string, error) {
+		info, err := deps.Runtime.Inspect(context.Background(), containerName)
+		if err != nil {
+			return "", fmt.Errorf("inspect %s: %w", containerName, err)
 		}
+		hostPort, ok := info.Ports[containerPort]
+		if !ok || hostPort <= 0 {
+			return "", fmt.Errorf("no host mapping for container port %d", containerPort)
+		}
+		return fmt.Sprintf("http://127.0.0.1:%d%s", hostPort, endpoint), nil
 	}
+	slog.Info("starting health checker", "plugin", p.Name, "containerPort", containerPort, "endpoint", endpoint, "interval", interval)
 
-	url := fmt.Sprintf("http://localhost:%d%s", port, endpoint)
-	slog.Info("starting health checker", "plugin", p.Name, "url", url, "interval", interval)
-
-	checker := health.NewChecker(p.Name, url, interval, timeout, retries, func(name string, err error) {
+	checker := health.NewChecker(p.Name, resolveURL, interval, timeout, retries, func(name string, err error) {
 		slog.Warn("health check failed, triggering restart", "plugin", name, "error", err)
 		ds.TriggerRestart()
 	})

@@ -15,7 +15,7 @@ type OnFailure func(pluginName string, lastErr error)
 // Checker performs periodic HTTP health checks against a plugin container.
 type Checker struct {
 	pluginName string
-	url        string
+	urlFn      func() (string, error)
 	interval   time.Duration
 	timeout    time.Duration
 	retries    int
@@ -27,8 +27,13 @@ type Checker struct {
 }
 
 // NewChecker creates a health checker for a plugin.
-// url should be the full health check URL, e.g. http://localhost:12345/healthz
-func NewChecker(pluginName, url string, interval, timeout time.Duration, retries int, onFailure OnFailure) *Checker {
+//
+// urlFn is resolved on every probe (not once at construction) and must return
+// the full health check URL, e.g. http://127.0.0.1:12345/healthz. Resolving per
+// probe is required because a container's published host port is ephemeral and
+// changes on every restart, so a URL captured once goes stale. A resolver error
+// counts as a failed probe.
+func NewChecker(pluginName string, urlFn func() (string, error), interval, timeout time.Duration, retries int, onFailure OnFailure) *Checker {
 	if interval == 0 {
 		interval = 30 * time.Second
 	}
@@ -40,7 +45,7 @@ func NewChecker(pluginName, url string, interval, timeout time.Duration, retries
 	}
 	return &Checker{
 		pluginName: pluginName,
-		url:        url,
+		urlFn:      urlFn,
 		interval:   interval,
 		timeout:    timeout,
 		retries:    retries,
@@ -109,7 +114,12 @@ func (c *Checker) check(ctx context.Context) error {
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", c.url, nil)
+	url, err := c.urlFn()
+	if err != nil {
+		return fmt.Errorf("resolving health url: %w", err)
+	}
+
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("creating request: %w", err)
 	}
