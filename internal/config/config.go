@@ -38,7 +38,7 @@ type PluggerConfig struct {
 // OutputConfig defines a single output channel for the reporting framework.
 type OutputConfig struct {
 	Name    string       `yaml:"name"    mapstructure:"name"`
-	Type    string       `yaml:"type"    mapstructure:"type"` // slack, email, webhook
+	Type    string       `yaml:"type"    mapstructure:"type"` // slack, teams, email, webhook, splunk
 	Enabled *bool        `yaml:"enabled" mapstructure:"enabled"`
 	DryRun  bool         `yaml:"dryRun"  mapstructure:"dryRun"`
 	Filter  OutputFilter `yaml:"filter"  mapstructure:"filter"`
@@ -60,6 +60,15 @@ type OutputConfig struct {
 	URL     string            `yaml:"url"     mapstructure:"url"`
 	Method  string            `yaml:"method"  mapstructure:"method"`
 	Headers map[string]string `yaml:"headers" mapstructure:"headers"`
+
+	// Splunk HEC
+	HECURL        string `yaml:"hecUrl"        mapstructure:"hecUrl"`        // HEC base or /services/collector endpoint
+	HECToken      string `yaml:"hecToken"      mapstructure:"hecToken"`      // token value or ${ENV}; prefer hecTokenEnv
+	HECTokenEnv   string `yaml:"hecTokenEnv"   mapstructure:"hecTokenEnv"`   // name of env var holding the HEC token
+	Index         string `yaml:"index"         mapstructure:"index"`         // target Splunk index (optional)
+	SourceType    string `yaml:"sourcetype"    mapstructure:"sourcetype"`    // default: plugger:report
+	Source        string `yaml:"source"        mapstructure:"source"`        // default: plugger
+	TLSSkipVerify bool   `yaml:"tlsSkipVerify" mapstructure:"tlsSkipVerify"` // skip cert verify (lab HEC)
 }
 
 // OutputFilter determines which reports are routed to an output.
@@ -120,7 +129,7 @@ func DefaultDataDir() string {
 func DefaultConfig() *Config {
 	return &Config{
 		PCE: PCEConfig{
-			Port: 443,
+			Port:  443,
 			OrgID: 1,
 		},
 		Plugger: PluggerConfig{

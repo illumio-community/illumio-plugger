@@ -381,12 +381,24 @@ plugger:
         Authorization: "Bearer ${API_TOKEN}"  # env var expansion
       filter:
         severity: [critical]
+
+    - name: splunk
+      type: splunk
+      hecUrl: https://splunk.corp.com:8088    # base or /services/collector endpoint
+      hecTokenEnv: SPLUNK_HEC_TOKEN           # env var name, not the value
+      index: illumio                          # optional target index
+      sourcetype: plugger:report              # default
+      tlsSkipVerify: false                    # true for self-signed lab HEC
+      filter:
+        severity: [warning, critical]
 ```
 
 **Output types**:
 - `slack` — Slack Block Kit webhooks, severity emoji, tag context
+- `teams` — Microsoft Teams adaptive cards, severity color, digest mode
 - `email` — SMTP with HTML rendering (Catppuccin-styled), supports digest mode
 - `webhook` — generic HTTP with configurable method, headers, env var expansion
+- `splunk` — Splunk HEC `/services/collector/event`; structured events (report fields indexed directly), `index`/`sourcetype` routing, `SendBatch` → newline-delimited events in one call, `tlsSkipVerify` for lab HEC. Token via `hecTokenEnv` (preferred) or `hecToken` (`${ENV}` expansion).
 
 **Framework features**:
 - Filter matching: severity AND plugins AND tags (all AND, empty = match all)

@@ -412,6 +412,8 @@ func newOutput(cfg config.OutputConfig) (Output, error) {
 		return NewEmailOutput(cfg)
 	case "webhook":
 		return NewWebhookOutput(cfg)
+	case "splunk":
+		return NewSplunkOutput(cfg)
 	default:
 		return nil, fmt.Errorf("unknown output type: %s", cfg.Type)
 	}
