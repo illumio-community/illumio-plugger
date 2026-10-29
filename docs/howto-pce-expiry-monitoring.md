@@ -85,6 +85,8 @@ curl -X POST http://localhost:8800/api/reports/test/expiry-slack
 
 The native `splunk` output delivers each report to the Splunk HTTP Event Collector (HEC) at `/services/collector/event` as a **structured event**. Report fields (`plugin`, `severity`, `title`, `tags`, `data`) are indexed directly, so no `props.conf` field extraction is needed.
 
+> **Why HEC?** HEC is Splunk's standard method for *push* ingestion — applications and services sending events over HTTP(S). Splunk recommends it over forwarders for this kind of source (its own syslog solution, SC4S, also ships events via HEC). Forwarders are the standard method for the other pattern — tailing files or pulling on a schedule — which isn't what plugger does. Since plugger pushes structured JSON reports, HEC is the idiomatic fit. On the Splunk side HEC can live on the indexers or on a dedicated heavy-forwarder HEC tier (for independent scaling); that's transparent to plugger — just point `hecUrl` at whatever endpoint or load balancer you're given.
+
 Add an output:
 
 ```yaml
