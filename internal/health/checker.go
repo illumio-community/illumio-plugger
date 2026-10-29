@@ -12,10 +12,14 @@ import (
 // OnFailure is called when consecutive health check failures exceed the threshold.
 type OnFailure func(pluginName string, lastErr error)
 
+// URLFunc returns the URL to check. It is called before every check because
+// a restarted plugin runs in a new container, usually on a new host port.
+type URLFunc func(ctx context.Context) (string, error)
+
 // Checker performs periodic HTTP health checks against a plugin container.
 type Checker struct {
 	pluginName string
-	url        string
+	url        URLFunc
 	interval   time.Duration
 	timeout    time.Duration
 	retries    int
@@ -27,8 +31,8 @@ type Checker struct {
 }
 
 // NewChecker creates a health checker for a plugin.
-// url should be the full health check URL, e.g. http://localhost:12345/healthz
-func NewChecker(pluginName, url string, interval, timeout time.Duration, retries int, onFailure OnFailure) *Checker {
+// url resolves the full health check URL, e.g. http://localhost:12345/healthz.
+func NewChecker(pluginName string, url URLFunc, interval, timeout time.Duration, retries int, onFailure OnFailure) *Checker {
 	if interval == 0 {
 		interval = 30 * time.Second
 	}
@@ -81,7 +85,18 @@ func (c *Checker) loop(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			err := c.check(ctx)
+			url, err := c.url(ctx)
+			if err != nil {
+				// Not evidence that the plugin is unhealthy: skip rather than
+				// count a failure, or an unreachable URL becomes a restart loop.
+				slog.Warn("health check skipped: cannot resolve URL",
+					"plugin", c.pluginName, "error", err)
+				continue
+			}
+			err = c.check(ctx, url)
+			if ctx.Err() != nil {
+				return // stopped mid-check; a cancelled request is not a failure
+			}
 			if err != nil {
 				c.consecutiveFails++
 				slog.Debug("health check failed", "plugin", c.pluginName,
@@ -105,11 +120,11 @@ func (c *Checker) loop(ctx context.Context) {
 	}
 }
 
-func (c *Checker) check(ctx context.Context) error {
+func (c *Checker) check(ctx context.Context, url string) error {
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctx, "GET", c.url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("creating request: %w", err)
 	}

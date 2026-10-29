@@ -41,6 +41,14 @@ func NewDaemonScheduler(deps *lifecycle.Deps, p *plugin.Plugin) *DaemonScheduler
 
 func (d *DaemonScheduler) Name() string { return d.plugin.Name }
 
+// Plugin returns the plugin the scheduler currently manages. reloadFromStore
+// swaps in a fresh copy, so callers must not hold on to an earlier pointer.
+func (d *DaemonScheduler) Plugin() *plugin.Plugin {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.plugin
+}
+
 // reloadFromStore refreshes the scheduler's plugin snapshot from the store so
 // that external changes (CLI upgrade, dashboard reinstall) are picked up on the
 // next (re)start. Runtime fields like ContainerID are re-derived by StartPlugin.

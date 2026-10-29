@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/illumio/plugger/internal/config"
+	"github.com/illumio/plugger/internal/container"
 	"github.com/illumio/plugger/internal/dashboard"
 	"github.com/illumio/plugger/internal/health"
 	"github.com/illumio/plugger/internal/lifecycle"
@@ -86,7 +87,7 @@ This is the production way to run plugger — suitable for systemd/launchd.`,
 					slog.Info("started daemon plugin", "plugin", p.Name)
 
 					// Start health checker if configured
-					checker := setupHealthChecker(ctx, deps, p, ds)
+					checker := setupHealthChecker(ctx, deps, ds)
 					if checker != nil {
 						checkers[p.Name] = checker
 					}
@@ -370,7 +371,9 @@ func (s schedulerRestarter) TriggerRestart(name string) bool {
 }
 
 // setupHealthChecker creates and starts a health checker for a daemon plugin if configured.
-func setupHealthChecker(ctx context.Context, deps *lifecycle.Deps, p *plugin.Plugin, ds *scheduler.DaemonScheduler) *health.Checker {
+func setupHealthChecker(ctx context.Context, deps *lifecycle.Deps, ds *scheduler.DaemonScheduler) *health.Checker {
+	p := ds.Plugin()
+
 	// Determine health config from manifest or metadata
 	var endpoint string
 	var port int
@@ -393,25 +396,41 @@ func setupHealthChecker(ctx context.Context, deps *lifecycle.Deps, p *plugin.Plu
 		return nil
 	}
 
-	// Discover actual host port
-	if p.ContainerID != "" {
-		info, err := deps.Runtime.Inspect(ctx, p.ContainerID)
-		if err == nil {
-			if hostPort, ok := info.Ports[port]; ok && hostPort > 0 {
-				port = hostPort
-			}
-		}
-	}
+	slog.Info("starting health checker", "plugin", p.Name, "containerPort", port, "endpoint", endpoint, "interval", interval)
 
-	url := fmt.Sprintf("http://localhost:%d%s", port, endpoint)
-	slog.Info("starting health checker", "plugin", p.Name, "url", url, "interval", interval)
-
+	url := healthURLFunc(deps.Runtime.Inspect, ds.Plugin, port, endpoint)
 	checker := health.NewChecker(p.Name, url, interval, timeout, retries, func(name string, err error) {
 		slog.Warn("health check failed, triggering restart", "plugin", name, "error", err)
 		ds.TriggerRestart()
 	})
 	checker.Start(ctx)
 	return checker
+}
+
+// healthURLFunc resolves the health URL from the plugin's current container
+// on every call: each restart creates a new container, and Docker publishes
+// the health port on a new random host port.
+func healthURLFunc(
+	inspect func(context.Context, string) (*container.ContainerInfo, error),
+	current func() *plugin.Plugin,
+	containerPort int,
+	endpoint string,
+) health.URLFunc {
+	return func(ctx context.Context) (string, error) {
+		id := current().ContainerID
+		if id == "" {
+			return "", fmt.Errorf("plugin has no running container")
+		}
+		info, err := inspect(ctx, id)
+		if err != nil {
+			return "", err
+		}
+		hostPort, ok := info.Ports[containerPort]
+		if !ok || hostPort <= 0 {
+			return "", fmt.Errorf("container port %d is not published on the host", containerPort)
+		}
+		return fmt.Sprintf("http://localhost:%d%s", hostPort, endpoint), nil
+	}
 }
 
 // resolveTLSCerts determines which TLS cert/key to use.
