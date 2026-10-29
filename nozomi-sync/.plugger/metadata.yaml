@@ -81,7 +81,7 @@ config:
 
 info:
   title: Nozomi Sync
-  version: "0.2.0"
+  version: "0.2.1"
   description: "Sync OT/ICS/IoT asset inventory from Nozomi Networks (Vantage or Guardian) into Illumio as unmanaged workloads with labels (type, zone, Purdue level, vendor, criticality)."
   author: Illumio
   license: Apache-2.0

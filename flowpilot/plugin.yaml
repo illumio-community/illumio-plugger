@@ -1,6 +1,6 @@
 apiVersion: plugger/v1
 name: flowpilot
-version: 0.2.1
+version: 0.2.2
 image: plugger-flowpilot:latest
 
 schedule:

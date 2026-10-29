@@ -73,7 +73,7 @@ config:
 
 info:
   title: Dragos Sync
-  version: "0.2.0"
+  version: "0.2.1"
   description: "Sync OT/ICS asset inventory from the Dragos Platform into Illumio as unmanaged workloads with labels (device type, zone, Purdue level, vendor, criticality)."
   author: Illumio
   license: Apache-2.0

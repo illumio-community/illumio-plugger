@@ -1,6 +1,6 @@
 apiVersion: plugger/v1
 name: vmaps-handler
-version: 0.3.0
+version: 0.3.1
 image: plugger-vmaps-handler:latest
 
 schedule:

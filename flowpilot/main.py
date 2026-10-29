@@ -485,7 +485,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
 <title>FlowPilot</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script>
-tailwind.config = { theme: { extend: { colors: { dark: { 900: '#11111b', 800: '#1e1e2e', 700: '#313244' } } } } };
+tailwind.config = { darkMode: 'class', theme: { extend: { colors: { dark: { 900: '#11111b', 800: '#1e1e2e', 700: '#313244' } } } } };
 </script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <link rel="stylesheet" href="/brand/style.css" onerror="this.remove()">

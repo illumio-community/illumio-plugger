@@ -194,7 +194,7 @@ volumes:
   required: false
 info:
   title: FlowPilot
-  version: 0.2.1
+  version: 0.2.2
   description: Collect NetFlow/IPFIX/sFlow/text flows and send them to the Illumio PCE, with an ingestion-health dashboard
     and silent-exporter alerts — runs the FlowPilot collector, no FlowLink install.
   author: Illumio
