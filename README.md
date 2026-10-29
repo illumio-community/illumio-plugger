@@ -175,6 +175,14 @@ app.run()
 
 The SDK handles PCE connection, health endpoints, state management, scheduled polling, API routing, and report publishing via the shared output bus.
 
+**Plugin uptime.** `app.started_at`, `app.uptime_seconds` and `app.uptime` (e.g. `3h 14m`) are available in code, and `/healthz` reports `started_at` and `uptime_seconds`. To show a live uptime in a dashboard, put an element with a `data-plugger-uptime` attribute anywhere in the HTML:
+
+```html
+<footer>Up <span data-plugger-uptime></span></footer>
+```
+
+The SDK fills it in and keeps it ticking. It is injected together with the theme toggle, so `Plugin(name, inject_theme=False)` turns both off.
+
 ---
 
 ## Reporting & Outputs
