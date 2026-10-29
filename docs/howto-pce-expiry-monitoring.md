@@ -136,6 +136,12 @@ plugger output test siem-expiry
 # or: curl -X POST http://localhost:8800/api/reports/test/siem-expiry
 ```
 
+> **No Splunk handy?** Use [`tools/mock-hec`](../tools/mock-hec/) — a tiny stdlib
+> HTTP Event Collector stand-in that validates the HEC token and pretty-prints
+> every event plugger sends. Run `python3 tools/mock-hec/mock_hec.py`, point
+> `hecUrl` at `http://localhost:8088`, and `plugger output test` to see the exact
+> payload.
+
 In digest mode (`aggregate: true` with a `schedule`), plugger sends the buffered reports as newline-delimited JSON in a single HEC call.
 
 ### Alerts and dashboards in Splunk
