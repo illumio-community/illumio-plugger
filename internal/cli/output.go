@@ -16,7 +16,7 @@ import (
 func newOutputCmd() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "output",
-		Short: "Manage notification output channels (Slack, email, webhook)",
+		Short: "Manage notification output channels (Slack, Teams, email, webhook, Splunk)",
 		Long:  "Add, list, remove, and test output channels for the reporting framework.",
 	}
 
@@ -32,23 +32,28 @@ func newOutputCmd() *cobra.Command {
 
 func newOutputAddCmd() *cobra.Command {
 	var (
-		outputType string
-		webhook    string
-		url        string
-		method     string
-		headers    []string
-		smtpHost   string
-		smtpPort   int
-		smtpUser   string
-		smtpPassEnv string
-		from       string
-		to         []string
-		schedule   string
-		aggregate  bool
-		severity   []string
-		plugins    []string
-		tags       []string
-		dryRun     bool
+		outputType    string
+		webhook       string
+		url           string
+		method        string
+		headers       []string
+		smtpHost      string
+		smtpPort      int
+		smtpUser      string
+		smtpPassEnv   string
+		from          string
+		to            []string
+		schedule      string
+		aggregate     bool
+		hecURL        string
+		hecTokenEnv   string
+		index         string
+		sourcetype    string
+		tlsSkipVerify bool
+		severity      []string
+		plugins       []string
+		tags          []string
+		dryRun        bool
 	)
 
 	cmd := &cobra.Command{
@@ -61,13 +66,14 @@ Examples:
   plugger output add alerts --type slack --webhook https://hooks.slack.com/... --severity warning,critical
   plugger output add my-teams --type teams --webhook https://outlook.office.com/webhook/...
   plugger output add my-webhook --type webhook --url https://api.example.com/alerts --header "Authorization=Bearer token"
-  plugger output add team-email --type email --smtp-host smtp.corp.com --smtp-user plugger@corp.com --smtp-password-env SMTP_PASS --to security@corp.com --schedule "0 8 * * 1" --aggregate`,
+  plugger output add team-email --type email --smtp-host smtp.corp.com --smtp-user plugger@corp.com --smtp-password-env SMTP_PASS --to security@corp.com --schedule "0 8 * * 1" --aggregate
+  plugger output add siem --type splunk --hec-url https://splunk.corp.com:8088 --hec-token-env SPLUNK_HEC_TOKEN --index illumio --severity warning,critical`,
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
 			if outputType == "" {
-				return fmt.Errorf("--type is required (slack, teams, email, webhook)")
+				return fmt.Errorf("--type is required (slack, teams, email, webhook, splunk)")
 			}
 
 			o := config.OutputConfig{
@@ -123,8 +129,20 @@ Examples:
 				if len(headerMap) > 0 {
 					o.Headers = headerMap
 				}
+			case "splunk":
+				if hecURL == "" {
+					return fmt.Errorf("--hec-url is required for splunk outputs")
+				}
+				if hecTokenEnv == "" {
+					return fmt.Errorf("--hec-token-env is required for splunk outputs (name of the env var holding the HEC token)")
+				}
+				o.HECURL = hecURL
+				o.HECTokenEnv = hecTokenEnv
+				o.Index = index
+				o.SourceType = sourcetype
+				o.TLSSkipVerify = tlsSkipVerify
 			default:
-				return fmt.Errorf("unknown output type: %s (use slack, teams, email, or webhook)", outputType)
+				return fmt.Errorf("unknown output type: %s (use slack, teams, email, webhook, or splunk)", outputType)
 			}
 
 			store := reports.NewOutputStore(app.Config.Plugger.DataDir)
@@ -144,7 +162,7 @@ Examples:
 		},
 	}
 
-	cmd.Flags().StringVar(&outputType, "type", "", "output type: slack, email, webhook")
+	cmd.Flags().StringVar(&outputType, "type", "", "output type: slack, teams, email, webhook, splunk")
 	cmd.Flags().BoolVar(&dryRun, "dry-run", false, "log reports without sending")
 
 	// Slack
@@ -164,6 +182,13 @@ Examples:
 	cmd.Flags().StringSliceVar(&to, "to", nil, "email recipients")
 	cmd.Flags().StringVar(&schedule, "schedule", "", "cron schedule for digest delivery")
 	cmd.Flags().BoolVar(&aggregate, "aggregate", false, "aggregate reports into digest")
+
+	// Splunk HEC
+	cmd.Flags().StringVar(&hecURL, "hec-url", "", "Splunk HEC base or /services/collector endpoint")
+	cmd.Flags().StringVar(&hecTokenEnv, "hec-token-env", "", "env var name containing the Splunk HEC token")
+	cmd.Flags().StringVar(&index, "index", "", "Splunk target index")
+	cmd.Flags().StringVar(&sourcetype, "sourcetype", "", "Splunk sourcetype (default plugger:report)")
+	cmd.Flags().BoolVar(&tlsSkipVerify, "tls-skip-verify", false, "skip TLS verification (self-signed HEC)")
 
 	// Filters
 	cmd.Flags().StringSliceVar(&severity, "severity", nil, "filter by severity (info,warning,critical)")
