@@ -2065,6 +2065,15 @@ plugger:
       url: https://siem.example.com/api/events
       headers:
         Authorization: "Bearer xxx"
+
+    - type: splunk
+      name: siem-expiry
+      hecUrl: https://splunk.example.com:8088
+      hecTokenEnv: SPLUNK_HEC_TOKEN
+      index: illumio
+      filter:
+        plugins: [pce-expiry-watch]
+        severity: [warning, critical]
 \`\`\`
 
 ## Output Types
@@ -2075,6 +2084,11 @@ plugger:
 | **Teams** | Posts Adaptive Cards to Microsoft Teams | \`webhook\` |
 | **Email** | Sends email via SMTP (auth optional) | \`smtpHost\`, \`from\`, \`to\` |
 | **Webhook** | POSTs JSON to any HTTP endpoint | \`url\`, \`headers\` |
+| **Splunk** | Sends reports to Splunk HTTP Event Collector as structured events | \`hecUrl\`, \`hecTokenEnv\` |
+
+### Structured delivery to SIEM / Splunk
+
+The \`splunk\` output posts each report to HEC at \`/services/collector/event\` as a structured event, so \`plugin\`, \`severity\`, \`title\`, \`tags\` and the free-form \`data\` object are indexed directly. No \`props.conf\` field extraction is needed, and you can build dashboards and alerts on fields such as the expiry plugin's \`data.items{}\`. Give \`hecUrl\` as the HEC base and plugger appends the event path. Keep the token out of the file with \`hecTokenEnv\`. Optional \`index\`, \`sourcetype\` (default \`plugger:report\`) and \`source\` (default \`plugger\`) control where events land. In digest mode (\`aggregate: true\`) a batch goes out as newline-delimited JSON in a single HEC call. For a lab HEC with a self-signed certificate, set \`tlsSkipVerify: true\`. See the full walkthrough in docs/howto-pce-expiry-monitoring.md in the repository.
 
 ## Filters: Routing Reports
 
@@ -2115,10 +2129,10 @@ Verify that output channels work from the dashboard:
 Or via the API:
 
 \`\`\`bash
-curl -X POST http://localhost:8800/api/reports/test \\
-  -H "Content-Type: application/json" \\
-  -d '{"output": "security-alerts"}'
+curl -X POST http://localhost:8800/api/reports/test/security-alerts
 \`\`\`
+
+(The output name is the last path segment; no request body is needed. The \`plugger output test <name>\` CLI calls this same endpoint.)
 
 ## Adding New Output Types
 
@@ -3669,7 +3683,11 @@ Daily at 08:00 by default (\`0 8 * * *\` in plugin.yaml). Expiry is slow-moving,
 ## Caveats
 
 - **License**: the PCE license object is not exposed by a stable public API on all PCE versions. The check degrades gracefully (logs and skips on a non-200) and the endpoint is overridable via \`LICENSE_API_PATH\`.
-- **Pairing-key uses**: \`total_use_count\` on a pairing profile is an aggregate counter, so uses remaining is a best-effort signal meant to flag a profile worth a human look, not an exact per-key count. Key-lifespan expiry is exact.`
+- **Pairing-key uses**: \`total_use_count\` on a pairing profile is an aggregate counter, so uses remaining is a best-effort signal meant to flag a profile worth a human look, not an exact per-key count. Key-lifespan expiry is exact.
+
+## See also
+
+How-to: [PCE expiry monitoring with Slack and Splunk](https://github.com/illumio-community/illumio-plugger/blob/main/docs/howto-pce-expiry-monitoring.md)`
 },
 "stale-workloads": {
     title: "Stale Workloads",

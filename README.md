@@ -228,6 +228,7 @@ health:
 | [Plugin Development](docs/plugin-development.md) | Manifests, templates, health checks, publishing |
 | [Operations Guide](docs/operations.md) | Production deployment, monitoring, troubleshooting |
 | [Event-Driven Architecture](docs/events.md) | Webhook triggers, pce-events integration, auth |
+| [PCE Expiry Monitoring](docs/howto-pce-expiry-monitoring.md) | How-to: alert on expiring service accounts, pairing keys, license, TLS cert via Slack and Splunk |
 
 **Plugin Portal:** [illumio-community.github.io/illumio-plugger](https://illumio-community.github.io/illumio-plugger/)
 
