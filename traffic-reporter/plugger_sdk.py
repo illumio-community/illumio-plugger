@@ -32,6 +32,102 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 
 # ---------------------------------------------------------------------------
+# Dark/light theme (shared across every plugin dashboard)
+# ---------------------------------------------------------------------------
+#
+# Spliced in right after <head> of any full-HTML dashboard response. It mirrors
+# the plugger management shell (internal/dashboard/templates/layout.html): the
+# same localStorage key ('plugger-theme'), the same 3-state light/auto/dark
+# semantics (absent => dark, to match the shell), and the same html:not(.dark)
+# override tokens. Plugin pages render same-origin under /plugins/{name}/ui/, so
+# the shell's toggle and the plugin page share one theme preference for free.
+#
+# The toggle is a self-contained floating control (no Tailwind/framework
+# dependency) and all logic lives inside one IIFE, so it never collides with a
+# plugin's own globals. Light-mode *appearance* is best-effort: it remaps the
+# standard Catppuccin utility classes; a plugin that hardcodes hex in inline
+# styles keeps the toggle but may need per-plugin tuning later.
+_THEME_SNIPPET = r"""<style data-plugger-theme>
+html:not(.dark) body { background:#f9fafb; color:#1f2937; }
+html:not(.dark) .bg-dark-900 { background:#f9fafb; }
+html:not(.dark) .bg-dark-800 { background:#ffffff; border-color:#e5e7eb; }
+html:not(.dark) .bg-dark-700 { background:#f3f4f6; }
+html:not(.dark) .bg-dark-700\/50, html:not(.dark) .bg-dark-700\/30, html:not(.dark) .bg-dark-700\/20 { background:#f3f4f680; }
+html:not(.dark) .border-gray-700 { border-color:#e5e7eb; }
+html:not(.dark) .border-gray-700\/50, html:not(.dark) .border-gray-700\/30 { border-color:#e5e7eb80; }
+html:not(.dark) .text-gray-200 { color:#1f2937; }
+html:not(.dark) .text-gray-300 { color:#374151; }
+html:not(.dark) .text-gray-400 { color:#6b7280; }
+html:not(.dark) .text-gray-500 { color:#9ca3af; }
+html:not(.dark) .text-white { color:#111827; }
+html:not(.dark) code { background:#e5e7eb; color:#374151; }
+#plugger-theme-toggle { position:fixed; top:12px; right:12px; z-index:2147483000;
+  display:flex; gap:2px; padding:3px; border-radius:9999px;
+  background:rgba(49,50,68,0.85); border:1px solid rgba(255,255,255,0.08);
+  box-shadow:0 2px 8px rgba(0,0,0,0.3); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
+  font-family:system-ui,-apple-system,sans-serif; line-height:1; }
+html:not(.dark) #plugger-theme-toggle { background:rgba(255,255,255,0.9); border-color:#e5e7eb; box-shadow:0 2px 8px rgba(0,0,0,0.12); }
+#plugger-theme-toggle button { all:unset; cursor:pointer; width:26px; height:26px;
+  display:flex; align-items:center; justify-content:center; border-radius:9999px;
+  font-size:14px; color:#9399b2; transition:background .15s, color .15s; }
+#plugger-theme-toggle button:hover { color:#cdd6f4; }
+html:not(.dark) #plugger-theme-toggle button { color:#6b7280; }
+html:not(.dark) #plugger-theme-toggle button:hover { color:#111827; }
+#plugger-theme-toggle button[aria-pressed="true"] { background:#89b4fa; color:#11111b; }
+</style>
+<script data-plugger-theme>
+(function(){
+  var KEY='plugger-theme', ORDER=['light','auto','dark'];
+  function systemDark(){ return window.matchMedia('(prefers-color-scheme: dark)').matches; }
+  function read(){ try { return localStorage.getItem(KEY); } catch(e){ return null; } }
+  function resolve(mode){ return mode==='dark' ? true : mode==='light' ? false : systemDark(); }
+  function current(){ var s=read(); return (s==='light'||s==='auto'||s==='dark') ? s : 'dark'; }
+  // Initial paint (synchronous, before body renders) — absent preference => dark, like the shell.
+  document.documentElement.classList.toggle('dark', resolve(current()));
+  function updateButtons(mode){
+    var wrap=document.getElementById('plugger-theme-toggle'); if(!wrap) return;
+    var btns=wrap.querySelectorAll('button');
+    for(var i=0;i<btns.length;i++){ btns[i].setAttribute('aria-pressed', String(ORDER[i]===mode)); }
+  }
+  function setTheme(mode){
+    try { localStorage.setItem(KEY, mode); } catch(e){}
+    document.documentElement.classList.toggle('dark', resolve(mode));
+    updateButtons(mode);
+  }
+  function build(){
+    if(document.getElementById('plugger-theme-toggle') || !document.body) return;
+    var cur=current(), wrap=document.createElement('div'); wrap.id='plugger-theme-toggle';
+    var glyph={light:'☀', auto:'◐', dark:'☾'}, name={light:'Light', auto:'System', dark:'Dark'};
+    ORDER.forEach(function(m){
+      var b=document.createElement('button');
+      b.textContent=glyph[m]; b.title=name[m]+' mode'; b.setAttribute('aria-label', name[m]+' mode');
+      b.setAttribute('aria-pressed', String(m===cur));
+      b.addEventListener('click', function(){ setTheme(m); });
+      wrap.appendChild(b);
+    });
+    document.body.appendChild(wrap);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', build); else build();
+  window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function(){
+    var s=read(); if(s==='auto' || !s){ document.documentElement.classList.toggle('dark', systemDark()); }
+  });
+})();
+</script>
+"""
+
+
+def _inject_theme(html):
+    """Splice the theme snippet in after <head>. Returns html unchanged when it
+    is not a full HTML document or the snippet is already present."""
+    if not isinstance(html, str) or "data-plugger-theme" in html:
+        return html
+    m = re.search(r"<head[^>]*>", html, re.IGNORECASE)
+    if not m:
+        return html
+    return html[:m.end()] + "\n" + _THEME_SNIPPET + html[m.end():]
+
+
+# ---------------------------------------------------------------------------
 # Request wrapper
 # ---------------------------------------------------------------------------
 
@@ -60,8 +156,9 @@ class Request:
 # ---------------------------------------------------------------------------
 
 class Plugin:
-    def __init__(self, name):
+    def __init__(self, name, inject_theme=True):
         self.name = name
+        self._inject_theme = inject_theme
         self._log = None
         self._pce = None
         self._labels = None
@@ -300,6 +397,8 @@ class Plugin:
                 if path == "/" and method == "GET":
                     if plugin._dashboard_fn:
                         html = plugin._dashboard_fn()
+                        if plugin._inject_theme:
+                            html = _inject_theme(html)
                         self._send(200, html, "text/html; charset=utf-8")
                     else:
                         self._send_json(200, plugin._state)
