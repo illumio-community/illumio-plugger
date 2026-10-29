@@ -141,6 +141,73 @@ events:
 
 **Your code:** read `PLUGGER_EVENT_PAYLOAD` env var (JSON), process the event, exit.
 
+## Integrating an External System
+
+A common plugin shape is a bridge between a third-party vendor API and the Illumio PCE — pulling an
+asset inventory *in* (as unmanaged workloads) or pushing PCE data *out*. The repo's integration
+plugins (`meraki-sync`, `nozomi-sync`, `fortigate-sync`, `infoblox-ipam-sync`) are all **daemon**
+plugins written in Python on the `plugger_sdk`.
+
+**Mode:** default an ongoing sync to `daemon` + `plugger_sdk` — you get a dashboard, `/healthz`, and
+an on-demand trigger for free. Use `cron` only for a periodic one-shot report (e.g.
+`pce-expiry-watch`).
+
+**Daemon skeleton** (`plugger_sdk`, vendored as `plugger_sdk.py` next to `main.py`):
+
+```python
+from plugger_sdk import Plugin
+
+app = Plugin("acme-sync")
+
+@app.poll(interval_env="POLL_INTERVAL", default=21600)   # initial run + every N seconds
+def sync(pce):                                            # pce: a connected PolicyComputeEngine
+    ...
+    app.update_state({"last_sync": ..., "created": ...})  # feeds the dashboard
+
+@app.api("POST", "/api/sync")
+def trigger_sync(request):
+    app.trigger_poll()                                   # on-demand run from the UI button
+    return {"status": "triggered"}
+
+@app.dashboard
+def dashboard():
+    return f"<!doctype html>...{app.state.get('created', 0)}..."
+
+if __name__ == "__main__":
+    app.run()
+```
+
+The SDK provides `app.pce`, `app.ensure_label(key, value)` (find-or-create label, returns href),
+`app.report(...)`, `app.log`, `app.pce_link(href)`, `app.state` / `app.update_state(...)`,
+`app.trigger_poll()`, and a built-in `/healthz`.
+
+**External API hygiene:**
+- Credentials are `secret: true` env vars (reference the names, never the values).
+- Prefer the vendor's official SDK — it handles pagination and rate-limit/429 backoff. `meraki-sync`
+  uses the `meraki` SDK with `total_pages="all"`.
+- Otherwise paginate yourself and honor `429`/`Retry-After`, set timeouts, and re-auth on `401`
+  once (`nozomi-sync`).
+- Tolerate one bad sub-resource (log a warning, keep going) rather than aborting the whole sync.
+
+**Idempotent sync into the PCE** (`meraki-sync` is the worked example):
+- Stamp each workload with `external_data_set="<plugin-name>"` and
+  `external_data_reference="<stable external id>"`.
+- Find existing ones with `GET /workloads?external_data_set=<plugin-name>`, keyed on the reference.
+- Find-or-create labels with `app.ensure_label`.
+- Write with `pce.put("/workloads/bulk_create")` / `bulk_update` in batches ≤ 1000.
+- Compute a change signature and only update what changed.
+- **Never modify workloads outside your own `external_data_set`** (no VEN-managed or hand-created
+  workloads).
+
+**Safety:** any plugin that writes to the PCE defaults `DRY_RUN=true` — surface the plan in logs,
+dashboard, and report before anything is written.
+
+**Labels:** mapping is heuristic. Map a small, obvious set (e.g. `loc`, `role`) and make it
+configurable; don't over-map in v1 (`nozomi-sync` shows a configurable `LABEL_MAP`).
+
+**Reporting:** publish results with `app.report(title, body, severity, tags, data)`; plugger routes
+them to Slack/email/webhook centrally.
+
 ## Environment Variables
 
 Every plugin container receives these from the global config:
