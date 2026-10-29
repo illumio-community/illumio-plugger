@@ -6,7 +6,7 @@
 
 <p align="center">
 
-[![Plugins](https://img.shields.io/badge/plugins-30-blue)](https://illumio-community.github.io/illumio-plugger/)
+[![Plugins](https://img.shields.io/badge/plugins-31-blue)](https://illumio-community.github.io/illumio-plugger/)
 [![Languages](https://img.shields.io/badge/templates-Go%20%7C%20Python%20%7C%20Shell%20%7C%20JavaScript-green)](docs/plugin-development.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey)](LICENSE)
 [![Portal](https://img.shields.io/badge/portal-live-brightgreen)](https://illumio-community.github.io/illumio-plugger/)
@@ -66,7 +66,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 
 ---
 
-## All 30 Plugins
+## All 31 Plugins
 
 > ⚠️ **Maturity note:** plugins marked **preview** (and **example**) may not have been tested against a live PCE or the target integration. Validate them in a non-production environment before relying on them.
 
@@ -118,6 +118,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 | [dragos-sync](dragos-sync/) | Sync OT/ICS asset inventory from the Dragos Platform to labeled unmanaged workloads | Daemon + UI |
 | [nozomi-sync](nozomi-sync/) | Sync OT/ICS/IoT asset inventory from Nozomi Networks (Vantage or Guardian) to labeled unmanaged workloads | Daemon + UI |
 | [meraki-sync](meraki-sync/) | Import Cisco Meraki clients as labeled unmanaged workloads for IoT/BYOD/branch visibility (dry-run by default) | Daemon + UI |
+| [ise-sync](ise-sync/) | Mirror Cisco ISE TrustSec context (SGTs and host IP-SGT mappings) into Illumio as labels and unmanaged workloads (read-only on ISE, dry-run by default) | Daemon + UI |
 | [flowpilot](flowpilot/) | Collect NetFlow/IPFIX/sFlow/text flows to the PCE with an ingestion-health dashboard and silent-exporter alerts (preview) | Daemon + UI |
 
 ---
@@ -232,6 +233,8 @@ health:
 | [Operations Guide](docs/operations.md) | Production deployment, monitoring, troubleshooting |
 | [Event-Driven Architecture](docs/events.md) | Webhook triggers, pce-events integration, auth |
 | [PCE Expiry Monitoring](docs/howto-pce-expiry-monitoring.md) | How-to: alert on expiring service accounts, pairing keys, license, TLS cert via Slack and Splunk |
+| [Meraki Device Visibility](docs/howto-meraki-visibility.md) | How-to: bring IoT, BYOD and branch devices seen by Meraki into the Illumio map as labeled unmanaged workloads |
+| [ISE TrustSec Sync](docs/howto-ise-trustsec-sync.md) | How-to: mirror Cisco ISE SGTs as Illumio labels and host IP-SGT mappings as workloads |
 
 **Plugin Portal:** [illumio-community.github.io/illumio-plugger](https://illumio-community.github.io/illumio-plugger/)
 

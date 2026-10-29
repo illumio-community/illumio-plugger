@@ -601,6 +601,24 @@
       "author": "Illumio",
       "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/meraki-sync",
       "maturity": "preview"
+    },
+    {
+      "name": "ise-sync",
+      "version": "0.1.0",
+      "image": "ghcr.io/illumio-community/plugger-ise-sync:0.1.0",
+      "description": "Mirrors Cisco ISE TrustSec context (SGT definitions and host IP-SGT mappings) into Illumio as labels and unmanaged workloads",
+      "mode": "daemon",
+      "has_ui": true,
+      "language": "python",
+      "tags": [
+        "integration",
+        "networking",
+        "identity",
+        "trustsec"
+      ],
+      "author": "Illumio",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/ise-sync",
+      "maturity": "preview"
     }
   ]
 }

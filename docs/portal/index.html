@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plugger — Plugin Framework for Illumio PCE</title>
-<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 30 plugins with full documentation.">
+<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 31 plugins with full documentation.">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
@@ -99,7 +99,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         Plugin Framework for<br><span class="gradient-text">Illumio PCE</span>
     </h1>
     <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-10 fade-in fade-d1">
-        The agent-native Illumio plugin framework. Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 30 plugins.
+        The agent-native Illumio plugin framework. Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 31 plugins.
     </p>
     <p class="text-sm text-gray-400 max-w-2xl mx-auto mb-10 -mt-6 fade-in fade-d1">
         Agent-native means plugger is built to be authored and operated by AI coding agents: Claude Code scaffolds plugins through the build-plugin skill, the dashboard, HTTP APIs and reporting bus are all drivable by an agent, and the Python SDK keeps a working plugin to roughly 50 lines.
@@ -119,7 +119,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 <!-- Stats -->
 <section class="py-8 px-6 border-y border-gray-800">
 <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">30</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
+    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">31</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
     <div class="fade-in fade-d1"><div class="text-3xl font-bold text-green-400">4</div><div class="text-xs text-gray-400 mt-1">Output Channels</div></div>
     <div class="fade-in fade-d2"><div class="text-3xl font-bold text-purple-400">Python</div><div class="text-xs text-gray-400 mt-1">SDK Included</div></div>
     <div class="fade-in fade-d3"><div class="text-3xl font-bold text-yellow-400">Multi</div><div class="text-xs text-gray-400 mt-1">Arch (amd64/arm64)</div></div>
@@ -221,7 +221,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <!-- Category filters -->
     <div class="flex flex-wrap gap-2 justify-center mb-8">
-        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (30)</button>
+        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (31)</button>
         <button onclick="filterPlugins('monitoring')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="monitoring">Monitoring</button>
         <button onclick="filterPlugins('policy')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="policy">Policy & Compliance</button>
         <button onclick="filterPlugins('ai')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="ai">AI-Powered</button>
@@ -683,6 +683,22 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
             </div>
         </div>
 
+        <!-- ISE Sync -->
+        <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in cursor-pointer" data-plugin="ise-sync" data-categories="integration,operations" data-maturity="preview" onclick="showDocs('ise-sync')">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-white font-semibold">ISE Sync</h3>
+                <div class="flex gap-1">
+                    <span class="text-xs px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">daemon</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">new</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-300 mb-3">Mirrors Cisco ISE TrustSec context (SGT definitions and host IP-SGT mappings) into Illumio as labels and unmanaged workloads. Read-only on ISE, dry-run by default.</p>
+            <div class="flex items-center justify-between">
+                <code class="text-xs text-gray-400 select-all">plugger install ise-sync</code>
+                <span class="text-xs text-blue-400 hover:text-blue-300">Docs &rarr;</span>
+            </div>
+        </div>
+
         <!-- FlowPilot -->
         <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in cursor-pointer" data-plugin="flowpilot" data-categories="integration,monitoring" data-maturity="preview" onclick="showDocs('flowpilot')">
             <div class="flex items-center justify-between mb-2">
@@ -711,12 +727,31 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <div class="space-y-8">
 
+        <!-- v0.15.6 -->
+        <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-white">v0.15.6</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                </div>
+                <span class="text-sm text-gray-500">October 29, 2026</span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-blue-400 mb-1">New Plugins</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>ise-sync</strong> &mdash; mirrors Cisco ISE TrustSec context (SGTs and host IP-SGT mappings) into Illumio as labels and unmanaged workloads</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- v0.15.5 -->
         <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <span class="text-lg font-bold text-white">v0.15.5</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                    
                 </div>
                 <span class="text-sm text-gray-500">October 29, 2026</span>
             </div>
@@ -2625,7 +2660,7 @@ plugger search --repo my-registry
     icon: "share",
     readme: `# Publishing Your Own Plugin Registry
 
-Plugger supports multiple plugin registries. The official registry ships with 30 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
+Plugger supports multiple plugin registries. The official registry ships with 31 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
 
 ## How Plugin Registries Work
 
@@ -4914,7 +4949,89 @@ minimal.
 
 \`\`\`bash
 plugger install meraki-sync
-\`\`\``
+\`\`\`
+
+## See also
+
+How-to: [Meraki device visibility in Illumio](https://github.com/illumio-community/illumio-plugger/blob/main/docs/howto-meraki-visibility.md)`
+},
+"ise-sync": {
+    title: "ISE Sync",
+    mode: "daemon",
+    tags: ["integration","networking","identity","trustsec"],
+    readme: `# ise-sync
+
+Bridges **Cisco ISE TrustSec context into Illumio**. ISE is the authoritative
+source for Security Group Tags (SGTs) and identity; this plugin mirrors that
+context into the PCE so your Illumio policy model and TrustSec share a taxonomy.
+
+This is **Phase 1 (visibility, ERS)**: a **daemon** that polls ISE's ERS API,
+**read-only on ISE**, **dry-run-by-default on the PCE**, with a dashboard.
+
+## What it does
+
+1. **SGT definitions → Illumio labels.** Reads \`/ers/config/sgt\` and ensures a
+   label per SGT in a dedicated \`sgt\` dimension (created automatically if it
+   doesn't exist). This gives Illumio and TrustSec a shared segmentation
+   vocabulary.
+2. **Host IP-SGT mappings → unmanaged workloads.** Reads \`/ers/config/sgmapping\`
+   and, for each **single-host (/32)** static mapping, creates an Illumio
+   unmanaged workload (interface + \`sgt\` label). Subnet mappings are skipped
+   (they aren't single hosts).
+
+Idempotent via \`external_data_set=ise-sync\` + \`external_data_reference\`
+(create missing, update changed; never touches non-ise-sync workloads).
+Publishes a summary to the reporting bus.
+
+## Safety
+
+\`DRY_RUN=true\` (default) logs/reports/shows what *would* sync without writing to
+the PCE (no labels, no label dimension, no workloads). Review, then set
+\`DRY_RUN=false\` to apply.
+
+## Configuration
+
+| Env var | Default | Description |
+|---------|---------|-------------|
+| \`ISE_HOST\` | _(required)_ | Cisco ISE host/IP |
+| \`ISE_PORT\` | \`9060\` | ERS API port |
+| \`ISE_ERS_USER\` | _(required)_ | ERS account (ERS-Admin or ERS-Operator) |
+| \`ISE_ERS_PASSWORD\` | _(required, secret)_ | ERS account password |
+| \`ISE_TLS_SKIP_VERIFY\` | \`true\` | Skip TLS verification for ISE |
+| \`SGT_LABEL_KEY\` | \`sgt\` | Illumio label dimension for SGTs |
+| \`IMPORT_SGTS\` | \`true\` | Mirror SGT definitions as labels |
+| \`IMPORT_IP_SGT\` | \`true\` | Import host IP-SGT mappings as workloads |
+| \`MAX_SGTS\` / \`MAX_MAPPINGS\` | \`2000\` / \`10000\` | Safety caps |
+| \`POLL_INTERVAL\` | \`21600\` | Seconds between sync cycles (6h) |
+| \`DRY_RUN\` | \`true\` | Log/show without writing (safe default) |
+| \`PCE_TLS_SKIP_VERIFY\` | \`true\` | Skip TLS verification for PCE API calls |
+
+PCE credentials are injected automatically by plugger. ERS must be enabled on
+ISE and the account must be in the ERS-Admin/ERS-Operator group.
+
+## Dashboard
+
+Runs as a daemon (re-syncs every \`POLL_INTERVAL\`), serves a dashboard listing the
+synced SGTs and the host IP-SGT workloads, with a **Sync now** button, and a
+\`/healthz\` endpoint for plugger health checks.
+
+## Roadmap (not in this phase)
+
+- **pxGrid**: dynamic IP↔SGT bindings, live session directory, endpoint
+  profiling — needs pxGrid (cert onboarding), out of scope for the ERS phase.
+- **ise-anc-responder**: Illumio-driven ANC quarantine of non-agentable
+  endpoints via ISE (a separate, enforcement-focused plugin).
+- Note: ISE is the SGT source of truth — this bridge is read-only on ISE by design.
+
+## Install
+
+\`\`\`bash
+plugger install ise-sync
+\`\`\`
+
+## See also
+
+How-to: [bridging ISE TrustSec SGTs into Illumio](https://github.com/illumio-community/illumio-plugger/blob/main/docs/howto-ise-trustsec-sync.md)`
 },
 "flowpilot": {
     title: "FlowPilot",
@@ -5063,7 +5180,7 @@ Nozomi asset schemas vary by product (Vantage vs. Guardian), version, and sensor
 // Render docs accordion
 function renderDocsAccordion() {
     const container = document.getElementById('docs-accordion');
-    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','pce-expiry-watch','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','meraki-sync','flowpilot'];
+    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','pce-expiry-watch','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','meraki-sync','ise-sync','flowpilot'];
     let html = '';
     for (const id of order) {
         const plugin = PLUGIN_DOCS[id];

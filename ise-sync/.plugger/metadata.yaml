@@ -1,0 +1,81 @@
+plugger: v1
+
+ports:
+  - port: 8080
+    protocol: tcp
+    name: dashboard
+    description: ISE Sync dashboard — SGTs and host IP-SGT workloads
+    type: ui
+    path: /
+
+config:
+  - name: ISE_HOST
+    description: Cisco ISE hostname or IP (ERS API)
+    required: true
+    type: string
+  - name: ISE_PORT
+    description: ISE ERS API port
+    required: false
+    type: int
+    default: "9060"
+  - name: ISE_ERS_USER
+    description: ISE ERS account username (ERS-Admin or ERS-Operator)
+    required: true
+    type: string
+  - name: ISE_ERS_PASSWORD
+    description: ISE ERS account password
+    required: true
+    type: secret
+  - name: ISE_TLS_SKIP_VERIFY
+    description: Skip TLS verification for ISE ERS calls
+    required: false
+    type: bool
+    default: "true"
+  - name: SGT_LABEL_KEY
+    description: Illumio label dimension to mirror SGTs into (created if custom)
+    required: false
+    type: string
+    default: "sgt"
+  - name: IMPORT_SGTS
+    description: Mirror ISE SGT definitions into Illumio labels
+    required: false
+    type: bool
+    default: "true"
+  - name: IMPORT_IP_SGT
+    description: Import host (/32) static IP-SGT mappings as unmanaged workloads
+    required: false
+    type: bool
+    default: "true"
+  - name: MAX_SGTS
+    description: Safety cap on SGT definitions imported
+    required: false
+    type: int
+    default: "2000"
+  - name: MAX_MAPPINGS
+    description: Safety cap on IP-SGT mappings scanned
+    required: false
+    type: int
+    default: "10000"
+  - name: POLL_INTERVAL
+    description: Seconds between ISE sync cycles
+    required: false
+    type: int
+    default: "21600"
+  - name: DRY_RUN
+    description: Log/report/show what would sync without writing to the PCE (safe default)
+    required: false
+    type: bool
+    default: "true"
+  - name: PCE_TLS_SKIP_VERIFY
+    description: Skip TLS verification for PCE API calls
+    required: false
+    type: bool
+    default: "true"
+
+info:
+  title: ISE Sync
+  version: "0.1.0"
+  description: Mirrors Cisco ISE TrustSec context (SGT definitions and host IP-SGT mappings) into Illumio as labels and unmanaged workloads
+  author: Illumio
+  license: Apache-2.0
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/ise-sync

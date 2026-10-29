@@ -1,0 +1,57 @@
+apiVersion: plugger/v1
+name: ise-sync
+version: 0.1.0
+image: ise-sync:latest
+
+schedule:
+  mode: daemon
+
+env:
+  - name: ISE_HOST
+    required: true
+  - name: ISE_PORT
+    required: false
+    default: "9060"
+  - name: ISE_ERS_USER
+    required: true
+  - name: ISE_ERS_PASSWORD
+    required: true
+    secret: true
+  - name: ISE_TLS_SKIP_VERIFY
+    required: false
+    default: "true"
+  - name: SGT_LABEL_KEY
+    required: false
+    default: "sgt"
+  - name: IMPORT_SGTS
+    required: false
+    default: "true"
+  - name: IMPORT_IP_SGT
+    required: false
+    default: "true"
+  - name: MAX_SGTS
+    required: false
+    default: "2000"
+  - name: MAX_MAPPINGS
+    required: false
+    default: "10000"
+  - name: POLL_INTERVAL
+    required: false
+    default: "21600"
+  - name: DRY_RUN
+    required: false
+    default: "true"
+  - name: PCE_TLS_SKIP_VERIFY
+    required: false
+    default: "true"
+
+health:
+  endpoint: /healthz
+  port: 8080
+  interval: 30s
+  timeout: 5s
+  retries: 3
+
+resources:
+  memoryLimit: 256m
+  cpuLimit: "0.5"
