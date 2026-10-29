@@ -12,10 +12,14 @@ import (
 // OnFailure is called when consecutive health check failures exceed the threshold.
 type OnFailure func(pluginName string, lastErr error)
 
+// URLFunc returns the URL to check. It is called before every check because
+// a restarted plugin runs in a new container, usually on a new host port.
+type URLFunc func(ctx context.Context) (string, error)
+
 // Checker performs periodic HTTP health checks against a plugin container.
 type Checker struct {
 	pluginName string
-	urlFn      func() (string, error)
+	url        URLFunc
 	interval   time.Duration
 	timeout    time.Duration
 	retries    int
@@ -27,13 +31,8 @@ type Checker struct {
 }
 
 // NewChecker creates a health checker for a plugin.
-//
-// urlFn is resolved on every probe (not once at construction) and must return
-// the full health check URL, e.g. http://127.0.0.1:12345/healthz. Resolving per
-// probe is required because a container's published host port is ephemeral and
-// changes on every restart, so a URL captured once goes stale. A resolver error
-// counts as a failed probe.
-func NewChecker(pluginName string, urlFn func() (string, error), interval, timeout time.Duration, retries int, onFailure OnFailure) *Checker {
+// url resolves the full health check URL, e.g. http://localhost:12345/healthz.
+func NewChecker(pluginName string, url URLFunc, interval, timeout time.Duration, retries int, onFailure OnFailure) *Checker {
 	if interval == 0 {
 		interval = 30 * time.Second
 	}
@@ -45,7 +44,7 @@ func NewChecker(pluginName string, urlFn func() (string, error), interval, timeo
 	}
 	return &Checker{
 		pluginName: pluginName,
-		urlFn:      urlFn,
+		url:        url,
 		interval:   interval,
 		timeout:    timeout,
 		retries:    retries,
@@ -86,7 +85,18 @@ func (c *Checker) loop(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			err := c.check(ctx)
+			url, err := c.url(ctx)
+			if err != nil {
+				// Not evidence that the plugin is unhealthy: skip rather than
+				// count a failure, or an unreachable URL becomes a restart loop.
+				slog.Warn("health check skipped: cannot resolve URL",
+					"plugin", c.pluginName, "error", err)
+				continue
+			}
+			err = c.check(ctx, url)
+			if ctx.Err() != nil {
+				return // stopped mid-check; a cancelled request is not a failure
+			}
 			if err != nil {
 				c.consecutiveFails++
 				slog.Debug("health check failed", "plugin", c.pluginName,
@@ -110,14 +120,9 @@ func (c *Checker) loop(ctx context.Context) {
 	}
 }
 
-func (c *Checker) check(ctx context.Context) error {
+func (c *Checker) check(ctx context.Context, url string) error {
 	ctx, cancel := context.WithTimeout(ctx, c.timeout)
 	defer cancel()
-
-	url, err := c.urlFn()
-	if err != nil {
-		return fmt.Errorf("resolving health url: %w", err)
-	}
 
 	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {

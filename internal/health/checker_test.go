@@ -2,52 +2,106 @@ package health
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/http/httptest"
+	"sync/atomic"
 	"testing"
+	"time"
 )
 
-func TestCheck_ResolvesURLPerProbe(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-	}))
-	defer srv.Close()
+const tick = 10 * time.Millisecond
 
-	calls := 0
-	c := NewChecker("p", func() (string, error) {
-		calls++
-		return srv.URL + "/healthz", nil
-	}, 0, 0, 0, nil)
-
-	for i := 0; i < 3; i++ {
-		if err := c.check(context.Background()); err != nil {
-			t.Fatalf("probe %d: unexpected error: %v", i, err)
+func waitFor(t *testing.T, cond func() bool) {
+	t.Helper()
+	deadline := time.Now().Add(2 * time.Second)
+	for !cond() {
+		if time.Now().After(deadline) {
+			t.Fatal("condition not met in time")
 		}
-	}
-	if calls != 3 {
-		t.Fatalf("expected URL resolved once per probe (3), got %d", calls)
+		time.Sleep(tick)
 	}
 }
 
-func TestCheck_ResolverErrorIsFailure(t *testing.T) {
-	c := NewChecker("p", func() (string, error) {
-		return "", fmt.Errorf("no host mapping for container port 8080")
-	}, 0, 0, 0, nil)
-
-	if err := c.check(context.Background()); err == nil {
-		t.Fatal("expected a resolver error to count as a failed probe, got nil")
-	}
-}
-
-func TestCheck_Non2xxIsFailure(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusInternalServerError)
+func statusServer(t *testing.T, code int, hits *atomic.Int32) *httptest.Server {
+	t.Helper()
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		hits.Add(1)
+		w.WriteHeader(code)
 	}))
-	defer srv.Close()
+	t.Cleanup(srv.Close)
+	return srv
+}
 
-	c := NewChecker("p", func() (string, error) { return srv.URL, nil }, 0, 0, 0, nil)
-	if err := c.check(context.Background()); err == nil {
-		t.Fatal("expected HTTP 500 to be unhealthy, got nil")
+func TestURLResolvedBeforeEveryCheck(t *testing.T) {
+	// The first container dies; its replacement is published on a new host port.
+	var oldHits, newHits atomic.Int32
+	oldSrv := statusServer(t, http.StatusOK, &oldHits)
+	newSrv := statusServer(t, http.StatusOK, &newHits)
+
+	var calls atomic.Int32
+	resolve := func(context.Context) (string, error) {
+		if calls.Add(1) == 1 {
+			return oldSrv.URL, nil
+		}
+		return newSrv.URL, nil
+	}
+
+	c := NewChecker("p", resolve, tick, time.Second, 3, nil)
+	c.Start(context.Background())
+	defer c.Stop()
+
+	waitFor(t, func() bool { return newHits.Load() >= 2 })
+	if oldHits.Load() != 1 {
+		t.Fatalf("old URL hit %d times, want 1", oldHits.Load())
+	}
+}
+
+func TestUnresolvableURLSkipsCheckWithoutRestart(t *testing.T) {
+	var calls atomic.Int32
+	resolve := func(context.Context) (string, error) {
+		calls.Add(1)
+		return "", errors.New("container port 8080 is not published on the host")
+	}
+	var failures atomic.Int32
+	c := NewChecker("p", resolve, tick, time.Second, 2, func(string, error) { failures.Add(1) })
+	c.Start(context.Background())
+
+	waitFor(t, func() bool { return calls.Load() >= 6 })
+	c.Stop()
+	if failures.Load() != 0 {
+		t.Fatalf("onFailure called %d times for an unresolvable URL, want 0", failures.Load())
+	}
+}
+
+func TestUnhealthyTriggersFailureAfterRetries(t *testing.T) {
+	var hits atomic.Int32
+	srv := statusServer(t, http.StatusServiceUnavailable, &hits)
+	resolve := func(context.Context) (string, error) { return srv.URL, nil }
+
+	var failures atomic.Int32
+	c := NewChecker("p", resolve, tick, time.Second, 3, func(string, error) { failures.Add(1) })
+	c.Start(context.Background())
+	defer c.Stop()
+
+	waitFor(t, func() bool { return failures.Load() >= 1 })
+	if hits.Load() < 3 {
+		t.Fatalf("failure reported after %d checks, want at least 3", hits.Load())
+	}
+}
+
+func TestHealthyNeverTriggersFailure(t *testing.T) {
+	var hits atomic.Int32
+	srv := statusServer(t, http.StatusOK, &hits)
+	resolve := func(context.Context) (string, error) { return srv.URL, nil }
+
+	var failures atomic.Int32
+	c := NewChecker("p", resolve, tick, time.Second, 1, func(string, error) { failures.Add(1) })
+	c.Start(context.Background())
+
+	waitFor(t, func() bool { return hits.Load() >= 5 })
+	c.Stop()
+	if failures.Load() != 0 {
+		t.Fatalf("onFailure called %d times for a healthy plugin", failures.Load())
 	}
 }
