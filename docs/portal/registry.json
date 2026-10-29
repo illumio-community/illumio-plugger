@@ -583,6 +583,24 @@
       "author": "Illumio",
       "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/pce-expiry-watch",
       "maturity": "preview"
+    },
+    {
+      "name": "meraki-sync",
+      "version": "0.1.0",
+      "image": "ghcr.io/illumio-community/plugger-meraki-sync:0.1.0",
+      "description": "Imports Cisco Meraki clients into Illumio as labeled unmanaged workloads for visibility (IoT/BYOD/branch devices)",
+      "mode": "daemon",
+      "has_ui": true,
+      "language": "python",
+      "tags": [
+        "integration",
+        "networking",
+        "discovery",
+        "visibility"
+      ],
+      "author": "Illumio",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/meraki-sync",
+      "maturity": "preview"
     }
   ]
 }

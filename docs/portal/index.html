@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plugger — Plugin Framework for Illumio PCE</title>
-<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 29 plugins with full documentation.">
+<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 30 plugins with full documentation.">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
@@ -99,7 +99,10 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         Plugin Framework for<br><span class="gradient-text">Illumio PCE</span>
     </h1>
     <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-10 fade-in fade-d1">
-        Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 29 plugins.
+        The agent-native Illumio plugin framework. Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 30 plugins.
+    </p>
+    <p class="text-sm text-gray-400 max-w-2xl mx-auto mb-10 -mt-6 fade-in fade-d1">
+        Agent-native means plugger is built to be authored and operated by AI coding agents: Claude Code scaffolds plugins through the build-plugin skill, the dashboard, HTTP APIs and reporting bus are all drivable by an agent, and the Python SDK keeps a working plugin to roughly 50 lines.
     </p>
     <div class="flex flex-wrap gap-4 justify-center fade-in fade-d2">
         <a href="#quickstart" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors">Get Started</a>
@@ -116,7 +119,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 <!-- Stats -->
 <section class="py-8 px-6 border-y border-gray-800">
 <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">29</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
+    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">30</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
     <div class="fade-in fade-d1"><div class="text-3xl font-bold text-green-400">4</div><div class="text-xs text-gray-400 mt-1">Output Channels</div></div>
     <div class="fade-in fade-d2"><div class="text-3xl font-bold text-purple-400">Python</div><div class="text-xs text-gray-400 mt-1">SDK Included</div></div>
     <div class="fade-in fade-d3"><div class="text-3xl font-bold text-yellow-400">Multi</div><div class="text-xs text-gray-400 mt-1">Arch (amd64/arm64)</div></div>
@@ -218,7 +221,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <!-- Category filters -->
     <div class="flex flex-wrap gap-2 justify-center mb-8">
-        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (29)</button>
+        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (30)</button>
         <button onclick="filterPlugins('monitoring')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="monitoring">Monitoring</button>
         <button onclick="filterPlugins('policy')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="policy">Policy & Compliance</button>
         <button onclick="filterPlugins('ai')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="ai">AI-Powered</button>
@@ -664,6 +667,22 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
             </div>
         </div>
 
+        <!-- Meraki Sync -->
+        <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in cursor-pointer" data-plugin="meraki-sync" data-categories="integration,operations" data-maturity="preview" onclick="showDocs('meraki-sync')">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-white font-semibold">Meraki Sync</h3>
+                <div class="flex gap-1">
+                    <span class="text-xs px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">daemon</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">new</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-300 mb-3">Imports Cisco Meraki clients into Illumio as labeled unmanaged workloads for visibility (IoT/BYOD/branch devices). Dry-run by default.</p>
+            <div class="flex items-center justify-between">
+                <code class="text-xs text-gray-400 select-all">plugger install meraki-sync</code>
+                <span class="text-xs text-blue-400 hover:text-blue-300">Docs &rarr;</span>
+            </div>
+        </div>
+
         <!-- FlowPilot -->
         <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in cursor-pointer" data-plugin="flowpilot" data-categories="integration,monitoring" data-maturity="preview" onclick="showDocs('flowpilot')">
             <div class="flex items-center justify-between mb-2">
@@ -692,12 +711,30 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <div class="space-y-8">
 
+        <!-- v0.15.5 -->
+        <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-white">v0.15.5</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                </div>
+                <span class="text-sm text-gray-500">October 29, 2026</span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-blue-400 mb-1">New Plugins</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>meraki-sync</strong> &mdash; imports Cisco Meraki clients into Illumio as labeled unmanaged workloads for visibility (IoT/BYOD/branch devices)</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- v0.15.4 -->
         <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <span class="text-lg font-bold text-white">v0.15.4</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
                 </div>
                 <span class="text-sm text-gray-500">October 29, 2026</span>
             </div>
@@ -2588,7 +2625,7 @@ plugger search --repo my-registry
     icon: "share",
     readme: `# Publishing Your Own Plugin Registry
 
-Plugger supports multiple plugin registries. The official registry ships with 29 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
+Plugger supports multiple plugin registries. The official registry ships with 30 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
 
 ## How Plugin Registries Work
 
@@ -4799,6 +4836,86 @@ Dragos asset schemas vary by site and sensor deployment, so the default field ma
 - Dashboard with sync stats, a Sync Now button, and a debug view for tuning the field map
 - \`DRY_RUN\` mode to preview label assignments before writing to the PCE`
 },
+"meraki-sync": {
+    title: "Meraki Sync",
+    mode: "daemon",
+    tags: ["integration","networking","discovery","visibility"],
+    readme: `# meraki-sync
+
+Imports **Cisco Meraki clients into Illumio as labeled unmanaged workloads** — the
+IoT, BYOD, and branch devices that Meraki already sees but you can't put a VEN on.
+They show up in the Illumio map and can be scoped by policy later.
+
+This is **Phase 1 (visibility)** of the Meraki integration: read-only on Meraki,
+**dry-run-by-default on the PCE**. Policy push to the Meraki edge is a separate,
+later phase.
+
+## What it does
+
+1. Reads your Meraki org → networks → **clients** (seen within \`CLIENT_TIMESPAN\`).
+2. Maps each client to an Illumio unmanaged workload:
+   - \`loc\` label = Meraki network name
+   - \`role\` label = Meraki's device-type prediction (falls back to manufacturer/OS)
+   - optional fixed \`app\` label via \`APP_LABEL\`
+   - interface from the client's IP
+3. Writes them idempotently: every workload is stamped with
+   \`external_data_set=meraki-sync\` and \`external_data_reference=<meraki client id>\`,
+   so re-runs **update in place** (create missing, update changed) instead of
+   duplicating.
+4. Publishes a summary report (discovered / new / updated / skipped) to the bus.
+
+It runs as a **daemon**: it re-syncs every \`POLL_INTERVAL\` seconds and serves a
+dashboard showing the discovered devices and the current sync plan, with a
+**Sync now** button to trigger a cycle on demand. \`/healthz\` backs plugger's
+health checks.
+
+## Safety
+
+\`DRY_RUN=true\` (the default) logs and reports exactly what *would* be synced
+**without writing anything to the PCE**. Review the dry-run report, then set
+\`DRY_RUN=false\` to apply. The write path only ever touches workloads carrying the
+\`meraki-sync\` data set — it never modifies VEN-managed or hand-created workloads.
+
+## Configuration
+
+| Env var | Default | Description |
+|---------|---------|-------------|
+| \`MERAKI_API_KEY\` | _(required, secret)_ | Meraki Dashboard API key (org-scoped) |
+| \`MERAKI_ORG_ID\` | _(auto)_ | Org ID; auto-detected if the key sees exactly one org |
+| \`MERAKI_NETWORK_IDS\` | _(all)_ | Comma-separated network IDs to scan |
+| \`POLL_INTERVAL\` | \`21600\` | Seconds between sync cycles |
+| \`CLIENT_TIMESPAN\` | \`86400\` | Import clients seen within the last N seconds |
+| \`MAX_CLIENTS_PER_NETWORK\` | \`5000\` | Per-network safety cap |
+| \`EXTERNAL_DATA_SET\` | \`meraki-sync\` | Illumio provenance tag for idempotency |
+| \`APP_LABEL\` | _(none)_ | Optional fixed \`app\` label on every device |
+| \`DRY_RUN\` | \`true\` | Log/report without writing (safe default) |
+| \`PCE_TLS_SKIP_VERIFY\` | \`true\` | Skip TLS verification for PCE API calls |
+
+PCE credentials (\`PCE_HOST\`, \`PCE_PORT\`, \`PCE_ORG_ID\`, \`PCE_API_KEY\`,
+\`PCE_API_SECRET\`) are injected automatically by plugger.
+
+## Dashboard
+
+The dashboard lists the discovered Meraki devices and the sync plan (what would
+be created or updated). Use **Sync now** to run a cycle immediately instead of
+waiting for the next \`POLL_INTERVAL\`. The default of 6 hours (\`21600\`) suits
+slow-moving Meraki inventory; change detection keeps steady-state PCE writes
+minimal.
+
+## Notes & roadmap
+
+- **Labeling is intentionally simple in Phase 1** (\`loc\` + \`role\`). Refine it to
+  your scheme once the device inventory looks right.
+- The official \`meraki\` SDK handles Dashboard API pagination and rate limiting.
+- **Later phases** (not in this plugin): push Illumio label intent to Meraki MX
+  L3 firewall rules, and bridge Illumio labels ↔ Meraki Adaptive Policy (SGT).
+
+## Install
+
+\`\`\`bash
+plugger install meraki-sync
+\`\`\``
+},
 "flowpilot": {
     title: "FlowPilot",
     mode: "daemon",
@@ -4946,7 +5063,7 @@ Nozomi asset schemas vary by product (Vantage vs. Guardian), version, and sensor
 // Render docs accordion
 function renderDocsAccordion() {
     const container = document.getElementById('docs-accordion');
-    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','pce-expiry-watch','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','flowpilot'];
+    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','pce-expiry-watch','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','meraki-sync','flowpilot'];
     let html = '';
     for (const id of order) {
         const plugin = PLUGIN_DOCS[id];

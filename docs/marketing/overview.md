@@ -15,6 +15,8 @@ Building these as standalone scripts works once. It doesn't scale — credential
 
 ## The Solution
 
+Plugger is the **agent-native Illumio plugin framework**: it is designed to be built and operated by AI coding agents. Plugins are scaffolded and authored by agents such as Claude Code via the `build-plugin` skill, the dashboard, HTTP APIs and reporting bus are all drivable by an agent, and the Python SDK keeps a working plugin to roughly 50 lines.
+
 Plugger is an open-source Go CLI that manages PCE extensions as Docker containers. It handles the operational boilerplate so each plugin can focus on its function:
 
 - Install plugins from a registry, a local file, a URL, or a container image

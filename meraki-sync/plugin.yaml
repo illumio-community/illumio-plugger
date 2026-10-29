@@ -1,0 +1,47 @@
+apiVersion: plugger/v1
+name: meraki-sync
+version: 0.1.0
+image: meraki-sync:latest
+
+schedule:
+  mode: daemon
+
+env:
+  - name: MERAKI_API_KEY
+    required: true
+    secret: true
+  - name: MERAKI_ORG_ID
+    required: false
+  - name: MERAKI_NETWORK_IDS
+    required: false
+  - name: POLL_INTERVAL
+    required: false
+    default: "21600"
+  - name: CLIENT_TIMESPAN
+    required: false
+    default: "86400"
+  - name: MAX_CLIENTS_PER_NETWORK
+    required: false
+    default: "5000"
+  - name: EXTERNAL_DATA_SET
+    required: false
+    default: "meraki-sync"
+  - name: APP_LABEL
+    required: false
+  - name: DRY_RUN
+    required: false
+    default: "true"
+  - name: PCE_TLS_SKIP_VERIFY
+    required: false
+    default: "true"
+
+health:
+  endpoint: /healthz
+  port: 8080
+  interval: 30s
+  timeout: 5s
+  retries: 3
+
+resources:
+  memoryLimit: 256m
+  cpuLimit: "0.5"

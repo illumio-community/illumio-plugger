@@ -1,0 +1,65 @@
+plugger: v1
+
+ports:
+  - port: 8080
+    protocol: tcp
+    name: dashboard
+    description: Meraki Sync dashboard — discovered devices and sync plan
+    type: ui
+    path: /
+
+config:
+  - name: MERAKI_API_KEY
+    description: Cisco Meraki Dashboard API key (org-scoped)
+    required: true
+    type: secret
+  - name: MERAKI_ORG_ID
+    description: Meraki organization ID (auto-detected if the key sees exactly one org)
+    required: false
+    type: string
+  - name: MERAKI_NETWORK_IDS
+    description: Comma-separated Meraki network IDs to scan (default all networks in the org)
+    required: false
+    type: string
+  - name: POLL_INTERVAL
+    description: Seconds between Meraki sync cycles
+    required: false
+    type: int
+    default: "21600"
+  - name: CLIENT_TIMESPAN
+    description: Import clients seen by Meraki within the last N seconds
+    required: false
+    type: int
+    default: "86400"
+  - name: MAX_CLIENTS_PER_NETWORK
+    description: Safety cap on clients imported per network
+    required: false
+    type: int
+    default: "5000"
+  - name: EXTERNAL_DATA_SET
+    description: Illumio external_data_set tag stamped on synced workloads (for idempotency)
+    required: false
+    type: string
+    default: "meraki-sync"
+  - name: APP_LABEL
+    description: Optional fixed Illumio app label applied to every discovered device
+    required: false
+    type: string
+  - name: DRY_RUN
+    description: Log/report/show what would sync without writing to the PCE (safe default)
+    required: false
+    type: bool
+    default: "true"
+  - name: PCE_TLS_SKIP_VERIFY
+    description: Skip TLS verification for PCE API calls
+    required: false
+    type: bool
+    default: "true"
+
+info:
+  title: Meraki Sync
+  version: "0.1.0"
+  description: Imports Cisco Meraki clients into Illumio as labeled unmanaged workloads for visibility — the IoT/BYOD/branch devices you can't put a VEN on
+  author: Illumio
+  license: Apache-2.0
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/meraki-sync
