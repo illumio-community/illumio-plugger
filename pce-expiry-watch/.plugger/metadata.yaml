@@ -1,0 +1,61 @@
+plugger: v1
+
+config:
+  - name: WARN_DAYS
+    description: Warn when an object expires within this many days
+    required: false
+    type: int
+    default: "30"
+  - name: CRITICAL_DAYS
+    description: Escalate to critical severity within this many days
+    required: false
+    type: int
+    default: "7"
+  - name: PAIRING_USES_WARN
+    description: Warn when a pairing key has this many uses (or fewer) remaining
+    required: false
+    type: int
+    default: "5"
+  - name: CHECK_SERVICE_ACCOUNTS
+    description: Check PCE service account API-key expiry
+    required: false
+    type: bool
+    default: "true"
+  - name: CHECK_PAIRING_KEYS
+    description: Check pairing profile key lifespan and uses remaining
+    required: false
+    type: bool
+    default: "true"
+  - name: CHECK_LICENSE
+    description: Check PCE license expiry (best-effort; endpoint varies by PCE version)
+    required: false
+    type: bool
+    default: "true"
+  - name: CHECK_TLS_CERT
+    description: Check the PCE API/web TLS certificate expiry (read directly, no API)
+    required: false
+    type: bool
+    default: "true"
+  - name: LICENSE_API_PATH
+    description: Org-scoped API path for the license object (override if your PCE differs)
+    required: false
+    type: string
+    default: "/license"
+  - name: REPORT_ALL_CLEAR
+    description: Also send an info report when nothing is expiring
+    required: false
+    type: bool
+    default: "false"
+  - name: PCE_TLS_SKIP_VERIFY
+    description: Skip TLS verification for PCE API calls
+    required: false
+    type: bool
+    default: "true"
+
+info:
+  title: PCE Expiry Watch
+  version: "0.1.0"
+  description: Warns before PCE service accounts, pairing keys, license, or TLS certificate expire — scheduled checks that publish to the reporting bus
+  author: Illumio
+  license: Apache-2.0
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/pce-expiry-watch

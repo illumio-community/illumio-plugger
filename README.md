@@ -6,7 +6,7 @@
 
 <p align="center">
 
-[![Plugins](https://img.shields.io/badge/plugins-28-blue)](https://illumio-community.github.io/illumio-plugger/)
+[![Plugins](https://img.shields.io/badge/plugins-29-blue)](https://illumio-community.github.io/illumio-plugger/)
 [![Languages](https://img.shields.io/badge/templates-Go%20%7C%20Python%20%7C%20Shell%20%7C%20JavaScript-green)](docs/plugin-development.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey)](LICENSE)
 [![Portal](https://img.shields.io/badge/portal-live-brightgreen)](https://illumio-community.github.io/illumio-plugger/)
@@ -64,7 +64,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 
 ---
 
-## All 28 Plugins
+## All 29 Plugins
 
 > ⚠️ **Maturity note:** plugins marked **preview** (and **example**) may not have been tested against a live PCE or the target integration. Validate them in a non-production environment before relying on them.
 
@@ -77,6 +77,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 | [policy-diff](policy-diff/) | Git-like policy change tracker — field-level diffs, user attribution, audit trail | Daemon + UI |
 | [pce-events](pce-events/) | Real-time PCE event fan-out — Slack, Teams, PagerDuty, Email, 15+ outputs | Daemon + UI |
 | [ven-fleet-manager](ven-fleet-manager/) | VEN fleet visibility — enforcement progress, compatibility, version distribution, upgrade readiness | Daemon + UI |
+| [pce-expiry-watch](pce-expiry-watch/) | Warns before PCE service accounts, pairing keys, license, or TLS certificate expire — daily checks publish to the reporting bus | Cron |
 | [stale-workloads](stale-workloads/) | Find offline, unresponsive, and traffic-silent workloads — with optional cleanup | Daemon + UI |
 | [network-discovery](network-discovery/) | Scan traffic for bare IPs, reverse-DNS, create unmanaged workloads | Daemon + UI |
 

@@ -1,7 +1,7 @@
 {
   "name": "Illumio Official Plugin Registry",
   "url": "https://illumio-community.github.io/illumio-plugger/registry.json",
-  "updated": "2026-04-19T00:00:00Z",
+  "updated": "2026-10-29",
   "plugins": [
     {
       "name": "pce-health-monitor",
@@ -564,6 +564,24 @@
       ],
       "author": "Illumio",
       "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/flowpilot",
+      "maturity": "preview"
+    },
+    {
+      "name": "pce-expiry-watch",
+      "version": "0.1.0",
+      "image": "ghcr.io/illumio-community/plugger-pce-expiry-watch:0.1.0",
+      "description": "Warns before PCE service accounts, pairing keys, license, or TLS certificate expire \u2014 scheduled checks to the reporting bus",
+      "mode": "cron",
+      "has_ui": false,
+      "language": "python",
+      "tags": [
+        "operations",
+        "expiry",
+        "credentials",
+        "alerting"
+      ],
+      "author": "Illumio",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/pce-expiry-watch",
       "maturity": "preview"
     }
   ]

@@ -1,0 +1,44 @@
+apiVersion: plugger/v1
+name: pce-expiry-watch
+version: 0.1.0
+image: pce-expiry-watch:latest
+
+schedule:
+  mode: cron
+  cron: "0 8 * * *"        # daily at 08:00
+
+env:
+  - name: PCE_TLS_SKIP_VERIFY
+    required: false
+    default: "true"
+  - name: WARN_DAYS
+    required: false
+    default: "30"
+  - name: CRITICAL_DAYS
+    required: false
+    default: "7"
+  - name: PAIRING_USES_WARN
+    required: false
+    default: "5"
+  - name: CHECK_SERVICE_ACCOUNTS
+    required: false
+    default: "true"
+  - name: CHECK_PAIRING_KEYS
+    required: false
+    default: "true"
+  - name: CHECK_LICENSE
+    required: false
+    default: "true"
+  - name: CHECK_TLS_CERT
+    required: false
+    default: "true"
+  - name: LICENSE_API_PATH
+    required: false
+    default: "/license"
+  - name: REPORT_ALL_CLEAR
+    required: false
+    default: "false"
+
+resources:
+  memoryLimit: 256m
+  cpuLimit: "0.5"

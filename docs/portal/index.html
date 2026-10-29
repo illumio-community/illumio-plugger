@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plugger — Plugin Framework for Illumio PCE</title>
-<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 28 plugins with full documentation.">
+<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 29 plugins with full documentation.">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
@@ -99,7 +99,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         Plugin Framework for<br><span class="gradient-text">Illumio PCE</span>
     </h1>
     <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-10 fade-in fade-d1">
-        Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 28 plugins.
+        Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 29 plugins.
     </p>
     <div class="flex flex-wrap gap-4 justify-center fade-in fade-d2">
         <a href="#quickstart" class="px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors">Get Started</a>
@@ -116,7 +116,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 <!-- Stats -->
 <section class="py-8 px-6 border-y border-gray-800">
 <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">28</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
+    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">29</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
     <div class="fade-in fade-d1"><div class="text-3xl font-bold text-green-400">4</div><div class="text-xs text-gray-400 mt-1">Output Channels</div></div>
     <div class="fade-in fade-d2"><div class="text-3xl font-bold text-purple-400">Python</div><div class="text-xs text-gray-400 mt-1">SDK Included</div></div>
     <div class="fade-in fade-d3"><div class="text-3xl font-bold text-yellow-400">Multi</div><div class="text-xs text-gray-400 mt-1">Arch (amd64/arm64)</div></div>
@@ -218,7 +218,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <!-- Category filters -->
     <div class="flex flex-wrap gap-2 justify-center mb-8">
-        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (28)</button>
+        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (29)</button>
         <button onclick="filterPlugins('monitoring')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="monitoring">Monitoring</button>
         <button onclick="filterPlugins('policy')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="policy">Policy & Compliance</button>
         <button onclick="filterPlugins('ai')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="ai">AI-Powered</button>
@@ -346,6 +346,22 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
             <p class="text-sm text-gray-300 mb-3">Scheduled security posture scoring. Enforcement coverage, label coverage, policy rules. Generates HTML + JSON reports.</p>
             <div class="flex items-center justify-between">
                 <code class="text-xs text-gray-400 select-all">plugger install pce-posture-report</code>
+                <span class="text-xs text-blue-400 hover:text-blue-300">Docs →</span>
+            </div>
+        </div>
+
+        <!-- PCE Expiry Watch -->
+        <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in cursor-pointer" data-plugin="pce-expiry-watch" data-categories="operations,monitoring" data-maturity="preview" onclick="showDocs('pce-expiry-watch')">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-white font-semibold">PCE Expiry Watch</h3>
+                <div class="flex gap-1">
+                    <span class="text-xs px-2 py-0.5 rounded bg-amber-500/15 text-amber-300 border border-amber-500/30">cron</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30">new</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-300 mb-3">Warns before PCE service accounts, pairing keys, license, or TLS certificate expire. Daily checks publish to the reporting bus.</p>
+            <div class="flex items-center justify-between">
+                <code class="text-xs text-gray-400 select-all">plugger install pce-expiry-watch</code>
                 <span class="text-xs text-blue-400 hover:text-blue-300">Docs →</span>
             </div>
         </div>
@@ -676,12 +692,30 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <div class="space-y-8">
 
+        <!-- v0.15.3 -->
+        <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-white">v0.15.3</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                </div>
+                <span class="text-sm text-gray-500">October 29, 2026</span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-blue-400 mb-1">New Plugins</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>pce-expiry-watch</strong> &mdash; warns before PCE service accounts, pairing keys, license, or TLS certificates expire</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- v0.15.2 -->
         <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <span class="text-lg font-bold text-white">v0.15.2</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
                 </div>
                 <span class="text-sm text-gray-500">October 29, 2026</span>
             </div>
@@ -2506,7 +2540,7 @@ plugger search --repo my-registry
     icon: "share",
     readme: `# Publishing Your Own Plugin Registry
 
-Plugger supports multiple plugin registries. The official registry ships with 28 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
+Plugger supports multiple plugin registries. The official registry ships with 29 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
 
 ## How Plugin Registries Work
 
@@ -3577,6 +3611,65 @@ Default cron schedule is \`0 */6 * * *\` (every 6 hours).
 - Policy summary: active/draft rulesets, rules, IP lists, services
 - Generates timestamped HTML and JSON reports with \`latest\` symlinks
 - Runs as a cron plugin — no persistent daemon required`
+},
+"pce-expiry-watch": {
+    title: "PCE Expiry Watch",
+    mode: "cron",
+    tags: ["operations", "monitoring"],
+    readme: `# PCE Expiry Watch
+
+Warns you **before** PCE objects expire. A scheduled (cron) plugin that checks the expiry of selected PCE objects on each run and publishes a report through the plugger reporting bus (Slack / email / webhook) for anything inside the warning window.
+
+Every check is independently toggleable, and all thresholds are configurable.
+
+## Install
+
+\`\`\`bash
+plugger install pce-expiry-watch
+\`\`\`
+
+## What it checks
+
+| Check | Source | Notes |
+|---|---|---|
+| **Service accounts** | \`GET /service_accounts\` | API-key expiry on service accounts |
+| **Pairing keys** | \`GET /pairing_profiles\` | Active key lifespan **and** uses remaining |
+| **PCE license** | \`GET /license\` (configurable) | Best-effort, endpoint varies by PCE version |
+| **PCE TLS certificate** | TLS handshake to \`PCE_HOST:PCE_PORT\` | \`notAfter\` read directly, no API call |
+
+## Severity
+
+- **critical**: expires within \`CRITICAL_DAYS\` (default 7), or already expired
+- **warning**: expires within \`WARN_DAYS\` (default 30)
+- Anything further out is logged but not reported.
+
+Routing (which channel each severity goes to) is configured centrally in \`~/.plugger/config.yaml\`. The plugin just publishes.
+
+## Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| \`WARN_DAYS\` | \`30\` | Warn when an object expires within this many days |
+| \`CRITICAL_DAYS\` | \`7\` | Escalate to critical within this many days |
+| \`PAIRING_USES_WARN\` | \`5\` | Warn when a pairing key has this many uses left or fewer |
+| \`CHECK_SERVICE_ACCOUNTS\` | \`true\` | Toggle the service-account check |
+| \`CHECK_PAIRING_KEYS\` | \`true\` | Toggle the pairing-key check |
+| \`CHECK_LICENSE\` | \`true\` | Toggle the license check |
+| \`CHECK_TLS_CERT\` | \`true\` | Toggle the TLS-certificate check |
+| \`LICENSE_API_PATH\` | \`/license\` | Org-scoped API path for the license object |
+| \`REPORT_ALL_CLEAR\` | \`false\` | Also send an info report when nothing is expiring |
+| \`PCE_TLS_SKIP_VERIFY\` | \`true\` | Skip TLS verification for PCE API calls |
+
+PCE credentials are injected automatically by plugger.
+
+## Schedule
+
+Daily at 08:00 by default (\`0 8 * * *\` in plugin.yaml). Expiry is slow-moving, so a daily check is plenty; adjust the cron expression if you want it more often.
+
+## Caveats
+
+- **License**: the PCE license object is not exposed by a stable public API on all PCE versions. The check degrades gracefully (logs and skips on a non-200) and the endpoint is overridable via \`LICENSE_API_PATH\`.
+- **Pairing-key uses**: \`total_use_count\` on a pairing profile is an aggregate counter, so uses remaining is a best-effort signal meant to flag a profile worth a human look, not an exact per-key count. Key-lifespan expiry is exact.`
 },
 "stale-workloads": {
     title: "Stale Workloads",
@@ -4801,7 +4894,7 @@ Nozomi asset schemas vary by product (Vantage vs. Guardian), version, and sensor
 // Render docs accordion
 function renderDocsAccordion() {
     const container = document.getElementById('docs-accordion');
-    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','flowpilot'];
+    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','pce-expiry-watch','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','flowpilot'];
     let html = '';
     for (const id of order) {
         const plugin = PLUGIN_DOCS[id];
