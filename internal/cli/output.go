@@ -286,7 +286,12 @@ func newOutputRemoveCmd() *cobra.Command {
 }
 
 func newOutputTestCmd() *cobra.Command {
-	return &cobra.Command{
+	// Default to 127.0.0.1 (not "localhost"): on dual-stack hosts localhost
+	// resolves to IPv6 [::1] first, but the dashboard listens on IPv4, so
+	// "localhost" gives connection refused. Override with --addr if the
+	// dashboard runs elsewhere.
+	addr := "127.0.0.1:8800"
+	cmd := &cobra.Command{
 		Use:   "test <name>",
 		Short: "Send a test message to an output channel",
 		Long:  "Sends a test report to the named output via the running plugger dashboard API.",
@@ -294,7 +299,6 @@ func newOutputTestCmd() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			name := args[0]
 
-			addr := "localhost:8800"
 			url := fmt.Sprintf("http://%s/api/reports/test/%s", addr, name)
 
 			status, errMsg, err := sendTestRequest(url)
@@ -310,6 +314,8 @@ func newOutputTestCmd() *cobra.Command {
 			return nil
 		},
 	}
+	cmd.Flags().StringVar(&addr, "addr", addr, "dashboard address (host:port)")
+	return cmd
 }
 
 func sendTestRequest(url string) (status string, errMsg string, err error) {
