@@ -16,6 +16,11 @@ Usage:
 
     app.run()
 
+Uptime: app.started_at, app.uptime_seconds and app.uptime ("3h 14m") are
+available in code, /healthz reports started_at and uptime_seconds, and any
+dashboard element with a data-plugger-uptime attribute shows a live uptime,
+e.g. <footer>Up <span data-plugger-uptime></span></footer>.
+
 Env vars injected by plugger:
     PCE_HOST, PCE_PORT, PCE_ORG_ID, PCE_API_KEY, PCE_API_SECRET
     PLUGGER_PLUGIN_NAME, PLUGGER_URL, PLUGGER_WEBHOOK_TOKEN
@@ -116,15 +121,70 @@ html:not(.dark) #plugger-theme-toggle button:hover { color:#111827; }
 """
 
 
-def _inject_theme(html):
-    """Splice the theme snippet in after <head>. Returns html unchanged when it
-    is not a full HTML document or the snippet is already present."""
+# ---------------------------------------------------------------------------
+# Plugin uptime (shown by any element with a data-plugger-uptime attribute)
+# ---------------------------------------------------------------------------
+#
+# Injected with the theme snippet. The meta tag carries the uptime in seconds
+# at render time; the script adds the time since page load, so the display does
+# not depend on the browser's clock matching the container's. Place
+# <span data-plugger-uptime></span> anywhere in a dashboard to show it.
+_UPTIME_SCRIPT = r"""<script data-plugger-uptime-script>
+(function(){
+  var meta=document.querySelector('meta[name="plugger-uptime"]');
+  if(!meta) return;
+  var base=parseInt(meta.getAttribute('content'),10)||0, since=meta.getAttribute('data-started-at'), loaded=Date.now();
+  function fmt(s){
+    s=Math.max(0,Math.floor(s));
+    var d=Math.floor(s/86400), h=Math.floor(s%86400/3600), m=Math.floor(s%3600/60);
+    if(d) return d+'d '+h+'h '+m+'m';
+    if(h) return h+'h '+m+'m';
+    if(m) return m+'m';
+    return s+'s';
+  }
+  function tick(){
+    var text=fmt(base+(Date.now()-loaded)/1000);
+    document.querySelectorAll('[data-plugger-uptime]').forEach(function(el){
+      el.textContent=text;
+      if(since) el.title='Up since '+since;
+    });
+  }
+  function start(){ tick(); setInterval(tick, 15000); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+</script>
+"""
+
+
+def format_uptime(seconds):
+    """Format seconds as '45s', '14m', '3h 14m' or '2d 3h 14m'."""
+    s = max(0, int(seconds))
+    d, rem = divmod(s, 86400)
+    h, rem = divmod(rem, 3600)
+    m = rem // 60
+    if d:
+        return f"{d}d {h}h {m}m"
+    if h:
+        return f"{h}h {m}m"
+    if m:
+        return f"{m}m"
+    return f"{s}s"
+
+
+def _inject_theme(html, uptime_seconds=None, started_at=None):
+    """Splice the theme snippet (and, when uptime_seconds is given, the uptime
+    meta tag and script) in after <head>. Returns html unchanged when it is not
+    a full HTML document or the snippet is already present."""
     if not isinstance(html, str) or "data-plugger-theme" in html:
         return html
     m = re.search(r"<head[^>]*>", html, re.IGNORECASE)
     if not m:
         return html
-    return html[:m.end()] + "\n" + _THEME_SNIPPET + html[m.end():]
+    extra = ""
+    if uptime_seconds is not None:
+        extra = (f'<meta name="plugger-uptime" content="{int(uptime_seconds)}" '
+                 f'data-started-at="{started_at or ""}">\n' + _UPTIME_SCRIPT)
+    return html[:m.end()] + "\n" + extra + _THEME_SNIPPET + html[m.end():]
 
 
 # ---------------------------------------------------------------------------
@@ -170,7 +230,40 @@ class Plugin:
         self._routes = {}
         self._dashboard_fn = None
         self._poll_event = threading.Event()
+        self._started_monotonic = time.monotonic()
+        self._started_at = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
         self._setup_logging()
+
+    # -- Uptime --
+
+    @property
+    def started_at(self):
+        """UTC start time of this plugin process, ISO 8601 (e.g. 2026-10-29T15:04:05Z)."""
+        return self._started_at
+
+    @property
+    def uptime_seconds(self):
+        """Whole seconds since the plugin started."""
+        return int(time.monotonic() - self._started_monotonic)
+
+    @property
+    def uptime(self):
+        """Human-readable uptime, e.g. '3h 14m'."""
+        return format_uptime(self.uptime_seconds)
+
+    def _health(self):
+        return {
+            "status": "healthy",
+            "plugin": self.name,
+            "state_keys": list(self._state.keys()),
+            "started_at": self.started_at,
+            "uptime_seconds": self.uptime_seconds,
+        }
+
+    def _render_dashboard_html(self, html):
+        if not self._inject_theme:
+            return html
+        return _inject_theme(html, self.uptime_seconds, self.started_at)
 
     # -- Logging --
 
@@ -386,19 +479,13 @@ class Plugin:
 
                 # Built-in: healthz
                 if path == "/healthz":
-                    self._send_json(200, {
-                        "status": "healthy",
-                        "plugin": plugin.name,
-                        "state_keys": list(plugin._state.keys()),
-                    })
+                    self._send_json(200, plugin._health())
                     return
 
                 # Built-in: dashboard
                 if path == "/" and method == "GET":
                     if plugin._dashboard_fn:
-                        html = plugin._dashboard_fn()
-                        if plugin._inject_theme:
-                            html = _inject_theme(html)
+                        html = plugin._render_dashboard_html(plugin._dashboard_fn())
                         self._send(200, html, "text/html; charset=utf-8")
                     else:
                         self._send_json(200, plugin._state)
