@@ -754,6 +754,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
                     <ul class="text-gray-300 space-y-1 ml-4 list-disc">
                         <li><strong>Registry showed 0 plugins</strong> &mdash; a date-only <code>updated</code> field failed to parse into the client's <code>time.Time</code>, silently dropping every plugin. The field is now a plain string, the client falls back to its cache on any fetch error, and CI validates the timestamp.</li>
                         <li><strong>Health checks</strong> &mdash; daemon plugins no longer restart-loop every ~90s; the probe URL is resolved from the live container on every check (ephemeral host ports) and an unresolvable URL is skipped, not counted as a failure.</li>
+                        <li><strong>Light-mode buttons</strong> &mdash; the Start/Stop/Restart/Uninstall buttons kept a dark background in light mode but their white label was being remapped to near-black, making them nearly unreadable. Labels now stay white on those buttons.</li>
                         <li><strong>flowpilot</strong> (0.2.3) &mdash; install the collector binary under its real name <code>/usr/local/bin/flowpilot</code> (was renamed to <code>flowlink</code>), and drop the stale "FlowLink" product references from the docs</li>
                     </ul>
                 </div>

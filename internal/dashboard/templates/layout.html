@@ -54,6 +54,16 @@
         html:not(.dark) .text-gray-600 { color: #d1d5db; }
         html:not(.dark) .text-white { color: #111827; }
         html:not(.dark) code { background: #e5e7eb; color: #374151; }
+        /* Action buttons (start/stop/restart/uninstall) keep a saturated/dark
+           background in light mode, so their label must stay white — the
+           blanket .text-white remap above would otherwise make them
+           dark-on-dark and unreadable. Restore white on exactly those
+           backgrounds, including the muted uninstall button. */
+        html:not(.dark) .bg-green-600,
+        html:not(.dark) .bg-red-600,
+        html:not(.dark) .bg-red-600\/80,
+        html:not(.dark) .bg-gray-600,
+        html:not(.dark) .bg-gray-700 { color: #ffffff; }
 
         /* Theme toggle button */
         .theme-btn { transition: all 0.2s; }
