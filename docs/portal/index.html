@@ -708,7 +708,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
                     <span class="text-xs px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">new</span>
                 </div>
             </div>
-            <p class="text-sm text-gray-300 mb-3">Collect NetFlow/IPFIX/sFlow/text flows to the Illumio PCE with an ingestion-health dashboard and silent-exporter alerts &mdash; runs the FlowPilot collector, no FlowLink install.</p>
+            <p class="text-sm text-gray-300 mb-3">Collect NetFlow/IPFIX/sFlow/text flows to the Illumio PCE with an ingestion-health dashboard and silent-exporter alerts &mdash; runs the FlowPilot collector.</p>
             <div class="flex items-center justify-between">
                 <code class="text-xs text-gray-400 select-all">plugger install flowpilot</code>
                 <span class="text-xs text-blue-400 hover:text-blue-300">Docs &rarr;</span>
@@ -741,6 +741,12 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
                     <h4 class="font-semibold text-blue-400 mb-1">New Plugins</h4>
                     <ul class="text-gray-300 space-y-1 ml-4 list-disc">
                         <li><strong>ise-sync</strong> &mdash; mirrors Cisco ISE TrustSec context (SGTs and host IP-SGT mappings) into Illumio as labels and unmanaged workloads</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-red-400 mb-1">Bug Fixes</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>flowpilot</strong> (0.2.3) &mdash; install the collector binary under its real name <code>/usr/local/bin/flowpilot</code> (was renamed to <code>flowlink</code>), and drop the stale "FlowLink" product references from the docs</li>
                     </ul>
                 </div>
             </div>
@@ -5039,7 +5045,7 @@ How-to: [bridging ISE TrustSec SGTs into Illumio](https://github.com/illumio-com
     tags: ["integration","monitoring","netflow","ipfix","sflow","flows"],
     readme: `# FlowPilot
 
-Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firewalls and send them to the Illumio PCE, without installing FlowLink. The plugin runs the FlowPilot flow collector, shows an ingestion-health dashboard, and raises plugger notifications when something stops.
+Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firewalls and send them to the Illumio PCE. The plugin runs the FlowPilot flow collector, shows an ingestion-health dashboard, and raises plugger notifications when something stops.
 
 **Maturity: preview.** The core promise: **you'll know when an exporter goes silent.**
 
@@ -5053,7 +5059,7 @@ Then open the settings form, enable the collectors you need and point your expor
 
 ## How It Works
 
-- The image contains the FlowPilot collector binary (\`/usr/local/bin/flowlink\`, unchanged)
+- The image contains the FlowPilot collector binary, unchanged
 - \`main.py\` maps the plugger settings to \`FLOWPILOT_*\` environment variables and runs the binary as a child process, restarting it with a backoff (1s up to 30s) if it exits and stopping it cleanly on shutdown
 - FlowPilot's log, including its \`FLOWPILOT_STATS\` lines, goes to the plugin's stdout, so \`plugger logs flowpilot\` shows it
 - FlowPilot's stats endpoint listens on \`127.0.0.1:9180\` inside the container only; the plugin polls \`/stats\` every 5 seconds to drive the dashboard and the alerts

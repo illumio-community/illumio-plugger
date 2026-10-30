@@ -16,15 +16,15 @@ RUN set -eux; \
     esac; \
     base="https://github.com/alexgoller/flowpilot/releases/download/v${FLOWPILOT_VERSION}"; \
     cd /tmp; \
-    curl -fsSL -o flowlink "$base/flowpilot-${FLOWPILOT_VERSION}-${A}-linux"; \
+    curl -fsSL -o flowpilot "$base/flowpilot-${FLOWPILOT_VERSION}-${A}-linux"; \
     curl -fsSL -o SHA256SUMS "$base/SHA256SUMS"; \
     curl -fsSL -o LICENSE "$base/LICENSE"; \
     curl -fsSL -o NOTICE "$base/NOTICE"; \
     curl -fsSL -o THIRD_PARTY_LICENSES.md "$base/THIRD_PARTY_LICENSES.md"; \
     grep "flowpilot-${FLOWPILOT_VERSION}-${A}-linux" SHA256SUMS \
-      | sed "s#flowpilot-${FLOWPILOT_VERSION}-${A}-linux#flowlink#" \
+      | sed "s#flowpilot-${FLOWPILOT_VERSION}-${A}-linux#flowpilot#" \
       | sha256sum -c -; \
-    chmod +x flowlink
+    chmod +x flowpilot
 
 FROM python:3.12-slim
 
@@ -32,8 +32,8 @@ WORKDIR /app
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# FlowPilot binary (invoked as `flowlink`) + the licence files it ships with.
-COPY --from=fetch /tmp/flowlink /usr/local/bin/flowlink
+# FlowPilot binary + the licence files it ships with.
+COPY --from=fetch /tmp/flowpilot /usr/local/bin/flowpilot
 COPY --from=fetch /tmp/LICENSE /tmp/NOTICE /tmp/THIRD_PARTY_LICENSES.md /usr/local/share/flowpilot/
 
 COPY . .

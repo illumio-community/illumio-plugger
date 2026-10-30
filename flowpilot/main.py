@@ -26,7 +26,7 @@ app = Plugin("flowpilot")
 # Constants
 # ---------------------------------------------------------------------------
 
-BINARY = "/usr/local/bin/flowlink"
+BINARY = "/usr/local/bin/flowpilot"
 STATS_PORT = 9180
 STATS_URL = f"http://127.0.0.1:{STATS_PORT}"
 DATA_DIR = "/data"

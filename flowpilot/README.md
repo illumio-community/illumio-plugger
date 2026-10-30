@@ -1,12 +1,12 @@
 # FlowPilot
 
-Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firewalls and send them to the Illumio PCE, without installing FlowLink. The plugin runs the FlowPilot flow collector, shows an ingestion-health dashboard, and raises plugger notifications when something stops.
+Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firewalls and send them to the Illumio PCE. The plugin runs the FlowPilot flow collector, shows an ingestion-health dashboard, and raises plugger notifications when something stops.
 
 **Maturity: preview.** The core promise: **you'll know when an exporter goes silent.**
 
 ## How it works
 
-- The image contains the FlowPilot collector binary (`/usr/local/bin/flowlink`, unchanged).
+- The image contains the FlowPilot collector binary, unchanged.
 - `main.py` (on the vendored `plugger_sdk.py`) maps the plugger settings to `FLOWPILOT_*` environment variables and runs the binary as a child process. It restarts it with a backoff (1s up to 30s) if it exits, and stops it cleanly (SIGTERM, then kill after 10s) on shutdown.
 - FlowPilot's log, including its `FLOWPILOT_STATS` lines, goes to the plugin's stdout, so `plugger logs flowpilot` shows it.
 - FlowPilot's stats endpoint listens on `127.0.0.1:9180` inside the container only. The plugin polls `/stats` every 5 seconds to drive the dashboard and the alerts.
@@ -14,14 +14,13 @@ Collect NetFlow, IPFIX, sFlow and syslog-style text flows from routers and firew
 
 ## Binary
 
-The image downloads a pinned **FlowPilot** release ([github.com/alexgoller/flowpilot](https://github.com/alexgoller/flowpilot), Apache-2.0) at build time and verifies it against the release's `SHA256SUMS` — no local binary needed. The version is pinned by the `FLOWPILOT_VERSION` build arg (default `0.9.0`); the build picks the `x86_64`/`aarch64` asset from `TARGETARCH`. The binary is installed as `/usr/local/bin/flowlink`, and FlowPilot's `LICENSE`, `NOTICE` and `THIRD_PARTY_LICENSES.md` are shipped alongside it under `/usr/local/share/flowpilot/`. (`flowlink -version` prints e.g. `FlowPilot version: 0.9.0`.)
+The image downloads a pinned **FlowPilot** release ([github.com/alexgoller/flowpilot](https://github.com/alexgoller/flowpilot), Apache-2.0) at build time and verifies it against the release's `SHA256SUMS` — no local binary needed. The version is pinned by the `FLOWPILOT_VERSION` build arg (default `0.9.0`); the build picks the `x86_64`/`aarch64` asset from `TARGETARCH`. The binary is installed into the image, and FlowPilot's `LICENSE`, `NOTICE` and `THIRD_PARTY_LICENSES.md` are shipped alongside it under `/usr/local/share/flowpilot/`. (Its `-version` prints e.g. `FlowPilot version: 0.9.0`.)
 
 To bump FlowPilot, change the default `FLOWPILOT_VERSION` in the Dockerfile (and this plugin's version) to the new release tag.
 
 ## Install
 
 ```bash
-cp /path/to/flowlink flowpilot/flowlink
 docker build -t plugger-flowpilot:latest flowpilot/
 plugger install flowpilot
 ```
