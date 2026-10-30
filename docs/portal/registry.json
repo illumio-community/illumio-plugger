@@ -1,7 +1,7 @@
 {
   "name": "Illumio Official Plugin Registry",
   "url": "https://illumio-community.github.io/illumio-plugger/registry.json",
-  "updated": "2026-10-29",
+  "updated": "2026-10-30T00:00:00Z",
   "plugins": [
     {
       "name": "pce-health-monitor",
@@ -547,8 +547,8 @@
     },
     {
       "name": "flowpilot",
-      "version": "0.2.3",
-      "image": "ghcr.io/illumio-community/plugger-flowpilot:0.2.3",
+      "version": "0.2.4",
+      "image": "ghcr.io/illumio-community/plugger-flowpilot:0.2.4",
       "description": "Collect NetFlow/IPFIX/sFlow/text flows to the Illumio PCE with an ingestion-health dashboard and silent-exporter alerts \u2014 runs the FlowPilot collector",
       "mode": "daemon",
       "has_ui": true,

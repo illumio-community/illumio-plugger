@@ -69,6 +69,28 @@ def main():
 
     print(f"Found {len(plugins)} plugins, {len(registry_by_name)} registry entries\n")
 
+    # Check 0: top-level "updated" must be an RFC3339 timestamp. The Go client
+    # historically parsed it into time.Time, so a date-only value (e.g.
+    # "2026-10-29") failed to unmarshal and made the WHOLE registry — every
+    # plugin — vanish for clients. The client is now lenient, but keep the
+    # published value RFC3339 so older clients keep working.
+    updated = registry.get("updated")
+    if updated is not None:
+        ok = isinstance(updated, str)
+        if ok:
+            try:
+                from datetime import datetime
+                datetime.strptime(updated, "%Y-%m-%dT%H:%M:%S%z")
+            except ValueError:
+                try:
+                    datetime.strptime(updated, "%Y-%m-%dT%H:%M:%SZ")
+                except ValueError:
+                    ok = False
+        if not ok:
+            print(f"❌ registry \"updated\" must be an RFC3339 timestamp "
+                  f"(e.g. 2026-10-30T00:00:00Z), got {updated!r}")
+            errors += 1
+
     # Check 1: Every plugin has a registry entry (except pending-publish ones)
     for plugin in plugins:
         if plugin in registry_by_name:

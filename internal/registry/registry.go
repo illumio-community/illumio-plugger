@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 const (
@@ -20,10 +19,14 @@ const (
 
 // Registry represents a remote plugin index.
 type Registry struct {
-	Name    string    `json:"name"`
-	URL     string    `json:"url"`
-	Updated time.Time `json:"updated"`
-	Plugins []Plugin  `json:"plugins"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+	// Updated is informational only and is kept as a plain string: a registry
+	// may publish it as a date ("2026-10-30") or an RFC3339 timestamp, and a
+	// stricter type (e.g. time.Time) would fail to parse the whole registry —
+	// and silently drop every plugin — over a cosmetic field.
+	Updated string   `json:"updated"`
+	Plugins []Plugin `json:"plugins"`
 }
 
 // Plugin describes an available plugin in the registry.
@@ -113,6 +116,12 @@ func (m *Manager) FetchAll() ([]Registry, error) {
 	for _, repo := range repos.Repos {
 		reg, err := m.fetchRegistry(repo.URL)
 		if err != nil {
+			// Fall back to the last cached copy so a transient outage or a
+			// malformed field doesn't make the whole registry (and every
+			// plugin in it) silently disappear.
+			if cached := m.loadCachedRegistry(repo.Name); cached != nil {
+				registries = append(registries, *cached)
+			}
 			continue
 		}
 		reg.Name = repo.Name
@@ -121,6 +130,21 @@ func (m *Manager) FetchAll() ([]Registry, error) {
 		m.cacheRegistry(repo.Name, reg)
 	}
 	return registries, nil
+}
+
+// loadCachedRegistry returns the last successfully-fetched copy of a registry
+// from disk, or nil if there is no readable/parseable cache.
+func (m *Manager) loadCachedRegistry(name string) *Registry {
+	data, err := os.ReadFile(m.cachePath(name))
+	if err != nil {
+		return nil
+	}
+	var reg Registry
+	if err := json.Unmarshal(data, &reg); err != nil {
+		return nil
+	}
+	reg.Name = name
+	return &reg
 }
 
 // Search searches all registries for plugins matching a query.

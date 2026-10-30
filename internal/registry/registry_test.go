@@ -103,3 +103,43 @@ func TestLoadRepos_DefaultWhenMissing(t *testing.T) {
 		t.Errorf("official URL: got %q, want %q", got, OfficialRegistryURL)
 	}
 }
+
+// A date-only "updated" (e.g. "2026-10-29") must not break parsing. It once
+// did — Updated was a time.Time, so the whole registry failed to unmarshal and
+// every plugin silently vanished for clients.
+func TestRegistry_ParsesDateOnlyUpdated(t *testing.T) {
+	raw := `{"name":"official","url":"u","updated":"2026-10-29","plugins":[{"name":"flowpilot"},{"name":"meraki-sync"}]}`
+	var reg Registry
+	if err := json.Unmarshal([]byte(raw), &reg); err != nil {
+		t.Fatalf("date-only updated must parse, got error: %v", err)
+	}
+	if len(reg.Plugins) != 2 {
+		t.Fatalf("plugins = %d, want 2", len(reg.Plugins))
+	}
+	if reg.Updated != "2026-10-29" {
+		t.Errorf("updated = %q, want it preserved verbatim", reg.Updated)
+	}
+}
+
+// When a live fetch fails, FetchAll falls back to the last cached copy rather
+// than dropping the repo (which would show the user zero plugins). This covers
+// the fallback source directly, without a network round-trip.
+func TestLoadCachedRegistry_ReturnsLastGoodCopy(t *testing.T) {
+	m := writeRepos(t, nil)
+	seed := &Registry{Name: "ignored-on-disk", Plugins: []Plugin{{Name: "flowpilot"}, {Name: "ise-sync"}}}
+	m.cacheRegistry("official", seed)
+
+	cached := m.loadCachedRegistry("official")
+	if cached == nil {
+		t.Fatal("loadCachedRegistry returned nil for a repo with a cache")
+	}
+	if len(cached.Plugins) != 2 {
+		t.Fatalf("plugins = %d, want 2 from cache", len(cached.Plugins))
+	}
+	if cached.Name != "official" {
+		t.Errorf("Name = %q, want it set from the repo name", cached.Name)
+	}
+	if m.loadCachedRegistry("no-such-repo") != nil {
+		t.Error("expected nil for a repo with no cache file")
+	}
+}
