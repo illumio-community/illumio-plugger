@@ -586,8 +586,8 @@
     },
     {
       "name": "meraki-sync",
-      "version": "0.1.0",
-      "image": "ghcr.io/illumio-community/plugger-meraki-sync:0.1.0",
+      "version": "0.1.1",
+      "image": "ghcr.io/illumio-community/plugger-meraki-sync:0.1.1",
       "description": "Imports Cisco Meraki clients into Illumio as labeled unmanaged workloads for visibility (IoT/BYOD/branch devices)",
       "mode": "daemon",
       "has_ui": true,
@@ -604,8 +604,8 @@
     },
     {
       "name": "ise-sync",
-      "version": "0.1.0",
-      "image": "ghcr.io/illumio-community/plugger-ise-sync:0.1.0",
+      "version": "0.1.1",
+      "image": "ghcr.io/illumio-community/plugger-ise-sync:0.1.1",
       "description": "Mirrors Cisco ISE TrustSec context (SGT definitions and host IP-SGT mappings) into Illumio as labels and unmanaged workloads",
       "mode": "daemon",
       "has_ui": true,

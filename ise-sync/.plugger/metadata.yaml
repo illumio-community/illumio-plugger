@@ -74,7 +74,7 @@ config:
 
 info:
   title: ISE Sync
-  version: "0.1.0"
+  version: "0.1.1"
   description: Mirrors Cisco ISE TrustSec context (SGT definitions and host IP-SGT mappings) into Illumio as labels and unmanaged workloads
   author: Illumio
   license: Apache-2.0

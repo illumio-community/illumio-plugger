@@ -58,7 +58,7 @@ config:
 
 info:
   title: Meraki Sync
-  version: "0.1.0"
+  version: "0.1.1"
   description: Imports Cisco Meraki clients into Illumio as labeled unmanaged workloads for visibility — the IoT/BYOD/branch devices you can't put a VEN on
   author: Illumio
   license: Apache-2.0
