@@ -548,6 +548,8 @@ tailwind.config = { darkMode: 'class', theme: { extend: { colors: { dark: { 900:
     <ul id="ports" class="text-sm space-y-1"></ul>
     <p id="ports-note" class="text-xs text-gray-500 mt-3"></p>
   </div>
+
+  <footer class="text-xs text-gray-600 text-center pt-2">Plugin up <span data-plugger-uptime>–</span></footer>
 </div>
 
 <script>
