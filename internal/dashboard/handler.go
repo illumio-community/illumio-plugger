@@ -115,6 +115,7 @@ func (h *Handler) Routes() *http.ServeMux {
 	// Runtime metrics
 	mux.HandleFunc("GET /metrics", h.handleMetricsPage)
 	mux.HandleFunc("GET /api/metrics", h.handleAPIMetrics)
+	mux.HandleFunc("GET /api/metrics/{name}", h.handleAPIPluginMetrics)
 
 	// Registry
 	mux.HandleFunc("GET /registry", h.handleRegistryPage)

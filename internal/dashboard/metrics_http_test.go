@@ -131,3 +131,37 @@ func TestHandleAPIMetrics_WithCollector(t *testing.T) {
 		t.Errorf("uptime = %d, want ~90s", out[0].UptimeSecond)
 	}
 }
+
+// The per-plugin endpoint returns that plugin's metric, and 404s for unknowns.
+func TestHandleAPIPluginMetrics(t *testing.T) {
+	h := newTestHandler(t, stubRuntime{})
+	if err := h.deps.Store.Put(&plugin.Plugin{Name: "demo", State: plugin.StateStopped}); err != nil {
+		t.Fatalf("seed plugin: %v", err)
+	}
+	h.metrics = newMetricsCollector(h)
+
+	// Known plugin -> 200 with its metric.
+	req := httptest.NewRequest(http.MethodGet, "/api/metrics/demo", nil)
+	req.SetPathValue("name", "demo")
+	rec := httptest.NewRecorder()
+	h.handleAPIPluginMetrics(rec, req)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", rec.Code)
+	}
+	var pm pluginMetric
+	if err := json.Unmarshal(rec.Body.Bytes(), &pm); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if pm.Name != "demo" || pm.Health != "idle" {
+		t.Errorf("got %+v, want name=demo health=idle", pm)
+	}
+
+	// Unknown plugin -> 404.
+	req2 := httptest.NewRequest(http.MethodGet, "/api/metrics/nope", nil)
+	req2.SetPathValue("name", "nope")
+	rec2 := httptest.NewRecorder()
+	h.handleAPIPluginMetrics(rec2, req2)
+	if rec2.Code != http.StatusNotFound {
+		t.Errorf("status = %d, want 404 for unknown plugin", rec2.Code)
+	}
+}

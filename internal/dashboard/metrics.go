@@ -154,49 +154,73 @@ type pluginMetric struct {
 	History      []sample `json:"history"`
 }
 
+// restartCounts returns per-plugin lifetime restart counts, or an empty map
+// when no RestartCounter is wired in.
+func (m *MetricsCollector) restartCounts() map[string]int {
+	if rc, ok := m.h.restarter.(RestartCounter); ok && rc != nil {
+		return rc.RestartCounts()
+	}
+	return map[string]int{}
+}
+
+// reportCounts tallies recent reports per plugin from the report router.
+func (m *MetricsCollector) reportCounts() map[string]int {
+	counts := map[string]int{}
+	if m.h.reports != nil {
+		for _, rec := range m.h.reports.RecentReports() {
+			counts[rec.Report.Plugin]++
+		}
+	}
+	return counts
+}
+
+// buildMetric assembles one plugin's current metric view from its live state,
+// restart/report counts, and sampled history.
+func (m *MetricsCollector) buildMetric(p *plugin.Plugin, restarts, reports int) pluginMetric {
+	pm := pluginMetric{
+		Name:     p.Name,
+		Title:    pluginTitle(p),
+		State:    string(p.State),
+		Health:   healthFor(p),
+		Restarts: restarts,
+		Reports:  reports,
+		History:  m.history(p.Name),
+	}
+	if p.State == plugin.StateRunning && p.LastStarted != nil {
+		pm.UptimeSecond = int64(time.Since(*p.LastStarted).Seconds())
+	}
+	if s, ok := lastSample(pm.History); ok {
+		pm.CPUPercent = s.CPUPercent
+		pm.MemoryUsage = s.MemoryUsage
+		pm.MemoryLimit = s.MemoryLimit
+	}
+	return pm
+}
+
 // collect builds the current per-plugin metric views for the API/page.
 func (m *MetricsCollector) collect() []pluginMetric {
 	plugins, err := m.h.deps.Store.List()
 	if err != nil {
 		return nil
 	}
+	restarts := m.restartCounts()
+	reports := m.reportCounts()
 
-	restarts := map[string]int{}
-	if rc, ok := m.h.restarter.(RestartCounter); ok && rc != nil {
-		restarts = rc.RestartCounts()
-	}
-
-	reportCounts := map[string]int{}
-	if m.h.reports != nil {
-		for _, rec := range m.h.reports.RecentReports() {
-			reportCounts[rec.Report.Plugin]++
-		}
-	}
-
-	now := time.Now()
 	out := make([]pluginMetric, 0, len(plugins))
 	for _, p := range plugins {
-		pm := pluginMetric{
-			Name:     p.Name,
-			Title:    pluginTitle(p),
-			State:    string(p.State),
-			Health:   healthFor(p),
-			Restarts: restarts[p.Name],
-			Reports:  reportCounts[p.Name],
-			History:  m.history(p.Name),
-		}
-		if p.State == plugin.StateRunning && p.LastStarted != nil {
-			pm.UptimeSecond = int64(now.Sub(*p.LastStarted).Seconds())
-		}
-		if s, ok := lastSample(pm.History); ok {
-			pm.CPUPercent = s.CPUPercent
-			pm.MemoryUsage = s.MemoryUsage
-			pm.MemoryLimit = s.MemoryLimit
-		}
-		out = append(out, pm)
+		out = append(out, m.buildMetric(p, restarts[p.Name], reports[p.Name]))
 	}
 	sort.Slice(out, func(i, j int) bool { return out[i].Name < out[j].Name })
 	return out
+}
+
+// collectOne builds the metric view for a single plugin, or false if unknown.
+func (m *MetricsCollector) collectOne(name string) (pluginMetric, bool) {
+	p, err := m.h.deps.Store.Get(name)
+	if err != nil || p == nil {
+		return pluginMetric{}, false
+	}
+	return m.buildMetric(p, m.restartCounts()[name], m.reportCounts()[name]), true
 }
 
 func lastSample(h []sample) (sample, bool) {
@@ -240,4 +264,20 @@ func (h *Handler) handleAPIMetrics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	h.json(w, http.StatusOK, h.metrics.collect())
+}
+
+// handleAPIPluginMetrics returns one plugin's current metrics as JSON, for the
+// plugin detail page's Runtime panel.
+func (h *Handler) handleAPIPluginMetrics(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	if h.metrics == nil {
+		http.Error(w, "metrics not available", http.StatusServiceUnavailable)
+		return
+	}
+	pm, ok := h.metrics.collectOne(name)
+	if !ok {
+		http.NotFound(w, r)
+		return
+	}
+	h.json(w, http.StatusOK, pm)
 }
