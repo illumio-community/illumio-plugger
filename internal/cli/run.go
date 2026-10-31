@@ -156,6 +156,7 @@ This is the production way to run plugger — suitable for systemd/launchd.`,
 					handler.SetReportRouter(reportRouter)
 				}
 				handler.SetRestarter(schedulerRestarter{schedulers: schedulers})
+				handler.StartMetrics(ctx)
 				mux := handler.WrappedRoutes()
 				go func() {
 					certFile, keyFile := resolveTLSCerts(app.Config)
@@ -368,6 +369,18 @@ func (s schedulerRestarter) TriggerRestart(name string) bool {
 	}
 	ds.TriggerRestart()
 	return true
+}
+
+// RestartCounts reports lifetime restart counts per plugin for the dashboard
+// metrics collector. Only daemon plugins track restarts; others are omitted.
+func (s schedulerRestarter) RestartCounts() map[string]int {
+	counts := make(map[string]int, len(s.schedulers))
+	for name, sched := range s.schedulers {
+		if ds, ok := sched.(*scheduler.DaemonScheduler); ok {
+			counts[name] = ds.RestartCount()
+		}
+	}
+	return counts
 }
 
 // setupHealthChecker creates and starts a health checker for a daemon plugin if configured.

@@ -20,6 +20,7 @@ type DaemonScheduler struct {
 	cancel           context.CancelFunc
 	done             chan struct{}
 	consecutiveFails int
+	totalRestarts    int // lifetime count of (re)starts after the first, for metrics
 	maxFails         int
 	backoffBase      time.Duration
 	backoffCap       time.Duration
@@ -40,6 +41,15 @@ func NewDaemonScheduler(deps *lifecycle.Deps, p *plugin.Plugin) *DaemonScheduler
 }
 
 func (d *DaemonScheduler) Name() string { return d.plugin.Name }
+
+// RestartCount returns how many times the daemon has (re)started the container
+// after its initial launch — i.e. crash/health restarts. Safe for concurrent
+// reads from the dashboard metrics collector.
+func (d *DaemonScheduler) RestartCount() int {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.totalRestarts
+}
 
 // Plugin returns the plugin the scheduler currently manages. reloadFromStore
 // swaps in a fresh copy, so callers must not hold on to an earlier pointer.
@@ -192,6 +202,10 @@ func (d *DaemonScheduler) watchLoop(ctx context.Context) {
 			d.deps.Store.Put(d.plugin)
 			continue
 		}
+
+		d.mu.Lock()
+		d.totalRestarts++
+		d.mu.Unlock()
 
 		// Reset fails after successful start + stability window
 		go func() {

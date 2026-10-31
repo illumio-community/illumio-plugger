@@ -47,6 +47,16 @@ type Runtime interface {
 	// ImageDigest returns the repo digest of a local image (e.g., "sha256:abc...").
 	// Returns empty string if the image has no repo digest.
 	ImageDigest(ctx context.Context, image string) (string, error)
+
+	// Stats returns a one-shot resource usage sample for a running container.
+	Stats(ctx context.Context, id string) (*ContainerStats, error)
+}
+
+// ContainerStats is a point-in-time resource usage sample for one container.
+type ContainerStats struct {
+	CPUPercent  float64 // CPU usage as a percentage (100 == one full core)
+	MemoryUsage uint64  // bytes currently used
+	MemoryLimit uint64  // bytes the container is limited to (0 = unlimited/host)
 }
 
 // CreateOpts are the options for creating a container.

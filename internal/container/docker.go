@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"io"
 	"net/netip"
@@ -318,4 +319,48 @@ func (d *DockerRuntime) ImageDigest(ctx context.Context, image string) (string, 
 		}
 	}
 	return "", nil
+}
+
+// Stats returns a one-shot resource usage sample for a running container.
+// IncludePreviousSample makes the daemon collect a prior sample (1s apart) so
+// the CPU deltas are populated in a single call, rather than us having to
+// stream and diff two frames ourselves.
+func (d *DockerRuntime) Stats(ctx context.Context, id string) (*ContainerStats, error) {
+	res, err := d.cli.ContainerStats(ctx, id, client.ContainerStatsOptions{
+		IncludePreviousSample: true,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("stats for %s: %w", id, err)
+	}
+	defer res.Body.Close()
+
+	var s containertypes.StatsResponse
+	if err := json.NewDecoder(res.Body).Decode(&s); err != nil {
+		return nil, fmt.Errorf("decoding stats for %s: %w", id, err)
+	}
+
+	cpuDelta := float64(s.CPUStats.CPUUsage.TotalUsage) - float64(s.PreCPUStats.CPUUsage.TotalUsage)
+	sysDelta := float64(s.CPUStats.SystemUsage) - float64(s.PreCPUStats.SystemUsage)
+	onlineCPUs := s.CPUStats.OnlineCPUs
+	if onlineCPUs == 0 {
+		onlineCPUs = uint32(len(s.CPUStats.CPUUsage.PercpuUsage))
+	}
+
+	return &ContainerStats{
+		CPUPercent:  cpuPercent(cpuDelta, sysDelta, onlineCPUs),
+		MemoryUsage: s.MemoryStats.Usage,
+		MemoryLimit: s.MemoryStats.Limit,
+	}, nil
+}
+
+// cpuPercent computes container CPU usage as a percentage from the deltas
+// between two stats samples, following Docker's own `docker stats` formula:
+// (container CPU delta / system CPU delta) * number of CPUs * 100. A value of
+// 100 means one full core fully used. Returns 0 when a delta is non-positive
+// (e.g. the very first sample, or no CPU used in the interval).
+func cpuPercent(cpuDelta, sysDelta float64, onlineCPUs uint32) float64 {
+	if sysDelta <= 0 || cpuDelta <= 0 || onlineCPUs == 0 {
+		return 0
+	}
+	return (cpuDelta / sysDelta) * float64(onlineCPUs) * 100.0
 }

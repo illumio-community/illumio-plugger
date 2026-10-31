@@ -1,0 +1,164 @@
+{{define "title"}}Metrics — Plugger{{end}}
+
+{{define "content"}}
+<div class="flex items-center justify-between mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-white">Runtime Metrics</h1>
+        <p class="text-sm text-gray-500 mt-1">Live CPU, memory, uptime and health per plugin</p>
+    </div>
+    <span class="flex items-center gap-1.5 text-sm text-gray-400">
+        <span class="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse"></span>
+        Auto-refresh
+    </span>
+</div>
+
+<!-- Overview -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="bg-dark-800 rounded-lg border border-gray-700 p-4">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Running</div>
+        <div id="ov-running" class="text-2xl font-bold text-white mt-1">–</div>
+    </div>
+    <div class="bg-dark-800 rounded-lg border border-gray-700 p-4">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Total CPU</div>
+        <div id="ov-cpu" class="text-2xl font-bold text-white mt-1">–</div>
+    </div>
+    <div class="bg-dark-800 rounded-lg border border-gray-700 p-4">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Total Memory</div>
+        <div id="ov-mem" class="text-2xl font-bold text-white mt-1">–</div>
+    </div>
+    <div class="bg-dark-800 rounded-lg border border-gray-700 p-4">
+        <div class="text-xs text-gray-500 uppercase tracking-wide">Restarts</div>
+        <div id="ov-restarts" class="text-2xl font-bold text-white mt-1">–</div>
+    </div>
+</div>
+
+<!-- Per-plugin cards -->
+<div id="metrics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="text-gray-500 text-sm col-span-full" id="metrics-empty">Loading metrics…</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    const charts = {}; // plugin name -> Chart instance
+
+    function fmtBytes(n) {
+        if (!n) return "0 B";
+        const u = ["B", "KB", "MB", "GB", "TB"];
+        let i = 0, v = n;
+        while (v >= 1024 && i < u.length - 1) { v /= 1024; i++; }
+        return v.toFixed(v < 10 && i > 0 ? 1 : 0) + " " + u[i];
+    }
+
+    function fmtUptime(s) {
+        if (!s || s <= 0) return "–";
+        const d = Math.floor(s / 86400);
+        const h = Math.floor((s % 86400) / 3600);
+        const m = Math.floor((s % 3600) / 60);
+        if (d > 0) return d + "d " + h + "h";
+        if (h > 0) return h + "h " + m + "m";
+        if (m > 0) return m + "m";
+        return Math.floor(s) + "s";
+    }
+
+    function healthDot(h) {
+        const c = h === "healthy" ? "bg-green-500" : (h === "unhealthy" ? "bg-red-500" : "bg-gray-500");
+        return '<span class="w-2.5 h-2.5 rounded-full ' + c + '"></span>';
+    }
+
+    function isDark() { return document.documentElement.classList.contains("dark"); }
+
+    function cardHTML(p) {
+        const memPct = p.memLimit > 0 ? Math.min(100, (p.mem / p.memLimit) * 100) : 0;
+        const memLabel = p.memLimit > 0
+            ? fmtBytes(p.mem) + " / " + fmtBytes(p.memLimit)
+            : fmtBytes(p.mem);
+        return '' +
+          '<div class="bg-dark-800 rounded-xl border border-gray-700 p-5">' +
+            '<div class="flex items-center justify-between mb-3">' +
+              '<a href="/plugins/' + p.name + '" class="font-semibold text-white hover:text-blue-400 truncate">' + (p.title || p.name) + '</a>' +
+              '<span class="flex items-center gap-1.5 text-xs text-gray-400">' + healthDot(p.health) + p.state + '</span>' +
+            '</div>' +
+            '<div class="flex items-baseline justify-between mb-1">' +
+              '<span class="text-xs text-gray-500 uppercase tracking-wide">CPU</span>' +
+              '<span class="text-sm font-medium text-white">' + p.cpu.toFixed(1) + '%</span>' +
+            '</div>' +
+            '<div class="h-12 mb-3"><canvas id="spark-' + p.name + '"></canvas></div>' +
+            '<div class="flex items-baseline justify-between mb-1">' +
+              '<span class="text-xs text-gray-500 uppercase tracking-wide">Memory</span>' +
+              '<span class="text-sm font-medium text-white">' + memLabel + '</span>' +
+            '</div>' +
+            '<div class="w-full h-1.5 bg-dark-700 rounded-full overflow-hidden mb-4">' +
+              '<div class="h-full bg-blue-500" style="width:' + memPct.toFixed(1) + '%"></div>' +
+            '</div>' +
+            '<div class="grid grid-cols-3 gap-2 text-center">' +
+              '<div><div class="text-xs text-gray-500">Uptime</div><div class="text-sm text-white">' + fmtUptime(p.uptimeSeconds) + '</div></div>' +
+              '<div><div class="text-xs text-gray-500">Restarts</div><div class="text-sm text-white">' + p.restarts + '</div></div>' +
+              '<div><div class="text-xs text-gray-500">Reports</div><div class="text-sm text-white">' + p.reports + '</div></div>' +
+            '</div>' +
+          '</div>';
+    }
+
+    function drawSpark(p) {
+        const el = document.getElementById("spark-" + p.name);
+        if (!el) return;
+        const pts = (p.history || []).map(s => s.cpu);
+        const labels = pts.map((_, i) => i);
+        const color = p.health === "unhealthy" ? "#f38ba8" : "#89b4fa";
+        if (charts[p.name]) {
+            charts[p.name].data.labels = labels;
+            charts[p.name].data.datasets[0].data = pts;
+            charts[p.name].data.datasets[0].borderColor = color;
+            charts[p.name].update("none");
+            return;
+        }
+        charts[p.name] = new Chart(el, {
+            type: "line",
+            data: { labels: labels, datasets: [{
+                data: pts, borderColor: color, borderWidth: 1.5,
+                pointRadius: 0, tension: 0.3, fill: false,
+            }] },
+            options: {
+                responsive: true, maintainAspectRatio: false, animation: false,
+                plugins: { legend: { display: false }, tooltip: { enabled: false } },
+                scales: { x: { display: false }, y: { display: false, min: 0 } },
+            },
+        });
+    }
+
+    function render(data) {
+        const grid = document.getElementById("metrics-grid");
+        const empty = document.getElementById("metrics-empty");
+        if (!data || data.length === 0) {
+            if (empty) empty.textContent = "No plugins installed.";
+            return;
+        }
+        // Overview
+        const running = data.filter(p => p.state === "running").length;
+        const totCpu = data.reduce((a, p) => a + (p.cpu || 0), 0);
+        const totMem = data.reduce((a, p) => a + (p.mem || 0), 0);
+        const totRestarts = data.reduce((a, p) => a + (p.restarts || 0), 0);
+        document.getElementById("ov-running").textContent = running + " / " + data.length;
+        document.getElementById("ov-cpu").textContent = totCpu.toFixed(1) + "%";
+        document.getElementById("ov-mem").textContent = fmtBytes(totMem);
+        document.getElementById("ov-restarts").textContent = totRestarts;
+
+        // Rebuild the cards, then (re)create their sparkline charts. Destroy any
+        // existing chart instances first so Chart.js releases the old canvases.
+        Object.keys(charts).forEach(k => { charts[k].destroy(); delete charts[k]; });
+        grid.innerHTML = data.map(cardHTML).join("");
+        data.forEach(drawSpark);
+    }
+
+    async function tick() {
+        try {
+            const r = await fetch("/api/metrics", { headers: { "Accept": "application/json" } });
+            if (r.ok) render(await r.json());
+        } catch (e) { /* transient; keep last render */ }
+    }
+
+    tick();
+    setInterval(tick, 5000);
+})();
+</script>
+{{end}}

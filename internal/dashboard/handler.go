@@ -1,6 +1,7 @@
 package dashboard
 
 import (
+	"context"
 	"encoding/json"
 	"html/template"
 	"io"
@@ -34,6 +35,7 @@ type Handler struct {
 	events    *EventRegistry
 	reports   *reports.Router
 	restarter Restarter
+	metrics   *MetricsCollector
 }
 
 // NewHandler creates a new dashboard handler.
@@ -62,6 +64,13 @@ func (h *Handler) SetReportRouter(r *reports.Router) {
 // SetRestarter attaches the scheduler-backed restart trigger.
 func (h *Handler) SetRestarter(r Restarter) {
 	h.restarter = r
+}
+
+// StartMetrics creates the runtime-metrics collector and begins sampling until
+// ctx is cancelled. Call it once, before serving, if metrics are wanted.
+func (h *Handler) StartMetrics(ctx context.Context) {
+	h.metrics = newMetricsCollector(h)
+	h.metrics.Start(ctx)
 }
 
 // Routes returns the HTTP mux with all dashboard routes registered.
@@ -102,6 +111,10 @@ func (h *Handler) Routes() *http.ServeMux {
 
 	// Log download for issue filing
 	mux.HandleFunc("GET /api/plugins/{name}/logs/download", h.handleLogDownload)
+
+	// Runtime metrics
+	mux.HandleFunc("GET /metrics", h.handleMetricsPage)
+	mux.HandleFunc("GET /api/metrics", h.handleAPIMetrics)
 
 	// Registry
 	mux.HandleFunc("GET /registry", h.handleRegistryPage)
