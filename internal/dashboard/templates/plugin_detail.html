@@ -76,10 +76,16 @@
                         <div id="rt-restarts" class="text-xl font-bold text-white mt-1">–</div>
                     </div>
                 </div>
-                <div class="w-full h-1.5 bg-dark-700 rounded-full overflow-hidden mb-4">
-                    <div id="rt-membar" class="h-full bg-blue-500" style="width:0%"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-1">
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">CPU</div>
+                        <div class="h-24"><canvas id="rt-spark"></canvas></div>
+                    </div>
+                    <div>
+                        <div class="text-xs text-gray-500 uppercase tracking-wide mb-1">Memory</div>
+                        <div class="h-24"><canvas id="rt-mspark"></canvas></div>
+                    </div>
                 </div>
-                <div class="h-24"><canvas id="rt-spark"></canvas></div>
                 <p id="rt-note" class="text-xs text-gray-500 mt-2 hidden"></p>
             </div>
         </div>
@@ -87,7 +93,7 @@
         <script>
         (function () {
             const PLUGIN = "{{.Plugin.Name}}";
-            let chart = null;
+            const charts = {};
 
             function fmtBytes(n) {
                 if (!n) return "0 B";
@@ -105,25 +111,31 @@
                 return Math.floor(s) + "s";
             }
 
-            function draw(history, unhealthy) {
-                const el = document.getElementById("rt-spark");
+            function drawLine(id, pts, color, yMax) {
+                const el = document.getElementById(id);
                 if (!el) return;
-                const pts = (history || []).map(s => s.cpu);
-                const color = unhealthy ? "#f38ba8" : "#89b4fa";
-                if (chart) {
-                    chart.data.labels = pts.map((_, i) => i);
-                    chart.data.datasets[0].data = pts;
-                    chart.data.datasets[0].borderColor = color;
-                    chart.update("none");
+                const labels = pts.map((_, i) => i);
+                if (charts[id]) {
+                    charts[id].data.labels = labels;
+                    charts[id].data.datasets[0].data = pts;
+                    charts[id].data.datasets[0].borderColor = color;
+                    charts[id].options.scales.y.max = yMax;
+                    charts[id].update("none");
                     return;
                 }
-                chart = new Chart(el, {
+                charts[id] = new Chart(el, {
                     type: "line",
-                    data: { labels: pts.map((_, i) => i), datasets: [{ data: pts, borderColor: color, borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: false }] },
+                    data: { labels: labels, datasets: [{ data: pts, borderColor: color, borderWidth: 1.5, pointRadius: 0, tension: 0.3, fill: false }] },
                     options: { responsive: true, maintainAspectRatio: false, animation: false,
                         plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                        scales: { x: { display: false }, y: { display: false, min: 0 } } },
+                        scales: { x: { display: false }, y: { display: false, min: 0, max: yMax } } },
                 });
+            }
+
+            function drawCharts(p) {
+                const hist = p.history || [];
+                drawLine("rt-spark", hist.map(s => s.cpu), p.health === "unhealthy" ? "#f38ba8" : "#89b4fa", undefined);
+                drawLine("rt-mspark", hist.map(s => s.mem), "#94e2d5", p.memLimit > 0 ? p.memLimit : undefined);
             }
 
             async function tick() {
@@ -140,8 +152,6 @@
                     : fmtBytes(p.mem);
                 document.getElementById("rt-uptime").textContent = fmtUptime(p.uptimeSeconds);
                 document.getElementById("rt-restarts").textContent = p.restarts || 0;
-                const memPct = p.memLimit > 0 ? Math.min(100, (p.mem / p.memLimit) * 100) : 0;
-                document.getElementById("rt-membar").style.width = memPct.toFixed(1) + "%";
 
                 const note = document.getElementById("rt-note");
                 if (p.state !== "running") {
@@ -150,7 +160,7 @@
                 } else {
                     note.classList.add("hidden");
                 }
-                draw(p.history, p.health === "unhealthy");
+                drawCharts(p);
             }
 
             tick();
