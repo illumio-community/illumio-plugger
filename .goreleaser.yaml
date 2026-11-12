@@ -103,9 +103,9 @@ homebrew_casks:
     # The binary is not notarized; clear the quarantine flag so Gatekeeper lets it run.
     hooks:
       post:
-        install: |
-          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
-            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/plugger"]
+        install_steps: |
+          on_macos do
+            run "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "{{ .StagedPath }}/plugger"]
           end
 
 release:
@@ -113,6 +113,9 @@ release:
     owner: illumio-community
     name: illumio-plugger
   prerelease: auto
+  # Re-running a release (e.g. after fixing a secret) must not die on "asset
+  # already exists": delete the clashing asset and upload again.
+  replace_existing_artifacts: true
   footer: |
     ## Install
 
