@@ -36,6 +36,7 @@ For LDAPS (encrypted), set `LDAP_SSL=true` and `LDAP_PORT=636`.
 | `LDAP_FILTER` | `(objectClass=computer)` | LDAP search filter |
 | `LDAP_SSL` | `false` | Use LDAPS (TLS) |
 | `MODE` | `analytics` | `analytics` = read-only analysis, `sync` = apply labels |
+| `DRY_RUN` | `false` | In `sync` mode, compute matches but don't write to the PCE (preview) |
 | `SCAN_INTERVAL` | `3600` | Seconds between AD scans |
 | `MAPPING_RULES` | _(built-in)_ | Custom mapping rules as JSON array |
 | `PCE_TLS_SKIP_VERIFY` | `true` | Skip TLS verification for PCE |
@@ -45,8 +46,14 @@ For LDAPS (encrypted), set `LDAP_SSL=true` and `LDAP_PORT=636`.
 - **Analytics** (default): Connects to AD, pulls the computer tree, and
   shows what labels would be derived from each computer's attributes.
   Nothing is written to the PCE. Use this to validate mapping rules.
-- **Sync**: Applies discovered labels to matching PCE workloads (matched
-  by hostname). Only use after verifying analytics results.
+- **Sync**: Applies discovered labels to matching PCE workloads. Workloads
+  are matched by hostname (FQDN or short name). For each match, the plugin
+  finds-or-creates the needed labels in the PCE, then overwrites **only the
+  managed keys** (`role`, `app`, `env`, `loc`) it derived — any other labels
+  on the workload are left untouched, and workloads with no match are skipped.
+  Set `DRY_RUN=true` to preview matches without writing. Only use after
+  verifying analytics results. This mode **writes to the PCE** (creates
+  labels, updates workload labels), so the plugin is marked `readwrite`.
 
 ### Mapping Rules
 

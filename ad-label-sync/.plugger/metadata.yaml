@@ -41,10 +41,15 @@ config:
     type: bool
     default: "false"
   - name: MODE
-    description: "analytics (read-only) or sync (apply labels to PCE)"
+    description: "analytics (read-only) or sync (apply labels to PCE workloads)"
     required: false
     type: string
     default: "analytics"
+  - name: DRY_RUN
+    description: In sync mode, compute matches but don't write to the PCE (preview)
+    required: false
+    type: bool
+    default: "false"
   - name: SCAN_INTERVAL
     description: Seconds between AD scans
     required: false
@@ -53,7 +58,7 @@ config:
 
 info:
   title: AD Label Sync
-  version: "0.1.0"
-  description: Discover Active Directory computers and map OU, group, location attributes to Illumio labels — analytics mode for feasibility testing
+  version: "0.2.0"
+  description: Discover Active Directory computers and map OU, group, location attributes to Illumio labels — analytics mode for feasibility, sync mode to apply labels to matching PCE workloads
   author: Illumio
   license: Apache-2.0

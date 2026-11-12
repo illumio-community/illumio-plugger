@@ -23,6 +23,9 @@ from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
+import requests
+import urllib3
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -44,6 +47,7 @@ report_state = {
     "group_map": {},
     "mapping_rules": [],
     "match_results": [],
+    "sync": {},
 }
 
 # ============================================================
@@ -162,6 +166,164 @@ def apply_rules(computer, rules):
                 }
 
     return labels
+
+
+# ============================================================
+# PCE sync — apply discovered labels to matching PCE workloads
+# ============================================================
+
+# Label keys this plugin manages. Only these are overwritten on a workload;
+# any other existing labels (keys we didn't derive) are left untouched.
+MANAGED_KEYS = ("role", "app", "env", "loc")
+
+
+class PCESync:
+    """Minimal PCE REST client for find-or-create labels and workload label updates.
+
+    Uses the credentials plugger injects (PCE_HOST/PORT/ORG_ID/API_KEY/API_SECRET).
+    Writes are confined to the MANAGED_KEYS labels on matched workloads.
+    """
+
+    def __init__(self):
+        host = os.environ.get("PCE_HOST", "")
+        port = os.environ.get("PCE_PORT", "443")
+        org = os.environ.get("PCE_ORG_ID", "1")
+        self.key = os.environ.get("PCE_API_KEY", "")
+        self.secret = os.environ.get("PCE_API_SECRET", "")
+        # Default to skipping TLS verification (lab PCEs), matching other plugins.
+        self.verify = os.environ.get("PCE_TLS_SKIP_VERIFY", "true").lower() not in ("true", "1")
+        self.host = host
+        self.root = f"https://{host}:{port}/api/v2"
+        self.orgbase = f"{self.root}/orgs/{org}"
+        self.label_href = {}  # (key, value_lower) -> href
+        self.label_key = {}   # href -> key
+        if not self.verify:
+            urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
+    @property
+    def auth(self):
+        return (self.key, self.secret)
+
+    def available(self):
+        return bool(self.host and self.key and self.secret)
+
+    def _get_collection(self, path):
+        r = requests.get(self.orgbase + path, auth=self.auth, verify=self.verify,
+                         params={"max_results": 100000}, timeout=30)
+        r.raise_for_status()
+        return r.json()
+
+    def load_labels(self):
+        for lbl in self._get_collection("/labels"):
+            self.label_href[(lbl["key"], str(lbl["value"]).lower())] = lbl["href"]
+            self.label_key[lbl["href"]] = lbl["key"]
+
+    def ensure_label(self, key, value):
+        """Return the href for key=value, creating the label if it doesn't exist."""
+        cache_key = (key, value.lower())
+        if cache_key in self.label_href:
+            return self.label_href[cache_key]
+        r = requests.post(self.orgbase + "/labels", auth=self.auth, verify=self.verify,
+                          json={"key": key, "value": value}, timeout=30)
+        r.raise_for_status()
+        href = r.json()["href"]
+        self.label_href[cache_key] = href
+        self.label_key[href] = key
+        return href
+
+    def load_workloads(self):
+        """Return {name_lower -> {href, labels}} keyed by hostname, name, and short name."""
+        wl = {}
+        for w in self._get_collection("/workloads"):
+            entry = {"href": w["href"], "labels": w.get("labels", []) or []}
+            for name in filter(None, [w.get("hostname"), w.get("name")]):
+                wl.setdefault(name.lower(), entry)
+                wl.setdefault(name.split(".")[0].lower(), entry)
+        return wl
+
+    def apply(self, workload, suggested, dry_run):
+        """Overwrite the managed-key labels on a workload, preserving the rest.
+
+        Returns one of: applied | would-apply | skip-no-labels | skip-noop.
+        """
+        managed = {k: v for k, v in suggested.items() if k in MANAGED_KEYS and v}
+        if not managed:
+            return "skip-no-labels"
+
+        # Resolve the target hrefs for the keys we manage.
+        want = {}
+        for key, val in managed.items():
+            want[key] = self.ensure_label(key, val)
+
+        # Keep existing labels whose key we are NOT managing; replace the rest.
+        new_labels = [lab for lab in workload["labels"]
+                      if self.label_key.get(lab.get("href", "")) not in managed]
+        new_labels.extend({"href": href} for href in want.values())
+
+        # No-op if the label set is unchanged.
+        before = sorted(lab.get("href", "") for lab in workload["labels"])
+        after = sorted(lab["href"] for lab in new_labels)
+        if before == after:
+            return "skip-noop"
+
+        if dry_run:
+            return "would-apply"
+
+        r = requests.put(self.root + workload["href"], auth=self.auth, verify=self.verify,
+                         json={"labels": new_labels}, timeout=30)
+        r.raise_for_status()
+        return "applied"
+
+
+def run_sync(results):
+    """Apply discovered labels to matching PCE workloads. Returns a summary."""
+    counts = {"matched": 0, "applied": 0, "would_apply": 0,
+              "unmatched": 0, "skipped": 0, "errors": 0, "error": None}
+    details = []
+
+    syncer = PCESync()
+    if not syncer.available():
+        counts["error"] = "PCE credentials not configured"
+        log.warning("sync mode requested but PCE credentials are not configured; skipping sync")
+        return {"counts": counts, "details": details}
+
+    dry_run = os.environ.get("DRY_RUN", "false").lower() in ("true", "1")
+    try:
+        syncer.load_labels()
+        workloads = syncer.load_workloads()
+    except Exception as e:
+        counts["errors"] += 1
+        counts["error"] = str(e)[:200]
+        log.exception("sync: failed to load PCE labels/workloads")
+        return {"counts": counts, "details": details}
+
+    for r in results:
+        hostname = (r.get("hostname") or "").strip()
+        if not hostname:
+            continue
+        wl = workloads.get(hostname.lower()) or workloads.get(hostname.split(".")[0].lower())
+        if not wl:
+            counts["unmatched"] += 1
+            continue
+        counts["matched"] += 1
+        try:
+            outcome = syncer.apply(wl, r.get("labels", {}), dry_run)
+        except Exception as e:
+            counts["errors"] += 1
+            details.append({"hostname": hostname, "status": "error", "error": str(e)[:150]})
+            continue
+        if outcome == "applied":
+            counts["applied"] += 1
+        elif outcome == "would-apply":
+            counts["would_apply"] += 1
+        else:
+            counts["skipped"] += 1
+        details.append({"hostname": hostname, "status": outcome, "labels": r.get("labels", {})})
+
+    log.info("sync: matched=%d applied=%d would_apply=%d unmatched=%d skipped=%d errors=%d dry_run=%s",
+             counts["matched"], counts["applied"], counts["would_apply"],
+             counts["unmatched"], counts["skipped"], counts["errors"], dry_run)
+    return {"counts": counts, "details": details}
 
 
 # ============================================================
@@ -303,10 +465,20 @@ def process_computers(computers):
         "rules_count": len(rules),
     }
 
+    # In sync mode, apply the discovered labels to matching PCE workloads.
+    sync_summary = {}
+    sync_details = []
+    if mode == "sync":
+        result = run_sync(results)
+        sync_summary = result["counts"]
+        sync_details = result["details"]
+
     with state_lock:
         report_state["last_scan"] = datetime.now(timezone.utc).isoformat()
         report_state["scan_count"] += 1
         report_state["mode"] = mode
+        report_state["sync"] = sync_summary
+        report_state["match_results"] = sync_details[:500]
         report_state["computers"] = results
         report_state["summary"] = summary
         report_state["label_coverage"] = {k: {"total": v["total"], "mapped": v["mapped"],
@@ -426,7 +598,9 @@ function update(data) {
             }).join('')}
         </div>
         <div class="mt-6 p-4 bg-dark-800 rounded-xl border border-gray-700 text-xs text-gray-500">
-            <strong>Analytics mode:</strong> This shows what labels would be applied based on current mapping rules. No changes are made to the PCE. Switch to sync mode (MODE=sync) to apply labels.
+            ${data.mode === 'sync'
+                ? `<strong class="text-green-400">Sync mode:</strong> applying labels to matching PCE workloads — matched ${(data.sync||{}).matched||0}, applied ${(data.sync||{}).applied||0}, would-apply ${(data.sync||{}).would_apply||0}, unmatched ${(data.sync||{}).unmatched||0}, errors ${(data.sync||{}).errors||0}${(data.sync||{}).error ? ' — '+(data.sync||{}).error : ''}`
+                : `<strong>Analytics mode:</strong> this shows what labels would be applied based on current mapping rules. No changes are made to the PCE. Set MODE=sync to apply labels (DRY_RUN=true to preview first).`}
         </div>
     ` : '<div class="bg-dark-800 rounded-xl border border-gray-700 p-12 text-center"><div class="text-gray-400">No data yet — configure LDAP_HOST to scan Active Directory</div></div>';
 

@@ -1,7 +1,8 @@
 apiVersion: plugger/v1
 name: ad-label-sync
-version: 0.1.0
+version: 0.2.0
 image: ad-label-sync:latest
+access: readwrite   # sync mode creates labels and updates workload labels
 
 schedule:
   mode: daemon
@@ -32,6 +33,9 @@ env:
   - name: MODE
     required: false
     default: "analytics"
+  - name: DRY_RUN
+    required: false
+    default: "false"
   - name: SCAN_INTERVAL
     required: false
     default: "3600"
