@@ -1,0 +1,127 @@
+# GoReleaser builds the plugger CLI release: raw binaries (same names as the
+# hand-rolled matrix used to publish), SHA256SUMS, .deb/.rpm packages and the
+# Homebrew cask. Run locally with `make snapshot`.
+version: 2
+project_name: plugger
+
+before:
+  hooks:
+    - go mod tidy
+
+builds:
+  - id: plugger
+    main: ./cmd/plugger
+    binary: plugger
+    env:
+      - CGO_ENABLED=0
+    goos: [linux, darwin, windows]
+    goarch: [amd64, arm64]
+    ignore:
+      - goos: windows
+        goarch: arm64
+    ldflags:
+      - -s -w -X github.com/illumio/plugger/internal/cli.Version={{ .Version }}
+    mod_timestamp: "{{ .CommitTimestamp }}"
+
+archives:
+  # Raw binaries named exactly like the previous releases (plugger-<os>-<arch>,
+  # .exe on Windows) so existing download links and scripts keep working.
+  - id: binaries
+    formats: [binary]
+    name_template: "plugger-{{ .Os }}-{{ .Arch }}"
+  # macOS tarballs for the Homebrew cask (the binary inside is plain "plugger").
+  - id: brew
+    formats: [tar.gz]
+    name_template: "plugger-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    format_overrides:
+      - goos: linux
+        formats: [none]
+      - goos: windows
+        formats: [none]
+
+checksum:
+  name_template: SHA256SUMS
+  algorithm: sha256
+
+snapshot:
+  version_template: "{{ incpatch .Version }}-dev.{{ .ShortCommit }}"
+
+nfpms:
+  - id: packages
+    package_name: plugger
+    file_name_template: "plugger-{{ .Version }}-{{ .Os }}-{{ .Arch }}"
+    vendor: Illumio Community
+    homepage: https://github.com/illumio-community/illumio-plugger
+    maintainer: Alex Goller <alex+github@ryte.de>
+    description: |-
+      Illumio PCE plugin framework.
+      Manages Illumio PCE plugins as Docker containers: install, schedule,
+      health-check, auto-restart and expose them through one web dashboard.
+    license: Apache-2.0
+    formats: [deb, rpm]
+    bindir: /usr/bin
+    section: utils
+    priority: optional
+    contents:
+      - src: packaging/plugger.service
+        dst: /usr/lib/systemd/system/plugger.service
+      - src: README.md
+        dst: /usr/share/doc/plugger/README.md
+      - src: docs/installation.md
+        dst: /usr/share/doc/plugger/installation.md
+    scripts:
+      postinstall: packaging/postinstall.sh
+      preremove: packaging/preremove.sh
+    rpm:
+      group: Applications/System
+    deb:
+      lintian_overrides:
+        - statically-linked-binary
+
+homebrew_casks:
+  - name: plugger
+    ids: [brew]
+    binaries: [plugger]
+    repository:
+      owner: illumio-community
+      name: homebrew-tap
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_TOKEN }}"
+    directory: Casks
+    commit_author:
+      name: plugger-release-bot
+      email: noreply@illumio-community.github.io
+    commit_msg_template: "plugger {{ .Tag }}"
+    homepage: https://github.com/illumio-community/illumio-plugger
+    description: Illumio PCE plugin framework — manage PCE plugins as Docker containers
+    license: Apache-2.0
+    caveats: |
+      Docker (or a compatible socket) must be available. Get started with:
+        plugger init
+        plugger install pce-health-monitor
+        plugger run
+    # The binary is not notarized; clear the quarantine flag so Gatekeeper lets it run.
+    hooks:
+      post:
+        install: |
+          if system_command("/usr/bin/xattr", args: ["-h"]).exit_status == 0
+            system_command "/usr/bin/xattr", args: ["-dr", "com.apple.quarantine", "#{staged_path}/plugger"]
+          end
+
+release:
+  github:
+    owner: illumio-community
+    name: illumio-plugger
+  prerelease: auto
+  footer: |
+    ## Install
+
+    ```bash
+    brew install illumio-community/tap/plugger                   # macOS
+    sudo apt install ./plugger-{{ .Version }}-linux-amd64.deb    # Debian / Ubuntu
+    sudo dnf install ./plugger-{{ .Version }}-linux-amd64.rpm    # RHEL / Fedora / Rocky
+    ```
+    Raw binaries for every platform are attached below; verify with `SHA256SUMS`.
+
+changelog:
+  use: github-native

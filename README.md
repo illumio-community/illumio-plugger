@@ -24,9 +24,11 @@ Concretely, Plugger is a Go CLI that manages Illumio PCE extensions as Docker co
 ## Quick Start
 
 ```bash
-# 1. Build
-git clone https://github.com/illumio-community/illumio-plugger
-cd illumio-plugger && make build
+# 1. Install — macOS via Homebrew; .deb / .rpm / raw binaries on the releases page
+brew install illumio-community/tap/plugger
+#   Debian/Ubuntu:  sudo apt install ./plugger-<version>-linux-amd64.deb
+#   RHEL/Fedora:    sudo dnf install ./plugger-<version>-linux-amd64.rpm
+#   From source:    git clone https://github.com/illumio-community/illumio-plugger && cd illumio-plugger && make build
 
 # 2. Initialize — writes ~/.plugger/config.yaml with PCE connection details
 plugger init

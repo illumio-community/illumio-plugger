@@ -1,0 +1,26 @@
+[Unit]
+Description=Plugger - Illumio PCE plugin framework
+Documentation=https://github.com/illumio-community/illumio-plugger
+After=network-online.target docker.service
+Wants=network-online.target docker.service
+
+[Service]
+Type=simple
+User=plugger
+Group=plugger
+Environment=HOME=/var/lib/plugger
+WorkingDirectory=/var/lib/plugger
+# Configure first:  sudo -u plugger HOME=/var/lib/plugger plugger init
+# Listen on all interfaces with a drop-in that overrides ExecStart, e.g.
+#   ExecStart=
+#   ExecStart=/usr/bin/plugger run --addr 0.0.0.0:8800
+ExecStart=/usr/bin/plugger run
+Restart=on-failure
+RestartSec=5s
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

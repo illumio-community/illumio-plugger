@@ -32,11 +32,74 @@ docker version   # both Client and Server sections should print
 `plugger init` auto-detects the socket for all of the runtimes above (see
 [Docker Socket](#docker-socket)).
 
+## Installing
+
+Every release ships a Homebrew cask, `.deb` and `.rpm` packages, and raw
+binaries — see the [releases page](https://github.com/illumio-community/illumio-plugger/releases).
+
+### Homebrew (macOS)
+
+```bash
+brew install illumio-community/tap/plugger
+```
+
+### Debian / Ubuntu
+
+```bash
+VER=$(curl -s https://api.github.com/repos/illumio-community/illumio-plugger/releases/latest | grep -oE '"tag_name": *"v[^"]+' | grep -oE '[0-9][^"]*')
+curl -LO "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-${VER}-linux-$(dpkg --print-architecture).deb"
+sudo apt install "./plugger-${VER}-linux-$(dpkg --print-architecture).deb"
+```
+
+### RHEL / Fedora / Rocky
+
+```bash
+VER=$(curl -s https://api.github.com/repos/illumio-community/illumio-plugger/releases/latest | grep -oE '"tag_name": *"v[^"]+' | grep -oE '[0-9][^"]*')
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+sudo dnf install "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-${VER}-linux-${ARCH}.rpm"
+```
+
+### Raw binary (any platform)
+
+```bash
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+curl -Lo plugger "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-${OS}-${ARCH}"
+chmod +x plugger && sudo mv plugger /usr/local/bin/
+```
+
+Verify downloads against the `SHA256SUMS` file attached to each release.
+
+### Running as a service (deb / rpm)
+
+The packages install a `plugger.service` systemd unit (disabled by default)
+and a `plugger` system user whose home is `/var/lib/plugger`. The user is
+added to the `docker` group when one exists.
+
+```bash
+sudo -u plugger HOME=/var/lib/plugger plugger init   # writes /var/lib/plugger/.plugger/config.yaml
+sudo systemctl enable --now plugger
+sudo journalctl -u plugger -f
+```
+
+The dashboard listens on `localhost:8800`. To expose it on the network,
+override the command with a drop-in:
+
+```bash
+sudo systemctl edit plugger
+```
+
+```ini
+[Service]
+ExecStart=
+ExecStart=/usr/bin/plugger run --addr 0.0.0.0:8800
+```
+
 ## Building from Source
 
 ```bash
-git clone https://github.com/illumio/plugger.git
-cd plugger
+git clone https://github.com/illumio-community/illumio-plugger.git
+cd illumio-plugger
 make build
 ```
 
@@ -48,6 +111,7 @@ make test     # Run tests
 make lint     # Run linter
 make clean    # Remove build artifacts
 make install  # Install to $GOPATH/bin
+make snapshot # Full release build into dist/ (binaries, deb, rpm, cask) without publishing
 ```
 
 ## Configuration

@@ -772,6 +772,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
                 <div>
                     <h4 class="font-semibold text-purple-400 mb-1">Features</h4>
                     <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>Packaged installs</strong> &mdash; <code>brew install illumio-community/tap/plugger</code> on macOS, plus <code>.deb</code> and <code>.rpm</code> packages (amd64/arm64) with a disabled-by-default <code>plugger.service</code> systemd unit and a <code>plugger</code> service user, on every release. Releases are now built by GoReleaser; the raw binary names and <code>SHA256SUMS</code> are unchanged.</li>
                         <li><strong>Runtime metrics dashboard</strong> &mdash; a new <code>/metrics</code> page shows per-plugin CPU, memory (used/limit), uptime, health, restart and report counts, with live CPU and memory sparklines and an at-a-glance overview. Metrics are sampled into a short in-memory rolling window; CPU/memory come from the container runtime (<code>docker stats</code>) and health is read from plugin state, so the page adds no load to the plugins.</li>
                         <li><strong>Per-plugin Runtime panel</strong> &mdash; each plugin's detail page gained the same metrics inline, refreshing every 5s, so you can watch resource use right next to a plugin's logs and config.</li>
                         <li><strong>Per-plugin PCE access</strong> &mdash; every plugin now declares <code>access: readonly | readwrite</code> in its manifest (default read-only), classifying whether it only reads from the PCE or also writes (creates/updates labels, workloads, policy). Shown as a badge with a Read-only/Read-write filter on the portal. Granular read-only vs read-write key routing is on the roadmap.</li>
@@ -1727,9 +1728,8 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
             <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
             <span class="text-xs text-gray-400 ml-2">terminal</span>
         </div>
-        <pre class="p-5 text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed"><span class="text-gray-400"># Install</span>
-<span class="text-blue-400">$</span> git clone https://github.com/illumio-community/illumio-plugger.git
-<span class="text-blue-400">$</span> cd illumio-plugger && make build
+        <pre class="p-5 text-sm font-mono text-gray-300 overflow-x-auto leading-relaxed"><span class="text-gray-400"># Install (macOS — .deb, .rpm and binaries on the releases page)</span>
+<span class="text-blue-400">$</span> brew install illumio-community/tap/plugger
 
 <span class="text-gray-400"># Setup (auto-detects Docker, reads .env)</span>
 <span class="text-blue-400">$</span> plugger init
@@ -1838,14 +1838,36 @@ General install index: [docs.docker.com/get-docker](https://docs.docker.com/get-
 
 ## Install the Plugger CLI
 
-### From a release binary
-
-Download the latest release from GitHub:
+### Homebrew (macOS)
 
 \`\`\`bash
-curl -LO https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$(uname -s)-$(uname -m)
-chmod +x plugger-*
-sudo mv plugger-* /usr/local/bin/plugger
+brew install illumio-community/tap/plugger
+\`\`\`
+
+### Debian / Ubuntu (.deb) and RHEL / Fedora / Rocky (.rpm)
+
+Every release attaches \`plugger-<version>-linux-amd64\` and \`-arm64\` packages:
+
+\`\`\`bash
+VER=$(curl -s https://api.github.com/repos/illumio-community/illumio-plugger/releases/latest | grep -oE '"tag_name": *"v[^"]+' | grep -oE '[0-9][^"]*')
+# Debian / Ubuntu
+curl -LO "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$VER-linux-$(dpkg --print-architecture).deb"
+sudo apt install ./plugger-$VER-linux-$(dpkg --print-architecture).deb
+# RHEL / Fedora / Rocky
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+sudo dnf install "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$VER-linux-$ARCH.rpm"
+\`\`\`
+
+The packages ship a \`plugger.service\` systemd unit (disabled) and a \`plugger\` system user:
+\`sudo -u plugger HOME=/var/lib/plugger plugger init\`, then \`sudo systemctl enable --now plugger\`.
+
+### From a release binary
+
+\`\`\`bash
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+curl -Lo plugger "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$OS-$ARCH"
+chmod +x plugger && sudo mv plugger /usr/local/bin/
 \`\`\`
 
 ### Build from source
@@ -2974,8 +2996,16 @@ This guide walks you through installing plugger, connecting to your PCE, and run
 ## Install Plugger
 
 \`\`\`bash
-git clone https://github.com/illumio/plugger.git
-cd plugger
+brew install illumio-community/tap/plugger        # macOS
+\`\`\`
+
+On Linux use the \`.deb\` / \`.rpm\` packages or raw binaries attached to every
+[release](https://github.com/illumio-community/illumio-plugger/releases) — see
+the Installation doc. Or build from source:
+
+\`\`\`bash
+git clone https://github.com/illumio-community/illumio-plugger.git
+cd illumio-plugger
 make build
 \`\`\`
 
@@ -3063,14 +3093,61 @@ plugger upgrade <name>              # Upgrade a plugin
 | Docker | 20.10+ | Docker Desktop or Docker Engine |
 | Illumio PCE | 21.2+ | With API key access |
 
+## Installing
+
+Every release ships a Homebrew cask, \`.deb\` and \`.rpm\` packages, and raw
+binaries — see the [releases page](https://github.com/illumio-community/illumio-plugger/releases).
+
+\`\`\`bash
+# macOS
+brew install illumio-community/tap/plugger
+
+# Debian / Ubuntu  (VER = latest release, e.g. 0.15.7)
+VER=$(curl -s https://api.github.com/repos/illumio-community/illumio-plugger/releases/latest | grep -oE '"tag_name": *"v[^"]+' | grep -oE '[0-9][^"]*')
+curl -LO "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$VER-linux-$(dpkg --print-architecture).deb"
+sudo apt install ./plugger-$VER-linux-$(dpkg --print-architecture).deb
+
+# RHEL / Fedora / Rocky
+ARCH=$(uname -m | sed 's/x86_64/amd64/;s/aarch64/arm64/')
+sudo dnf install "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$VER-linux-$ARCH.rpm"
+
+# Raw binary, any platform
+OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+curl -Lo plugger "https://github.com/illumio-community/illumio-plugger/releases/latest/download/plugger-$OS-$ARCH"
+chmod +x plugger && sudo mv plugger /usr/local/bin/
+\`\`\`
+
+Verify downloads against the \`SHA256SUMS\` file attached to each release.
+
+### Running as a service (deb / rpm)
+
+The packages install a \`plugger.service\` systemd unit (disabled by default) and a
+\`plugger\` system user whose home is \`/var/lib/plugger\` (added to the \`docker\`
+group when one exists):
+
+\`\`\`bash
+sudo -u plugger HOME=/var/lib/plugger plugger init
+sudo systemctl enable --now plugger
+sudo journalctl -u plugger -f
+\`\`\`
+
+The dashboard listens on \`localhost:8800\`; to expose it, \`sudo systemctl edit plugger\` and add:
+
+\`\`\`ini
+[Service]
+ExecStart=
+ExecStart=/usr/bin/plugger run --addr 0.0.0.0:8800
+\`\`\`
+
 ## Building from Source
 
 \`\`\`bash
-git clone https://github.com/illumio/plugger.git
-cd plugger
+git clone https://github.com/illumio-community/illumio-plugger.git
+cd illumio-plugger
 make build     # Build binary to bin/plugger
 make test      # Run tests
 make install   # Install to $GOPATH/bin
+make snapshot  # Full release build into dist/ (binaries, deb, rpm, cask) without publishing
 \`\`\`
 
 ## Global Config (\`~/.plugger/config.yaml\`)

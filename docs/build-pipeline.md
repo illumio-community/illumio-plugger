@@ -135,22 +135,24 @@ Each plugin:
 5. Pushes to `ghcr.io/illumio-community/plugger-{name}`
 6. Uses GHA cache for faster rebuilds
 
-#### CLI Job (4 platforms)
+#### CLI Job (GoReleaser)
 
-Builds the Go CLI binary for:
-- `linux/amd64`
-- `linux/arm64`
-- `darwin/amd64`
-- `darwin/arm64`
+One job runs [GoReleaser](https://goreleaser.com) with `.goreleaser.yaml`:
 
-Version injected via `-ldflags`. Binaries uploaded as GitHub Actions artifacts.
+- Builds the CLI for `linux/amd64`, `linux/arm64`, `darwin/amd64`, `darwin/arm64`, `windows/amd64`
+  (`CGO_ENABLED=0`, version injected via `-ldflags`)
+- Raw binaries keep the historical names (`plugger-linux-amd64`, `plugger-windows-amd64.exe`, ...)
+  plus `SHA256SUMS`
+- `.deb` and `.rpm` packages (amd64/arm64) via nfpm, with `packaging/plugger.service`
+  and the `packaging/postinstall.sh` / `preremove.sh` scripts (service user, disabled unit)
+- macOS tarballs + a Homebrew cask pushed to `illumio-community/homebrew-tap`
+  (needs the `HOMEBREW_TAP_TOKEN` repository secret; without it the release still
+  happens, just without the tap update)
 
-#### Release Job (tags only)
-
-On `v*` tags, after docker + cli jobs pass:
-1. Downloads all CLI artifacts
-2. Creates a GitHub Release with auto-generated release notes
-3. Attaches CLI binaries (`plugger-linux-amd64`, `plugger-darwin-arm64`, etc.)
+On pushes to `main` it runs in **snapshot** mode (`release --snapshot`): everything is
+built and uploaded as a workflow artifact, nothing is published. On `v*` tags it runs
+`release --clean`, creating the GitHub Release with auto-generated notes and all of the
+above attached. Reproduce locally with `make snapshot` (output in `dist/`).
 
 ### `.github/workflows/pages.yml`
 
@@ -263,8 +265,8 @@ git push origin v0.3.0
 
 This triggers:
 - All 15 plugin images tagged with `0.3.0` and `0.3`
-- CLI binaries built for 4 platforms
-- GitHub Release created with release notes and binaries
+- CLI binaries built for 5 platforms, `.deb`/`.rpm` packages, the Homebrew cask
+- GitHub Release created with release notes, binaries, `SHA256SUMS` and packages
 
 ### 4. Users upgrade
 
