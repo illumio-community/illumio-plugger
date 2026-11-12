@@ -166,7 +166,7 @@
     {
       "name": "ad-label-sync",
       "version": "0.2.0",
-      "image": "ghcr.io/alexgoller/plugger-ad-label-sync:0.2.0",
+      "image": "ghcr.io/illumio-community/plugger-ad-label-sync:0.2.0",
       "description": "Discover AD computers and map OU, group, location attributes to Illumio labels — analytics mode for feasibility testing (untested)",
       "mode": "daemon",
       "has_ui": true,
@@ -207,7 +207,7 @@
     {
       "name": "ai-security-report",
       "version": "0.1.0",
-      "image": "ghcr.io/alexgoller/plugger-ai-security-report:0.1.0",
+      "image": "ghcr.io/illumio-community/plugger-ai-security-report:0.1.0",
       "description": "Comprehensive AI-powered security posture analysis — 10 categories, scoring, compliance mapping, environment heatmap, remediation roadmap",
       "mode": "daemon",
       "has_ui": true,

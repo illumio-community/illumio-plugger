@@ -285,7 +285,7 @@ After adding or modifying a plugin:
 
 1. **registry.json** — add/update entry in `docs/portal/registry.json` with all fields:
    - `name`, `version`, `image`, `description`, `mode`, `has_ui`, `language`, `tags`, `author`, `homepage`, `maturity`
-   - Internal plugins: image = `ghcr.io/illumio-community/plugger-{name}:{version}` — CI pushes to the repo owner's namespace (`illumio-community`), and the image tag **must equal** the `version` field (validated by `validate-registry.py`). When you bump `version`, bump the image tag too. A few older entries still point at `ghcr.io/alexgoller/` only because their `illumio-community` package has not been made public yet; never add new ones there.
+   - Internal plugins: image = `ghcr.io/illumio-community/plugger-{name}:{version}` — CI pushes to the repo owner's namespace (`illumio-community`), and the image tag **must equal** the `version` field (validated by `validate-registry.py`). When you bump `version`, bump the image tag too. Never use `ghcr.io/alexgoller/` for internal plugins (the pre-cutover namespace).
    - New GHCR packages in the org are **private by default** — after CI publishes a brand-new plugin image, an org owner must set the package to public (package settings UI; there is no API) or `plugger install` fails for everyone.
    - External plugins (policy-gitops, policy-workflow): image = `ghcr.io/alexgoller/illumio-{name}:latest` (built from their own repos)
 
