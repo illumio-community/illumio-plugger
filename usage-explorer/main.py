@@ -483,8 +483,8 @@ var FLAG_NAMES = {
   containers_inherit_host_policy_scopes: 'Containers inherit host policy scope', rule_hit_count_enabled_scopes: 'Rule hit count scope'
 };
 var COLS = [
-  {k: 'name', t: 'Object'}, {k: 'workloads', t: 'Workloads', n: 1}, {k: 'rules', t: 'Rules', n: 1},
-  {k: 'boundaries', t: 'Boundaries', n: 1}, {k: 'label_groups', t: 'Groups', n: 1}, {k: 'other', t: 'Other', n: 1},
+  {k: 'name', t: 'Object'}, {k: 'rules', t: 'Rules', n: 1}, {k: 'boundaries', t: 'Boundaries', n: 1},
+  {k: 'label_groups', t: 'Groups', n: 1}, {k: 'other', t: 'Other', n: 1}, {k: 'workloads', t: 'Workloads', n: 1},
   {k: 'status', t: 'Status'}
 ];
 
@@ -581,11 +581,11 @@ function renderTable() {
     html += '<tr class="row border-t border-gray-700/50' + (sel === o.id ? ' sel' : '') + '" onclick="select(\'' + esc(o.id) + '\')">';
     if (tab === 'top') html += '<td class="px-3 py-2 text-gray-400">' + esc(kindName(o.kind)) + '</td>';
     html += '<td class="px-3 py-2 text-white">' + esc(o.name) + (o.kind === 'label_group' && o.members ? ' <span class="text-xs text-gray-500">(' + o.members.labels + ' labels, ' + o.members.sub_groups + ' groups)</span>' : '') + '</td>';
-    html += '<td class="px-3 py-2 text-right">' + (o.kind === 'label' ? o.counts.workloads : '<span class="text-gray-600">—</span>') + '</td>';
     html += '<td class="px-3 py-2 text-right">' + o.counts.rules + '</td>';
     html += '<td class="px-3 py-2 text-right">' + o.counts.boundaries + '</td>';
     html += '<td class="px-3 py-2 text-right">' + (o.kind === 'label' || o.kind === 'label_group' ? o.counts.label_groups : '<span class="text-gray-600">—</span>') + '</td>';
     html += '<td class="px-3 py-2 text-right">' + (o.kind === 'label' ? o.counts.other + o.counts.pairing_profiles : '<span class="text-gray-600">—</span>') + '</td>';
+    html += '<td class="px-3 py-2 text-right">' + (o.kind === 'label' ? o.counts.workloads : '<span class="text-gray-600">—</span>') + '</td>';
     html += '<td class="px-3 py-2">' + status(o) + '</td></tr>';
   });
   document.getElementById('tbody').innerHTML = html || '<tr><td colspan="8" class="px-3 py-6 text-center text-gray-500">No objects match.</td></tr>';
@@ -607,25 +607,11 @@ function renderDetail(id) {
   else h += '<div class="mb-2 text-xs text-gray-500">Referenced by policy but not found in the fetched catalog (deleted, or in a policy version that is not indexed). ' + esc(o.href) + '</div>';
   var c = o.counts;
   h += '<div class="flex flex-wrap gap-1 mb-1">'
-    + (o.kind === 'label' ? chip('c-info', c.workloads + ' workloads') : '')
     + chip('c-info', c.rules + ' rule refs') + chip('c-info', c.boundaries + ' boundaries')
     + (o.kind === 'label' || o.kind === 'label_group' ? chip('c-info', c.label_groups + ' groups') : '')
-    + (o.kind === 'label' ? chip('c-info', c.pairing_profiles + ' pairing profiles') + chip('c-info', c.other + ' other') : '')
+    + (o.kind === 'label' ? chip('c-info', c.pairing_profiles + ' pairing profiles') + chip('c-info', c.other + ' other') + chip('c-info', c.workloads + ' workloads') : '')
     + '</div>';
   if (o.kind === 'label' && o.flags.length) h += '<div class="text-xs text-gray-500 mb-1">PCE reports usage in: ' + esc(o.flags.map(flagName).join(', ')) + '</div>';
-
-  if (o.kind === 'label') {
-    h += '<div class="sec"><div class="font-semibold text-white mb-1">Workloads <span class="text-gray-500 font-normal">' + c.workloads + (c.workloads > o.workloads.sample.length ? ' · showing first ' + o.workloads.sample.length : '') + '</span></div>';
-    if (o.workloads.sample.length) {
-      h += '<table class="w-full text-xs"><tbody>';
-      o.workloads.sample.forEach(function (w) {
-        h += '<tr class="border-t border-gray-700/40"><td class="py-1 pr-2">' + link(w.url, w.name || w.hostname || w.href) + (w.hostname && w.hostname !== w.name ? ' <span class="text-gray-500">' + esc(w.hostname) + '</span>' : '') + '</td>'
-          + '<td class="py-1 text-right text-gray-400">' + esc((w.enforcement_mode || '').replace(/_/g, ' ')) + (w.managed === false ? ' · unmanaged' : w.online === false ? ' · offline' : '') + '</td></tr>';
-      });
-      h += '</tbody></table>';
-    } else h += '<div class="text-xs text-gray-500">No workloads carry this label.</div>';
-    h += '</div>';
-  }
 
   h += '<div class="sec"><div class="font-semibold text-white mb-1">Rules <span class="text-gray-500 font-normal">' + c.rules + '</span></div>';
   if (o.rules.length) {
@@ -667,6 +653,18 @@ function renderDetail(id) {
     h += '<div class="sec"><div class="font-semibold text-white mb-1">Other references</div><div class="flex flex-wrap gap-1">';
     o.other_flags.forEach(function (f) { h += chip('c-info', flagName(f)); });
     h += '</div><div class="text-xs text-gray-500 mt-1">Reported by the PCE; open the label in the PCE for the exact objects.</div></div>';
+  }
+  if (o.kind === 'label') {
+    h += '<div class="sec"><div class="font-semibold text-white mb-1">Workloads <span class="text-gray-500 font-normal">' + c.workloads + (c.workloads > o.workloads.sample.length ? ' · showing first ' + o.workloads.sample.length : '') + '</span></div>';
+    if (o.workloads.sample.length) {
+      h += '<table class="w-full text-xs"><tbody>';
+      o.workloads.sample.forEach(function (w) {
+        h += '<tr class="border-t border-gray-700/40"><td class="py-1 pr-2">' + link(w.url, w.name || w.hostname || w.href) + (w.hostname && w.hostname !== w.name ? ' <span class="text-gray-500">' + esc(w.hostname) + '</span>' : '') + '</td>'
+          + '<td class="py-1 text-right text-gray-400">' + esc((w.enforcement_mode || '').replace(/_/g, ' ')) + (w.managed === false ? ' · unmanaged' : w.online === false ? ' · offline' : '') + '</td></tr>';
+      });
+      h += '</tbody></table>';
+    } else h += '<div class="text-xs text-gray-500">No workloads carry this label.</div>';
+    h += '</div>';
   }
   if (o.unused) h += '<div class="sec text-xs text-red-300">Nothing references this object. It is a candidate for cleanup — confirm in the PCE before deleting.</div>';
   el.innerHTML = h;

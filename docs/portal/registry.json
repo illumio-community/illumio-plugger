@@ -402,8 +402,8 @@
     },
     {
       "name": "usage-explorer",
-      "version": "0.1.0",
-      "image": "ghcr.io/illumio-community/plugger-usage-explorer:0.1.0",
+      "version": "0.1.1",
+      "image": "ghcr.io/illumio-community/plugger-usage-explorer:0.1.1",
       "description": "Where and how every label, label group, service and IP list is used — workloads, rulesets with rule numbers, deny rules, enforcement boundaries, pairing profiles, and what is unused",
       "mode": "daemon",
       "has_ui": true,

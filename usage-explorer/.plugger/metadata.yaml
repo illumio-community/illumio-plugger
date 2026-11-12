@@ -32,7 +32,7 @@ config:
 
 info:
   title: Usage Explorer
-  version: "0.1.0"
+  version: "0.1.1"
   description: "Where and how every label, label group, service and IP list is used — workloads, rulesets with rule numbers, deny rules, enforcement boundaries, pairing profiles — and what is unused"
   author: Illumio
   license: Apache-2.0

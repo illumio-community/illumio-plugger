@@ -1,6 +1,6 @@
 apiVersion: plugger/v1
 name: usage-explorer
-version: 0.1.0
+version: 0.1.1
 image: plugger-usage-explorer:latest
 access: readonly
 

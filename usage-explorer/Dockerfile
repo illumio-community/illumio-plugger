@@ -6,7 +6,7 @@ COPY plugger_sdk.py /app/plugger_sdk.py
 COPY main.py /app/main.py
 COPY .plugger/metadata.yaml /.plugger/metadata.yaml
 COPY plugin.yaml /.plugger/plugin.yaml
-ARG VERSION=0.1.0
+ARG VERSION=0.1.1
 RUN sed -i "s/^  version: .*/  version: \"${VERSION}\"/" /.plugger/metadata.yaml || true
 USER plugin
 WORKDIR /app
