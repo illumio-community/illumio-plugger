@@ -8,11 +8,20 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// Access declares the level of PCE access a plugin needs. It is declarative
+// intent used for visibility and filtering today; credential routing per level
+// is tracked separately (granular PCE keys). Defaults to AccessReadOnly.
+const (
+	AccessReadOnly  = "readonly"
+	AccessReadWrite = "readwrite"
+)
+
 type PluginManifest struct {
 	APIVersion string          `yaml:"apiVersion"`
 	Name       string          `yaml:"name"`
 	Version    string          `yaml:"version"`
 	Image      string          `yaml:"image"`
+	Access     string          `yaml:"access,omitempty"` // readonly (default) | readwrite
 	Schedule   ScheduleConfig  `yaml:"schedule"`
 	Env        []EnvVar        `yaml:"env"`
 	Events     *EventConfig    `yaml:"events,omitempty"`
@@ -91,6 +100,15 @@ func (m *PluginManifest) Validate() error {
 	}
 	if m.Version == "" {
 		return fmt.Errorf("version is required")
+	}
+
+	// Access defaults to read-only (least privilege) when unset.
+	switch m.Access {
+	case "":
+		m.Access = AccessReadOnly
+	case AccessReadOnly, AccessReadWrite:
+	default:
+		return fmt.Errorf("access must be %q or %q, got %q", AccessReadOnly, AccessReadWrite, m.Access)
 	}
 
 	switch m.Schedule.Mode {

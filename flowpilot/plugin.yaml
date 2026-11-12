@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: flowpilot
 version: 0.2.4
 image: plugger-flowpilot:latest
+access: readwrite
 
 schedule:
   mode: daemon

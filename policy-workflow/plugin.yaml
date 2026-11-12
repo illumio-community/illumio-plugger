@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: policy-workflow
 version: 0.1.0
 image: policy-workflow:latest
+access: readwrite
 
 schedule:
   mode: daemon

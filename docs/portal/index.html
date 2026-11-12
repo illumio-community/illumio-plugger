@@ -65,6 +65,9 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 .mat-pill { cursor:pointer;transition:all 0.15s; }
 .mat-pill:hover { background:rgba(137,180,250,0.15); }
 .mat-pill.active { background:rgba(137,180,250,0.2);color:#89b4fa;border-color:rgba(137,180,250,0.4); }
+.acc-pill { cursor:pointer;transition:all 0.15s; }
+.acc-pill:hover { background:rgba(137,180,250,0.15); }
+.acc-pill.active { background:rgba(137,180,250,0.2);color:#89b4fa;border-color:rgba(137,180,250,0.4); }
 </style>
 </head>
 <body class="bg-dark-900 text-gray-200 min-h-screen">
@@ -237,6 +240,13 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         <button onclick="filterMaturity('beta')" class="mat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-mat="beta">Beta</button>
         <button onclick="filterMaturity('preview')" class="mat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-mat="preview">Preview</button>
         <button onclick="filterMaturity('example')" class="mat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-mat="example">Example</button>
+    </div>
+
+    <!-- PCE access filters -->
+    <div class="flex flex-wrap gap-2 justify-center mb-8">
+        <button onclick="filterAccess('all')" class="acc-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-acc="all">All Access</button>
+        <button onclick="filterAccess('readonly')" class="acc-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-acc="readonly">Read-only</button>
+        <button onclick="filterAccess('readwrite')" class="acc-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-acc="readwrite">Read-write</button>
     </div>
 
     <p class="text-center text-xs text-amber-300/80 max-w-2xl mx-auto mb-8">⚠️ Plugins marked <strong>preview</strong> (and <strong>example</strong>) may not have been tested against a live PCE or the target integration. Validate them in a non-production environment before relying on them.</p>
@@ -412,7 +422,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         </div>
 
         <!-- AD Label Sync -->
-        <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in fade-d4 cursor-pointer" data-plugin="ad-label-sync" data-categories="integration" data-maturity="production" onclick="showDocs('ad-label-sync')">
+        <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 fade-in fade-d4 cursor-pointer" data-plugin="ad-label-sync" data-categories="integration" data-maturity="preview" onclick="showDocs('ad-label-sync')">
             <div class="flex items-center justify-between mb-2">
                 <h3 class="text-white font-semibold">AD Label Sync</h3>
                 <div class="flex gap-1">
@@ -727,12 +737,38 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <div class="space-y-8">
 
+        <!-- v0.15.7 -->
+        <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-white">v0.15.7</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                </div>
+                <span class="text-sm text-gray-500">November 4, 2026</span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-purple-400 mb-1">Features</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>Runtime metrics dashboard</strong> &mdash; a new <code>/metrics</code> page shows per-plugin CPU, memory (used/limit), uptime, health, restart and report counts, with live CPU and memory sparklines and an at-a-glance overview. Metrics are sampled into a short in-memory rolling window; CPU/memory come from the container runtime (<code>docker stats</code>) and health is read from plugin state, so the page adds no load to the plugins.</li>
+                        <li><strong>Per-plugin Runtime panel</strong> &mdash; each plugin's detail page gained the same metrics inline, refreshing every 5s, so you can watch resource use right next to a plugin's logs and config.</li>
+                        <li><strong>Per-plugin PCE access</strong> &mdash; every plugin now declares <code>access: readonly | readwrite</code> in its manifest (default read-only), classifying whether it only reads from the PCE or also writes (creates/updates labels, workloads, policy). Shown as a badge with a Read-only/Read-write filter on the portal. Granular read-only vs read-write key routing is on the roadmap.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-red-400 mb-1">Bug Fixes</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>ad-label-sync</strong> (0.2.0) &mdash; the advertised <code>MODE=sync</code> was never implemented (analytics-only). Sync now actually applies discovered labels to matching PCE workloads: find-or-create labels, overwrite only the managed keys (role/app/env/loc), match by hostname, with a <code>DRY_RUN</code> preview. Re-rated <strong>preview</strong> (the new write path is untested against a live PCE).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- v0.15.6 -->
         <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <span class="text-lg font-bold text-white">v0.15.6</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
                 </div>
                 <span class="text-sm text-gray-500">October 29, 2026</span>
             </div>
@@ -5261,17 +5297,56 @@ function closeDocs() {
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDocs(); });
 
+// Per-plugin PCE access level (readonly | readwrite), keyed by data-plugin.
+// Kept in sync with the `access` field in registry.json / each plugin.yaml.
+    const PLUGIN_ACCESS = {
+        "ad-label-sync": "readwrite",
+        "ai-assisted-rules": "readwrite",
+        "ai-security-report": "readonly",
+        "app-dependency-intel": "readonly",
+        "dragos-sync": "readwrite",
+        "flowpilot": "readwrite",
+        "fortigate-sync": "readonly",
+        "infoblox-ipam-sync": "readwrite",
+        "ise-sync": "readwrite",
+        "meraki-sync": "readwrite",
+        "network-discovery": "readwrite",
+        "nozomi-sync": "readwrite",
+        "palo-alto-dag-sync": "readonly",
+        "pce-events": "readonly",
+        "pce-expiry-watch": "readonly",
+        "pce-health-monitor": "readonly",
+        "pce-posture-report": "readonly",
+        "policy-backup": "readonly",
+        "policy-diff": "readonly",
+        "policy-gitops": "readwrite",
+        "policy-resolver": "readonly",
+        "policy-workflow": "readwrite",
+        "remedy-cmdb-sync": "readwrite",
+        "rule-scheduler": "readwrite",
+        "stale-workloads": "readwrite",
+        "traffic-reporter": "readonly",
+        "vcenter-sync": "readwrite",
+        "ven-fleet-manager": "readwrite",
+        "vmaps-handler": "readwrite",
+        "workload-isolator": "readwrite",
+        "ztna-sync": "readonly",
+    };
+
 // Active filter state
 let _activeCat = 'all';
 let _activeMat = 'all';
+let _activeAccess = 'all';
 
 function applyFilters() {
     document.querySelectorAll('#plugin-grid > .card').forEach(card => {
         const cats = (card.dataset.categories || '').split(',');
         const mat = card.dataset.maturity || '';
+        const acc = PLUGIN_ACCESS[card.dataset.plugin] || '';
         const catMatch = _activeCat === 'all' || cats.includes(_activeCat);
         const matMatch = _activeMat === 'all' || mat === _activeMat;
-        card.style.display = (catMatch && matMatch) ? '' : 'none';
+        const accMatch = _activeAccess === 'all' || acc === _activeAccess;
+        card.style.display = (catMatch && matMatch && accMatch) ? '' : 'none';
     });
 }
 
@@ -5289,6 +5364,15 @@ function filterMaturity(mat) {
     _activeMat = mat;
     document.querySelectorAll('.mat-pill').forEach(b => {
         b.classList.toggle('active', b.dataset.mat === mat);
+    });
+    applyFilters();
+}
+
+// Plugin PCE-access filter
+function filterAccess(acc) {
+    _activeAccess = acc;
+    document.querySelectorAll('.acc-pill').forEach(b => {
+        b.classList.toggle('active', b.dataset.acc === acc);
     });
     applyFilters();
 }
@@ -5341,6 +5425,21 @@ function injectMaturityBadges() {
             }
         }
         badgeContainer.appendChild(badge);
+
+        // PCE access badge (read-only vs read-write)
+        const acc = PLUGIN_ACCESS[card.dataset.plugin];
+        if (acc) {
+            const ac = acc === 'readwrite'
+                ? { bg: 'bg-rose-500/15', text: 'text-rose-300', border: 'border-rose-500/30', label: 'Read-write' }
+                : { bg: 'bg-slate-500/15', text: 'text-slate-300', border: 'border-slate-500/30', label: 'Read-only' };
+            const accBadge = document.createElement('span');
+            accBadge.className = `text-xs px-2 py-0.5 rounded ${ac.bg} ${ac.text} border ${ac.border}`;
+            accBadge.textContent = ac.label;
+            accBadge.title = acc === 'readwrite'
+                ? 'Writes to the PCE (creates/updates objects)'
+                : 'Only reads from the PCE';
+            badgeContainer.appendChild(accBadge);
+        }
     });
 }
 

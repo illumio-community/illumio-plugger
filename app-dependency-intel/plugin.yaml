@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: app-dependency-intel
 version: 0.1.0
 image: plugger-app-dependency-intel:latest
+access: readonly
 
 schedule:
   mode: daemon

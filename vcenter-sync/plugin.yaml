@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: vcenter-sync
 version: 0.1.0
 image: plugger-vcenter-sync:latest
+access: readwrite
 
 schedule:
   mode: daemon

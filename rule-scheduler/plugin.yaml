@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: rule-scheduler
 version: 0.1.1
 image: rule-scheduler:latest
+access: readwrite
 
 schedule:
   mode: daemon

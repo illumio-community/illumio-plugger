@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: policy-backup
 version: 0.1.1
 image: plugger-policy-backup:latest
+access: readonly
 
 schedule:
   mode: daemon

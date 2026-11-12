@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: pce-expiry-watch
 version: 0.1.0
 image: pce-expiry-watch:latest
+access: readonly
 
 schedule:
   mode: cron

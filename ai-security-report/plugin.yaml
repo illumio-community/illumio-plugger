@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: ai-security-report
 version: 0.1.0
 image: plugger-ai-security-report:latest
+access: readonly
 
 schedule:
   mode: daemon

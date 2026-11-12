@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: ise-sync
 version: 0.1.1
 image: ise-sync:latest
+access: readwrite
 
 schedule:
   mode: daemon

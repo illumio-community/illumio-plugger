@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: dragos-sync
 version: 0.2.1
 image: plugger-dragos-sync:latest
+access: readwrite
 
 schedule:
   mode: daemon

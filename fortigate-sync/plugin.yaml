@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: fortigate-sync
 version: 0.1.0
 image: plugger-fortigate-sync:latest
+access: readonly
 
 schedule:
   mode: daemon

@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: ai-assisted-rules
 version: 0.2.0
 image: ai-assisted-rules:latest
+access: readwrite
 
 schedule:
   mode: daemon

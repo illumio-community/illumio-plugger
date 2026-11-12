@@ -91,6 +91,12 @@ def validate_plugin_yaml(plugin_name, data):
         if not image:
             errors.append("Image field is empty")
 
+    # access is optional (defaults to readonly) but must be one of the two values
+    if "access" in data:
+        access = str(data["access"])
+        if access not in ("readonly", "readwrite"):
+            errors.append(f"Invalid access '{access}' (expected: readonly or readwrite)")
+
     return errors
 
 

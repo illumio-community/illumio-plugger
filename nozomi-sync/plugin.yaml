@@ -2,6 +2,7 @@ apiVersion: plugger/v1
 name: nozomi-sync
 version: 0.2.1
 image: plugger-nozomi-sync:latest
+access: readwrite
 
 schedule:
   mode: daemon
