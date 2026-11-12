@@ -401,6 +401,27 @@
       "access": "readonly"
     },
     {
+      "name": "usage-explorer",
+      "version": "0.1.0",
+      "image": "ghcr.io/alexgoller/plugger-usage-explorer:0.1.0",
+      "description": "Where and how every label, label group, service and IP list is used — workloads, rulesets with rule numbers, deny rules, enforcement boundaries, pairing profiles, and what is unused",
+      "mode": "daemon",
+      "has_ui": true,
+      "language": "python",
+      "tags": [
+        "labels",
+        "policy",
+        "where-used",
+        "hygiene",
+        "cleanup",
+        "rulesets"
+      ],
+      "author": "Illumio",
+      "homepage": "https://github.com/illumio-community/illumio-plugger/tree/main/usage-explorer",
+      "maturity": "preview",
+      "access": "readonly"
+    },
+    {
       "name": "ven-fleet-manager",
       "version": "0.1.0",
       "image": "ghcr.io/alexgoller/plugger-ven-fleet-manager:0.1.0",

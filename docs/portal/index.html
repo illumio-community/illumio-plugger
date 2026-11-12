@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Plugger — Plugin Framework for Illumio PCE</title>
-<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 31 plugins with full documentation.">
+<meta name="description" content="Manage Illumio PCE plugins as Docker containers. Auto-restart, health checks, cron scheduling, web dashboard, AI-assisted policy, plugin registry. 32 plugins with full documentation.">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 <script>
@@ -102,7 +102,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
         Plugin Framework for<br><span class="gradient-text">Illumio PCE</span>
     </h1>
     <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-10 fade-in fade-d1">
-        The agent-native Illumio plugin framework. Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 31 plugins.
+        The agent-native Illumio plugin framework. Manage PCE plugins as Docker containers. Python SDK, shared reporting bus (Slack/Teams/email/webhook), web dashboard, AI-assisted policy, and a plugin registry with 32 plugins.
     </p>
     <p class="text-sm text-gray-400 max-w-2xl mx-auto mb-10 -mt-6 fade-in fade-d1">
         Agent-native means plugger is built to be authored and operated by AI coding agents: Claude Code scaffolds plugins through the build-plugin skill, the dashboard, HTTP APIs and reporting bus are all drivable by an agent, and the Python SDK keeps a working plugin to roughly 50 lines.
@@ -122,7 +122,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 <!-- Stats -->
 <section class="py-8 px-6 border-y border-gray-800">
 <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-6 text-center">
-    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">31</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
+    <div class="fade-in"><div class="text-3xl font-bold text-blue-400">32</div><div class="text-xs text-gray-400 mt-1">Plugins</div></div>
     <div class="fade-in fade-d1"><div class="text-3xl font-bold text-green-400">4</div><div class="text-xs text-gray-400 mt-1">Output Channels</div></div>
     <div class="fade-in fade-d2"><div class="text-3xl font-bold text-purple-400">Python</div><div class="text-xs text-gray-400 mt-1">SDK Included</div></div>
     <div class="fade-in fade-d3"><div class="text-3xl font-bold text-yellow-400">Multi</div><div class="text-xs text-gray-400 mt-1">Arch (amd64/arm64)</div></div>
@@ -224,7 +224,7 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <!-- Category filters -->
     <div class="flex flex-wrap gap-2 justify-center mb-8">
-        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (31)</button>
+        <button onclick="filterPlugins('all')" class="cat-pill active text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="all">All (32)</button>
         <button onclick="filterPlugins('monitoring')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="monitoring">Monitoring</button>
         <button onclick="filterPlugins('policy')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="policy">Policy & Compliance</button>
         <button onclick="filterPlugins('ai')" class="cat-pill text-xs px-3 py-1.5 rounded-full border border-gray-700 text-gray-400" data-cat="ai">AI-Powered</button>
@@ -565,6 +565,22 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
             </div>
         </div>
 
+        <!-- Usage Explorer -->
+        <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 glow fade-in fade-d2 cursor-pointer" data-plugin="usage-explorer" data-categories="policy,operations" data-maturity="preview" onclick="showDocs('usage-explorer')">
+            <div class="flex items-center justify-between mb-2">
+                <h3 class="text-white font-semibold">Usage Explorer</h3>
+                <div class="flex gap-1">
+                    <span class="text-xs px-2 py-0.5 rounded bg-sky-500/15 text-sky-300 border border-sky-500/30">daemon</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 border border-rose-500/30">new</span>
+                </div>
+            </div>
+            <p class="text-sm text-gray-300 mb-3">Where and how every label, label group, service and IP list is used — workloads, rulesets with rule numbers, deny rules, enforcement boundaries, pairing profiles, and what is unused.</p>
+            <div class="flex items-center justify-between">
+                <code class="text-xs text-gray-400 select-all">plugger install usage-explorer</code>
+                <span class="text-xs text-blue-400 hover:text-blue-300">Docs →</span>
+            </div>
+        </div>
+
         <!-- FortiGate Sync -->
         <div class="card bg-dark-800 rounded-xl border border-gray-700 p-5 glow fade-in fade-d3 cursor-pointer" data-plugin="fortigate-sync" data-categories="integration" data-maturity="production" onclick="showDocs('fortigate-sync')">
             <div class="flex items-center justify-between mb-2">
@@ -744,9 +760,15 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
                     <span class="text-lg font-bold text-white">v0.15.7</span>
                     <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
                 </div>
-                <span class="text-sm text-gray-500">November 4, 2026</span>
+                <span class="text-sm text-gray-500">November 12, 2026</span>
             </div>
             <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-blue-400 mb-1">New Plugins</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>usage-explorer</strong> (0.1.0, preview) &mdash; where and how every label, label group, service and IP list is used: the workloads that carry it, every ruleset rule and deny rule that references it with the <strong>rule number</strong> and role (scope / source / destination / service), enforcement boundaries, pairing profiles, label groups, plus the PCE's own usage flags for everything else. Flags <strong>unused</strong> objects as cleanup candidates, ranks top-impact objects, links everything to the PCE console. Read-only.</li>
+                    </ul>
+                </div>
                 <div>
                     <h4 class="font-semibold text-purple-400 mb-1">Features</h4>
                     <ul class="text-gray-300 space-y-1 ml-4 list-disc">
@@ -2711,7 +2733,7 @@ plugger search --repo my-registry
     icon: "share",
     readme: `# Publishing Your Own Plugin Registry
 
-Plugger supports multiple plugin registries. The official registry ships with 31 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
+Plugger supports multiple plugin registries. The official registry ships with 32 plugins, but you can create your own registry to distribute custom plugins within your organization or to the community.
 
 ## How Plugin Registries Work
 
@@ -4291,6 +4313,72 @@ Approval-based policy workflow engine for Illumio PCE. Integrates with Policy Gi
 
 See the [external repository](https://github.com/alexgoller/illumio-policy-gitops) for installation instructions and full documentation.`
 },
+"usage-explorer": {
+    title: "Usage Explorer",
+    mode: "daemon",
+    tags: ["policy","operations"],
+    readme: `# Usage Explorer
+
+> **Status: Preview** — functional against a live PCE, needs wider real-world validation. Read-only: it never writes to the PCE.
+
+Where and how every policy object is used. Pick any **label, label group, service or IP list** and see every place it is referenced — not just "in use / not in use", but which workloads carry it, which rulesets reference it and at which **rule number**, in what role, in draft and/or active policy, plus enforcement boundaries, pairing profiles, label groups and everything else the PCE reports. Objects nothing references are flagged **unused** — cleanup candidates you can hand to the policy team.
+
+## Install
+
+\`\`\`bash
+plugger install usage-explorer
+\`\`\`
+
+## What you get per object
+
+| Section | Labels | Label groups | Services | IP lists |
+|---|---|---|---|---|
+| **Workloads** — exact count + sample, enforcement mode, linked to the PCE | ✓ | | | |
+| **Rules** — ruleset, rule **#**, how (ruleset scope / source / destination / service), allow or **deny**, extra-scope, disabled, draft/active | ✓ | ✓ | ✓ | ✓ |
+| **Enforcement boundaries** — name, role, draft/active | ✓ | ✓ | ✓ | ✓ |
+| **Label groups** — groups containing the label (or parent groups) | ✓ | ✓ | | |
+| **Pairing profiles** | ✓ | | | |
+| **Other references** — virtual services, container workload profiles, RBAC permission scopes, label mapping rules, ... (from the PCE's own label usage flags) | ✓ | | | |
+| **Status** — in use / **unused** / draft only / pending delete / missing | ✓ | ✓ | ✓ | ✓ |
+
+Everything links to the PCE console. The **Top Impact** tab ranks objects by workloads + rule references — the ones where a change has the biggest blast radius.
+
+### About rule numbers
+
+Illumio rules have no stable human-readable number. The \`#\` shown is the rule's position within its ruleset (1-based), the same order the PCE console lists them in. If a rule sits at a different position in draft than in active, both are shown (\`#3 (draft #4)\`). Deny rules are numbered within the ruleset's deny rule list.
+
+### About "unused"
+
+An object is unused when this plugin finds no workload, rule, ruleset scope, boundary, label group or pairing profile referencing it **and** the PCE's own usage flags for it are all clear. The PCE's flags win: if the PCE says a label is used by a virtual service, it is not reported as unused even though this plugin does not resolve virtual services in detail. Always confirm in the PCE before deleting anything.
+
+**Draft only** = created in draft, not yet provisioned. **Pending delete** = exists in active policy but has been removed from draft. **Missing** = a rule references an href that is not in the fetched catalog.
+
+## Configuration
+
+| Variable | Default | Description |
+|---|---|---|
+| \`POLL_INTERVAL\` | \`3600\` | Seconds between index rebuilds (the dashboard has a Rebuild button too) |
+| \`INCLUDE_DRAFT\` | \`true\` | Index draft policy as well as active |
+| \`WORKLOAD_SAMPLE\` | \`50\` | Workloads listed per label in the detail view (the count is always exact) |
+| \`PCE_TLS_SKIP_VERIFY\` | \`true\` | Skip TLS verification for the PCE |
+
+PCE credentials are injected by plugger. The plugin only issues \`GET\` requests — about 13 per rebuild with draft enabled.
+
+## API
+
+| Endpoint | Description |
+|---|---|
+| \`GET /api/usage\` | Full index: counts, top impact, every object with its references |
+| \`GET /api/summary\` | Counts and metadata without the object list |
+| \`GET /api/object?id=<id>\` | One object |
+| \`GET /api/unused\` | Just the unused objects — handy for cleanup scripts |
+| \`POST /api/rebuild\` | Trigger a rebuild now |
+
+## Reports
+
+Publishes a report on the plugger reporting bus (tags \`usage\`, \`hygiene\`) whenever the number of unused objects changes, with the per-kind breakdown and the first 20 unused objects.
+`
+},
 "app-dependency-intel": {
     title: "App Dependency Intel",
     mode: "daemon",
@@ -5231,7 +5319,7 @@ Nozomi asset schemas vary by product (Vantage vs. Guardian), version, and sensor
 // Render docs accordion
 function renderDocsAccordion() {
     const container = document.getElementById('docs-accordion');
-    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','pce-expiry-watch','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','meraki-sync','ise-sync','flowpilot'];
+    const order = ['ai-security-report','ai-assisted-rules','app-dependency-intel','policy-resolver','usage-explorer','network-discovery','vmaps-handler','pce-health-monitor','traffic-reporter','policy-diff','pce-events','pce-posture-report','pce-expiry-watch','stale-workloads','rule-scheduler','ven-fleet-manager','palo-alto-dag-sync','fortigate-sync','vcenter-sync','ad-label-sync','remedy-cmdb-sync','ztna-sync','infoblox-ipam-sync','workload-isolator','policy-gitops','policy-workflow','policy-backup','dragos-sync','nozomi-sync','meraki-sync','ise-sync','flowpilot'];
     let html = '';
     for (const id of order) {
         const plugin = PLUGIN_DOCS[id];
@@ -5304,6 +5392,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDocs();
         "ai-assisted-rules": "readwrite",
         "ai-security-report": "readonly",
         "app-dependency-intel": "readonly",
+        "usage-explorer": "readonly",
         "dragos-sync": "readwrite",
         "flowpilot": "readwrite",
         "fortigate-sync": "readonly",

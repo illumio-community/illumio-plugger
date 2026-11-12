@@ -1,0 +1,39 @@
+plugger: v1
+
+ports:
+  - port: 8080
+    protocol: tcp
+    name: dashboard
+    description: Usage Explorer dashboard
+    type: ui
+    path: /
+
+config:
+  - name: POLL_INTERVAL
+    description: Seconds between PCE index rebuilds
+    required: false
+    type: int
+    default: "3600"
+  - name: INCLUDE_DRAFT
+    description: Index draft policy as well as active (shows both with a badge)
+    required: false
+    type: bool
+    default: "true"
+  - name: WORKLOAD_SAMPLE
+    description: Maximum workloads listed per label in the detail view (the count is always exact)
+    required: false
+    type: int
+    default: "50"
+  - name: PCE_TLS_SKIP_VERIFY
+    description: Skip TLS certificate verification
+    required: false
+    type: bool
+    default: "true"
+
+info:
+  title: Usage Explorer
+  version: "0.1.0"
+  description: "Where and how every label, label group, service and IP list is used — workloads, rulesets with rule numbers, deny rules, enforcement boundaries, pairing profiles — and what is unused"
+  author: Illumio
+  license: Apache-2.0
+  homepage: https://github.com/illumio-community/illumio-plugger/tree/main/usage-explorer

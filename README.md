@@ -6,7 +6,7 @@
 
 <p align="center">
 
-[![Plugins](https://img.shields.io/badge/plugins-31-blue)](https://illumio-community.github.io/illumio-plugger/)
+[![Plugins](https://img.shields.io/badge/plugins-32-blue)](https://illumio-community.github.io/illumio-plugger/)
 [![Languages](https://img.shields.io/badge/templates-Go%20%7C%20Python%20%7C%20Shell%20%7C%20JavaScript-green)](docs/plugin-development.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-lightgrey)](LICENSE)
 [![Portal](https://img.shields.io/badge/portal-live-brightgreen)](https://illumio-community.github.io/illumio-plugger/)
@@ -66,7 +66,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 
 ---
 
-## All 31 Plugins
+## All 32 Plugins
 
 > ⚠️ **Maturity note:** plugins marked **preview** (and **example**) may not have been tested against a live PCE or the target integration. Validate them in a non-production environment before relying on them.
 
@@ -98,6 +98,7 @@ Analyzes PCE traffic flows to build an application dependency graph. Surfaces bl
 | Plugin | Description | Mode |
 |--------|-------------|------|
 | [policy-resolver](policy-resolver/) | Resolve label-based policy to IP-level firewall rules — JSON export, searchable dashboard | Daemon + UI |
+| [usage-explorer](usage-explorer/) | Where and how every label, label group, service and IP list is used — workloads, rules with numbers, boundaries, pairing profiles, unused objects | Daemon + UI |
 | [rule-scheduler](rule-scheduler/) | Time-based rule scheduling — business hours, maintenance windows, weekend lockdowns | Daemon + UI |
 | [workload-isolator](workload-isolator/) | Webhook-triggered workload quarantine — EDR/SOAR integration, TTL auto-release, audit trail | Daemon + UI |
 | [policy-gitops](policy-gitops/) | Policy-as-code — sync rulesets/IP lists/services as YAML to Git with drift detection ([standalone repo](https://github.com/alexgoller/illumio-policy-gitops)) | Daemon + UI |

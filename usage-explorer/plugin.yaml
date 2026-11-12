@@ -1,0 +1,33 @@
+apiVersion: plugger/v1
+name: usage-explorer
+version: 0.1.0
+image: plugger-usage-explorer:latest
+access: readonly
+
+schedule:
+  mode: daemon
+
+env:
+  - name: POLL_INTERVAL
+    required: false
+    default: "3600"
+  - name: INCLUDE_DRAFT
+    required: false
+    default: "true"
+  - name: WORKLOAD_SAMPLE
+    required: false
+    default: "50"
+  - name: PCE_TLS_SKIP_VERIFY
+    required: false
+    default: "true"
+
+health:
+  endpoint: /healthz
+  port: 8080
+  interval: 30s
+  timeout: 5s
+  retries: 3
+
+resources:
+  memoryLimit: 512m
+  cpuLimit: "1.0"
