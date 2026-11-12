@@ -1941,7 +1941,7 @@ plugger install ./my-plugin/plugin.yaml
 Install from a container image reference:
 
 \`\`\`bash
-plugger install ghcr.io/alexgoller/plugger-traffic-reporter:latest
+plugger install ghcr.io/illumio-community/plugger-traffic-reporter:latest
 \`\`\`
 
 ## Listing Installed Plugins
@@ -2713,7 +2713,7 @@ curl http://localhost:8800/api/events/stats
 All official plugin images are built for both \`amd64\` and \`arm64\` architectures and published to GitHub Container Registry (GHCR):
 
 \`\`\`
-ghcr.io/alexgoller/plugger-<plugin-name>:<version>
+ghcr.io/illumio-community/plugger-<plugin-name>:<version>
 \`\`\`
 
 Docker automatically pulls the correct architecture for your platform. The CI/CD pipeline builds multi-arch manifests using \`docker buildx\` on every release.

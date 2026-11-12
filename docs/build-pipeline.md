@@ -13,7 +13,7 @@ Developer                    GitHub Actions                   GHCR
                             ├─ docker job (15 plugins)       
                             │  matrix: parallel builds       
                             │  buildx: amd64 + arm64         
-                            │  push to GHCR ─────────────▶  ghcr.io/alexgoller/
+                            │  push to GHCR ─────────────▶  ghcr.io/illumio-community/
                             │                                  plugger-{name}:latest
                             │                                
                             ├─ cli job (4 platforms)          
@@ -132,7 +132,7 @@ Each plugin:
    - `0.3.0` and `0.3` on tag `v0.3.0`
    - Short SHA on every build
 4. Builds `linux/amd64` + `linux/arm64` via `docker/build-push-action`
-5. Pushes to `ghcr.io/alexgoller/plugger-{name}`
+5. Pushes to `ghcr.io/illumio-community/plugger-{name}`
 6. Uses GHA cache for faster rebuilds
 
 #### CLI Job (4 platforms)
@@ -160,10 +160,10 @@ Triggers on push to `main` when `docs/portal/**` changes. Deploys the portal web
 
 | Image | Description |
 |-------|-------------|
-| `ghcr.io/alexgoller/plugger-pce-health-monitor:latest` | Latest build from main |
-| `ghcr.io/alexgoller/plugger-pce-health-monitor:0.2.0` | Tagged release |
-| `ghcr.io/alexgoller/plugger-pce-health-monitor:0.2` | Major.minor (auto-updated) |
-| `ghcr.io/alexgoller/plugger-pce-health-monitor:abc1234` | Specific commit SHA |
+| `ghcr.io/illumio-community/plugger-pce-health-monitor:latest` | Latest build from main |
+| `ghcr.io/illumio-community/plugger-pce-health-monitor:0.2.0` | Tagged release |
+| `ghcr.io/illumio-community/plugger-pce-health-monitor:0.2` | Major.minor (auto-updated) |
+| `ghcr.io/illumio-community/plugger-pce-health-monitor:abc1234` | Specific commit SHA |
 
 ## Image Tagging Strategy
 
@@ -280,8 +280,8 @@ The policy-gitops and policy-workflow plugins live in a separate repo with their
 **Repo:** https://github.com/alexgoller/illumio-policy-gitops
 
 **Images:**
-- `ghcr.io/alexgoller/illumio-policy-gitops:latest` (GitOps plugin)
-- `ghcr.io/alexgoller/illumio-policy-workflow:latest` (Workflow plugin)
+- `ghcr.io/illumio-community/illumio-policy-gitops:latest` (GitOps plugin)
+- `ghcr.io/illumio-community/illumio-policy-workflow:latest` (Workflow plugin)
 
 **CI:** `.github/workflows/build.yml` in that repo builds both images in parallel with the same multi-arch + version injection pattern.
 
