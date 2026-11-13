@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	OfficialRegistryURL = "https://illumio-community.github.io/illumio-plugger/registry.json"
+	OfficialRegistryURL  = "https://illumio-community.github.io/illumio-plugger/registry.json"
 	OfficialRegistryName = "official"
 )
 
@@ -41,6 +41,11 @@ type Plugin struct {
 	Tags        []string `json:"tags"`
 	Author      string   `json:"author"`
 	Homepage    string   `json:"homepage"`
+	// Access is the plugin's declared PCE access level (readonly | readwrite),
+	// mirroring the manifest field. Maturity is the registry's maturity rating.
+	// Both are informational; empty when a registry predates them.
+	Access   string `json:"access,omitempty"`
+	Maturity string `json:"maturity,omitempty"`
 }
 
 // RepoEntry is a configured registry in the repos file.
@@ -130,6 +135,21 @@ func (m *Manager) FetchAll() ([]Registry, error) {
 		m.cacheRegistry(repo.Name, reg)
 	}
 	return registries, nil
+}
+
+// LoadCached returns the last successfully-fetched copy of every configured
+// registry without touching the network. Registries that were never fetched
+// are simply absent. Use it on hot paths (page renders) where a stale answer
+// beats a blocking HTTP round-trip.
+func (m *Manager) LoadCached() []Registry {
+	repos, _ := m.loadRepos()
+	var registries []Registry
+	for _, repo := range repos.Repos {
+		if cached := m.loadCachedRegistry(repo.Name); cached != nil {
+			registries = append(registries, *cached)
+		}
+	}
+	return registries
 }
 
 // loadCachedRegistry returns the last successfully-fetched copy of a registry

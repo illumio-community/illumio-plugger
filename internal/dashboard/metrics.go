@@ -144,6 +144,7 @@ type pluginMetric struct {
 	Name         string   `json:"name"`
 	Title        string   `json:"title"`
 	State        string   `json:"state"`
+	Mode         string   `json:"mode"`   // daemon | cron | event — lets the page explain idle cron plugins
 	Health       string   `json:"health"` // healthy | unhealthy | idle
 	CPUPercent   float64  `json:"cpu"`
 	MemoryUsage  uint64   `json:"mem"`
@@ -181,6 +182,7 @@ func (m *MetricsCollector) buildMetric(p *plugin.Plugin, restarts, reports int) 
 		Name:     p.Name,
 		Title:    pluginTitle(p),
 		State:    string(p.State),
+		Mode:     p.Manifest.Schedule.Mode,
 		Health:   healthFor(p),
 		Restarts: restarts,
 		Reports:  reports,

@@ -143,3 +143,19 @@ func TestLoadCachedRegistry_ReturnsLastGoodCopy(t *testing.T) {
 		t.Error("expected nil for a repo with no cache file")
 	}
 }
+
+// LoadCached serves page renders: it must return cached copies of the
+// configured repos without any network call, keep the access field, and skip
+// repos that were never fetched.
+func TestLoadCached_NoNetworkKeepsAccess(t *testing.T) {
+	m := writeRepos(t, []RepoEntry{{Name: "custom", URL: "http://127.0.0.1:1/never-fetched.json"}})
+	m.cacheRegistry("official", &Registry{Plugins: []Plugin{{Name: "ise-sync", Access: "readwrite"}}})
+
+	regs := m.LoadCached()
+	if len(regs) != 1 {
+		t.Fatalf("registries = %d, want 1 (only the cached official repo)", len(regs))
+	}
+	if regs[0].Name != "official" || len(regs[0].Plugins) != 1 || regs[0].Plugins[0].Access != "readwrite" {
+		t.Errorf("got %+v, want official/ise-sync/readwrite", regs[0])
+	}
+}

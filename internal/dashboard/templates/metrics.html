@@ -32,15 +32,23 @@
     </div>
 </div>
 
-<!-- Per-plugin cards -->
+<!-- Running plugins: full cards with sparklines -->
 <div id="metrics-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
     <div class="text-gray-500 text-sm col-span-full" id="metrics-empty">Loading metrics…</div>
+</div>
+
+<!-- Everything else: compact rows, no charts (there is nothing to sample) -->
+<div id="idle-section" class="hidden mt-8">
+    <h2 class="text-sm font-semibold text-gray-400 uppercase tracking-wide mb-3">Not running <span id="idle-count" class="text-gray-500 font-normal"></span></h2>
+    <div id="idle-grid" class="bg-dark-800 rounded-lg border border-gray-700 divide-y divide-gray-700/50"></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
 (function () {
-    const charts = {}; // plugin name -> Chart instance
+    const charts = {};     // canvas id -> Chart instance
+    let layoutKey = "";    // names+states of the last render; same key = update in place
+    const busy = new Set(); // plugin names with an action in flight
 
     function fmtBytes(n) {
         if (!n) return "0 B";
@@ -66,32 +74,63 @@
         return '<span class="w-2.5 h-2.5 rounded-full ' + c + '"></span>';
     }
 
-    function isDark() { return document.documentElement.classList.contains("dark"); }
+    function memLabel(p) {
+        return p.memLimit > 0 ? fmtBytes(p.mem) + " / " + fmtBytes(p.memLimit) : fmtBytes(p.mem);
+    }
 
-    function cardHTML(p) {
-        const memLabel = p.memLimit > 0
-            ? fmtBytes(p.mem) + " / " + fmtBytes(p.memLimit)
-            : fmtBytes(p.mem);
+    function esc(s) {
+        return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+
+    function btn(name, action, label, cls) {
+        return '<button type="button" data-action="' + action + '" data-plugin="' + esc(name) + '" ' +
+               'class="px-3 py-1 text-xs font-medium rounded text-white transition-colors ' + cls + '">' + label + '</button>';
+    }
+
+    function runningCardHTML(p) {
+        const n = esc(p.name);
         return '' +
-          '<div class="bg-dark-800 rounded-xl border border-gray-700 p-5">' +
+          '<div class="bg-dark-800 rounded-xl border border-gray-700 p-5" data-card="' + n + '">' +
             '<div class="flex items-center justify-between mb-3">' +
-              '<a href="/plugins/' + p.name + '" class="font-semibold text-white hover:text-blue-400 truncate">' + (p.title || p.name) + '</a>' +
-              '<span class="flex items-center gap-1.5 text-xs text-gray-400">' + healthDot(p.health) + p.state + '</span>' +
+              '<a href="/plugins/' + n + '" class="font-semibold text-white hover:text-blue-400 truncate">' + esc(p.title || p.name) + '</a>' +
+              '<span class="flex items-center gap-1.5 text-xs text-gray-400">' + healthDot(p.health) + '<span id="state-' + n + '">' + esc(p.state) + '</span></span>' +
             '</div>' +
             '<div class="flex items-baseline justify-between mb-1">' +
               '<span class="text-xs text-gray-500 uppercase tracking-wide">CPU</span>' +
-              '<span class="text-sm font-medium text-white">' + p.cpu.toFixed(1) + '%</span>' +
+              '<span id="cpu-' + n + '" class="text-sm font-medium text-white">' + p.cpu.toFixed(1) + '%</span>' +
             '</div>' +
-            '<div class="h-12 mb-3"><canvas id="spark-' + p.name + '"></canvas></div>' +
+            '<div class="h-12 mb-3"><canvas id="spark-' + n + '"></canvas></div>' +
             '<div class="flex items-baseline justify-between mb-1">' +
               '<span class="text-xs text-gray-500 uppercase tracking-wide">Memory</span>' +
-              '<span class="text-sm font-medium text-white">' + memLabel + '</span>' +
+              '<span id="mem-' + n + '" class="text-sm font-medium text-white">' + memLabel(p) + '</span>' +
             '</div>' +
-            '<div class="h-12 mb-4"><canvas id="mspark-' + p.name + '"></canvas></div>' +
-            '<div class="grid grid-cols-3 gap-2 text-center">' +
-              '<div><div class="text-xs text-gray-500">Uptime</div><div class="text-sm text-white">' + fmtUptime(p.uptimeSeconds) + '</div></div>' +
-              '<div><div class="text-xs text-gray-500">Restarts</div><div class="text-sm text-white">' + p.restarts + '</div></div>' +
-              '<div><div class="text-xs text-gray-500">Reports</div><div class="text-sm text-white">' + p.reports + '</div></div>' +
+            '<div class="h-12 mb-4"><canvas id="mspark-' + n + '"></canvas></div>' +
+            '<div class="grid grid-cols-3 gap-2 text-center mb-4">' +
+              '<div><div class="text-xs text-gray-500">Uptime</div><div id="up-' + n + '" class="text-sm text-white">' + fmtUptime(p.uptimeSeconds) + '</div></div>' +
+              '<div><div class="text-xs text-gray-500">Restarts</div><div id="rs-' + n + '" class="text-sm text-white">' + p.restarts + '</div></div>' +
+              '<div><div class="text-xs text-gray-500">Reports</div><div id="rp-' + n + '" class="text-sm text-white">' + p.reports + '</div></div>' +
+            '</div>' +
+            '<div class="flex items-center gap-2 pt-3 border-t border-gray-700/50">' +
+              btn(p.name, "stop", "Stop", "bg-red-600/80 hover:bg-red-500") +
+              btn(p.name, "restart", "Restart", "bg-gray-600 hover:bg-gray-500") +
+            '</div>' +
+          '</div>';
+    }
+
+    function idleRowHTML(p) {
+        const n = esc(p.name);
+        const note = p.mode === "cron" ? "cron · waits for its next run" : (p.mode || "daemon");
+        return '' +
+          '<div class="flex items-center justify-between px-4 py-2.5 gap-4" data-card="' + n + '">' +
+            '<div class="flex items-center gap-3 min-w-0">' +
+              healthDot(p.health) +
+              '<a href="/plugins/' + n + '" class="text-sm font-medium text-white hover:text-blue-400 truncate">' + esc(p.title || p.name) + '</a>' +
+              '<span class="text-xs px-1.5 py-0.5 rounded bg-gray-600/40 text-gray-200">' + esc(p.state) + '</span>' +
+              '<span class="text-xs text-gray-500 hidden sm:inline">' + esc(note) + '</span>' +
+            '</div>' +
+            '<div class="flex items-center gap-3 shrink-0">' +
+              (p.restarts ? '<span class="text-xs text-gray-500">' + p.restarts + ' restart' + (p.restarts === 1 ? '' : 's') + '</span>' : '') +
+              btn(p.name, "start", "Start", "bg-green-600 hover:bg-green-500") +
             '</div>' +
           '</div>';
     }
@@ -132,6 +171,20 @@
         drawLine("mspark-" + p.name, hist.map(s => s.mem), "#94e2d5", p.memLimit > 0 ? p.memLimit : undefined);
     }
 
+    function setText(id, v) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = v;
+    }
+
+    function updateInPlace(p) {
+        setText("cpu-" + p.name, p.cpu.toFixed(1) + "%");
+        setText("mem-" + p.name, memLabel(p));
+        setText("up-" + p.name, fmtUptime(p.uptimeSeconds));
+        setText("rs-" + p.name, p.restarts);
+        setText("rp-" + p.name, p.reports);
+        drawCharts(p);
+    }
+
     function render(data) {
         const grid = document.getElementById("metrics-grid");
         const empty = document.getElementById("metrics-empty");
@@ -139,22 +192,64 @@
             if (empty) empty.textContent = "No plugins installed.";
             return;
         }
-        // Overview
-        const running = data.filter(p => p.state === "running").length;
-        const totCpu = data.reduce((a, p) => a + (p.cpu || 0), 0);
-        const totMem = data.reduce((a, p) => a + (p.mem || 0), 0);
-        const totRestarts = data.reduce((a, p) => a + (p.restarts || 0), 0);
-        document.getElementById("ov-running").textContent = running + " / " + data.length;
-        document.getElementById("ov-cpu").textContent = totCpu.toFixed(1) + "%";
-        document.getElementById("ov-mem").textContent = fmtBytes(totMem);
-        document.getElementById("ov-restarts").textContent = totRestarts;
+        const running = data.filter(p => p.state === "running");
+        const idle = data.filter(p => p.state !== "running");
 
-        // Rebuild the cards, then (re)create their sparkline charts. Destroy any
-        // existing chart instances first so Chart.js releases the old canvases.
+        // Overview
+        const totCpu = running.reduce((a, p) => a + (p.cpu || 0), 0);
+        const totMem = running.reduce((a, p) => a + (p.mem || 0), 0);
+        const totRestarts = data.reduce((a, p) => a + (p.restarts || 0), 0);
+        setText("ov-running", running.length + " / " + data.length);
+        setText("ov-cpu", totCpu.toFixed(1) + "%");
+        setText("ov-mem", fmtBytes(totMem));
+        setText("ov-restarts", totRestarts);
+
+        // Same plugins in the same states: refresh numbers and charts without
+        // touching the DOM structure, so buttons stay clickable and nothing flickers.
+        const key = data.map(p => p.name + ":" + p.state).join("|");
+        if (key === layoutKey) {
+            running.forEach(updateInPlace);
+            return;
+        }
+        layoutKey = key;
+
         Object.keys(charts).forEach(k => { charts[k].destroy(); delete charts[k]; });
-        grid.innerHTML = data.map(cardHTML).join("");
-        data.forEach(drawCharts);
+        grid.innerHTML = running.length
+            ? running.map(runningCardHTML).join("")
+            : '<div class="text-gray-500 text-sm col-span-full">No plugin is running.</div>';
+        running.forEach(drawCharts);
+
+        const section = document.getElementById("idle-section");
+        section.classList.toggle("hidden", idle.length === 0);
+        document.getElementById("idle-count").textContent = idle.length ? "(" + idle.length + ")" : "";
+        document.getElementById("idle-grid").innerHTML = idle.map(idleRowHTML).join("");
+        busy.forEach(markBusy);
     }
+
+    function markBusy(name) {
+        document.querySelectorAll('button[data-plugin="' + name + '"]').forEach(b => {
+            b.disabled = true;
+            b.classList.add("opacity-50", "cursor-wait");
+        });
+    }
+
+    async function act(name, action) {
+        if (busy.has(name)) return;
+        if (action === "stop" && !confirm("Stop plugin " + name + "?")) return;
+        busy.add(name);
+        markBusy(name);
+        try {
+            await fetch("/api/plugins/" + encodeURIComponent(name) + "/" + action, { method: "POST" });
+        } catch (e) { /* the next tick shows whatever state we ended up in */ }
+        busy.delete(name);
+        layoutKey = "";   // force a structural re-render on the next tick
+        tick();
+    }
+
+    document.addEventListener("click", e => {
+        const b = e.target.closest("button[data-action]");
+        if (b) act(b.dataset.plugin, b.dataset.action);
+    });
 
     async function tick() {
         try {

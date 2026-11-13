@@ -6,6 +6,11 @@
         <h1 class="text-2xl font-bold text-white">Configuration</h1>
         <p class="text-sm text-gray-500 mt-1">Edit settings for all plugins in one place</p>
     </div>
+    <div class="flex items-center gap-3 text-xs text-gray-400">
+        <button type="button" onclick="setAllSections(true)" class="hover:text-white transition-colors">Expand all</button>
+        <span class="text-gray-600">|</span>
+        <button type="button" onclick="setAllSections(false)" class="hover:text-white transition-colors">Collapse all</button>
+    </div>
 </div>
 
 {{if .Message}}
@@ -16,23 +21,39 @@
 </div>
 {{end}}
 
+<style>
+    /* Hide the default disclosure triangle; we draw our own chevron so the
+       whole summary row reads as one clickable header. */
+    .cfg-section > summary { list-style: none; }
+    .cfg-section > summary::-webkit-details-marker { display: none; }
+    .cfg-section[open] > summary .cfg-chevron { transform: rotate(90deg); }
+</style>
+
 <form method="POST" action="/config">
     {{range .PluginConfigs}}
     {{if .Fields}}
-    <div class="bg-dark-800 rounded-lg border border-gray-700 p-6 mb-6">
-        <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-3">
-                <h2 class="text-lg font-semibold text-white">{{.Plugin.Name}}</h2>
+    <details class="cfg-section bg-dark-800 rounded-lg border border-gray-700 mb-3" data-plugin="{{.Plugin.Name}}">
+        <summary class="flex items-center justify-between px-5 py-3 cursor-pointer select-none hover:bg-dark-700/30 rounded-lg transition-colors">
+            <div class="flex items-center gap-3 min-w-0">
+                <svg class="cfg-chevron w-4 h-4 text-gray-500 transition-transform shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <h2 class="text-base font-semibold text-white truncate">{{.Plugin.Name}}</h2>
                 {{if eq (printf "%s" .Plugin.State) "running"}}
                 <span class="text-xs px-2 py-0.5 rounded bg-green-900/30 text-green-400">running</span>
+                {{else if eq (printf "%s" .Plugin.State) "errored"}}
+                <span class="text-xs px-2 py-0.5 rounded bg-red-900/30 text-red-400">errored</span>
                 {{else}}
-                <span class="text-xs px-2 py-0.5 rounded bg-gray-900/30 text-gray-400">{{.Plugin.State}}</span>
+                <span class="text-xs px-2 py-0.5 rounded bg-gray-600/40 text-gray-200">{{.Plugin.State}}</span>
                 {{end}}
+                {{template "access_badge" (index $.Access .Plugin.Name)}}
             </div>
-            <a href="/plugins/{{.Plugin.Name}}" class="text-xs text-blue-400 hover:text-blue-300">Details →</a>
-        </div>
+            <div class="flex items-center gap-3 text-xs text-gray-500 shrink-0">
+                <span>{{len .Fields}} setting{{if ne (len .Fields) 1}}s{{end}}</span>
+                {{if .Modified}}<span class="px-1.5 py-0.5 rounded bg-purple-900/30 text-purple-400">{{.Modified}} modified</span>{{end}}
+                <a href="/plugins/{{.Plugin.Name}}" onclick="event.stopPropagation()" class="text-blue-400 hover:text-blue-300">Details →</a>
+            </div>
+        </summary>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 px-5 pb-5 pt-2 border-t border-gray-700/50">
             {{$pluginName := .Plugin.Name}}
             {{range .Fields}}
             <div class="py-1">
@@ -71,11 +92,11 @@
             </div>
             {{end}}
         </div>
-    </div>
+    </details>
     {{end}}
     {{end}}
 
-    <div class="flex items-center gap-3 mb-8">
+    <div class="flex items-center gap-3 mt-6 mb-8">
         <button type="submit" name="action" value="save"
             class="px-5 py-2.5 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-500 text-white transition-colors">
             Save All
@@ -84,7 +105,38 @@
             class="px-5 py-2.5 text-sm font-medium rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors">
             Save All &amp; Restart Changed
         </button>
-        <span class="text-xs text-gray-500">Only plugins with modified values will be restarted</span>
+        <span class="text-xs text-gray-500">Only plugins with modified values will be restarted. Collapsed sections are saved too.</span>
     </div>
 </form>
+
+<script>
+// Sections are collapsed by default; which ones you opened is remembered per
+// browser so a save (full page reload) brings you back to the same view.
+(function () {
+    const KEY = "plugger-config-open";
+    let open = [];
+    try { open = JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { open = []; }
+
+    document.querySelectorAll("details.cfg-section").forEach(d => {
+        if (open.includes(d.dataset.plugin)) d.open = true;
+        d.addEventListener("toggle", () => {
+            const set = new Set(open);
+            d.open ? set.add(d.dataset.plugin) : set.delete(d.dataset.plugin);
+            open = Array.from(set);
+            try { localStorage.setItem(KEY, JSON.stringify(open)); } catch (e) { /* private mode */ }
+        });
+    });
+
+    // Browsers only report invalid fields that are visible: open the section
+    // that owns the offending input before native validation shows its hint.
+    document.addEventListener("invalid", e => {
+        const d = e.target.closest && e.target.closest("details.cfg-section");
+        if (d) d.open = true;
+    }, true);
+
+    window.setAllSections = function (isOpen) {
+        document.querySelectorAll("details.cfg-section").forEach(d => { d.open = isOpen; });
+    };
+})();
+</script>
 {{end}}

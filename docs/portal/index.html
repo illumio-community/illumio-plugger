@@ -753,12 +753,38 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <div class="space-y-8">
 
+        <!-- v0.15.9 -->
+        <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-white">v0.15.9</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                </div>
+                <span class="text-sm text-gray-500">November 13, 2026</span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-purple-400 mb-1">Features</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>Access badges in the dashboard</strong> &mdash; every plugin card, detail page and config section now shows its PCE access level (read-only / read-write). Plugins installed before the field existed get it from the registry.</li>
+                        <li><strong>Metrics page actions</strong> &mdash; Start, Stop and Restart directly from the metrics cards. Running plugins keep their sparklines; everything not running moves to a compact "Not running" list with a Start button. Refreshes update numbers in place instead of rebuilding the page every 5 seconds.</li>
+                        <li><strong>Collapsible config</strong> &mdash; the unified config page folds each plugin into a section (collapsed by default, open state remembered per browser) with setting and modified counts, plus Expand all / Collapse all.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-red-400 mb-1">Bug Fixes</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>Badge contrast</strong> &mdash; status badges, links and state text are readable in light mode (tint background, dark text) and grey-on-grey badges in dark mode got proper contrast.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- v0.15.8 -->
         <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <span class="text-lg font-bold text-white">v0.15.8</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
                 </div>
                 <span class="text-sm text-gray-500">November 12, 2026</span>
             </div>

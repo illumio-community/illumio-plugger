@@ -16,8 +16,9 @@ import (
 
 // pluginConfig holds config fields for a single plugin in the unified view.
 type pluginConfig struct {
-	Plugin *plugin.Plugin
-	Fields []configField
+	Plugin   *plugin.Plugin
+	Fields   []configField
+	Modified int // fields whose value comes from an override
 }
 
 // configField is a unified view of a config item for template rendering.
@@ -202,25 +203,7 @@ func (h *Handler) renderConfigSection(w http.ResponseWriter, p *plugin.Plugin, m
 }
 
 func (h *Handler) handleConfigAll(w http.ResponseWriter, r *http.Request) {
-	plugins, err := h.deps.Store.List()
-	if err != nil {
-		h.serverError(w, "listing plugins", err)
-		return
-	}
-
-	var configs []pluginConfig
-	for _, p := range plugins {
-		fields := BuildConfigFields(p)
-		if len(fields) > 0 {
-			configs = append(configs, pluginConfig{Plugin: p, Fields: fields})
-		}
-	}
-
-	data := map[string]any{
-		"PluginConfigs": configs,
-		"Message":       "",
-	}
-	h.render(w, "layout.html", "config_all.html", data)
+	h.handleConfigAllWithMessage(w, "")
 }
 
 func (h *Handler) handleSaveConfigAll(w http.ResponseWriter, r *http.Request) {
@@ -347,17 +330,29 @@ func (h *Handler) handleSaveConfigAll(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) handleConfigAllWithMessage(w http.ResponseWriter, message string) {
-	plugins, _ := h.deps.Store.List()
+	plugins, err := h.deps.Store.List()
+	if err != nil {
+		h.serverError(w, "listing plugins", err)
+		return
+	}
 	var configs []pluginConfig
 	for _, p := range plugins {
 		fields := BuildConfigFields(p)
-		if len(fields) > 0 {
-			configs = append(configs, pluginConfig{Plugin: p, Fields: fields})
+		if len(fields) == 0 {
+			continue
 		}
+		pc := pluginConfig{Plugin: p, Fields: fields}
+		for _, f := range fields {
+			if f.Source == "override" {
+				pc.Modified++
+			}
+		}
+		configs = append(configs, pc)
 	}
 	data := map[string]any{
 		"PluginConfigs": configs,
 		"Message":       message,
+		"Access":        h.accessLevels(plugins),
 	}
 	h.render(w, "layout.html", "config_all.html", data)
 }

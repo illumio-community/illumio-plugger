@@ -11,7 +11,10 @@
         <div class="bg-dark-800 rounded-lg border border-gray-700 p-6">
             <div class="flex items-start justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-white">{{.Plugin.Name}}</h1>
+                    <div class="flex items-center gap-3">
+                        <h1 class="text-2xl font-bold text-white">{{.Plugin.Name}}</h1>
+                        {{template "access_badge" .Access}}
+                    </div>
                     {{if and .Plugin.Metadata .Plugin.Metadata.Info}}
                     <p class="text-gray-400 mt-1">{{.Plugin.Metadata.Info.Description}}</p>
                     {{end}}
@@ -235,6 +238,10 @@
                     <dt class="text-gray-400">Mode</dt>
                     <dd class="text-white">{{.Plugin.Manifest.Schedule.Mode}}</dd>
                 </div>
+                <div>
+                    <dt class="text-gray-400">PCE access</dt>
+                    <dd class="text-white">{{if eq .Access "readwrite"}}read-write (creates or updates PCE objects){{else}}read-only{{end}}</dd>
+                </div>
                 {{if .Plugin.Manifest.Schedule.Cron}}
                 <div>
                     <dt class="text-gray-400">Schedule</dt>
@@ -363,7 +370,7 @@
             <span class="w-2 h-2 rounded-full bg-red-400"></span>Errored
         </span>
         {{else if eq (printf "%s" .State) "stopped"}}
-        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-gray-700/50 text-gray-400">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-sm font-medium bg-gray-600/40 text-gray-200">
             <span class="w-2 h-2 rounded-full bg-gray-500"></span>Stopped
         </span>
         {{else}}

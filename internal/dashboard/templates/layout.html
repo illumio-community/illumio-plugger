@@ -49,11 +49,37 @@
         html:not(.dark) .border-gray-700 { border-color: #e5e7eb; }
         html:not(.dark) .border-gray-700\/50, html:not(.dark) .border-gray-700\/30 { border-color: #e5e7eb80; }
         html:not(.dark) .text-gray-200 { color: #1f2937; }
+        html:not(.dark) .text-gray-300 { color: #374151; }
         html:not(.dark) .text-gray-400 { color: #6b7280; }
         html:not(.dark) .text-gray-500 { color: #9ca3af; }
         html:not(.dark) .text-gray-600 { color: #d1d5db; }
         html:not(.dark) .text-white { color: #111827; }
         html:not(.dark) code { background: #e5e7eb; color: #374151; }
+
+        /* Badges and status text. The dark palette pairs a *-400 text with a
+           translucent *-900 background; on white cards that is pastel-on-pastel.
+           Remap to the classic light "tint + 700 text" pairing so every badge,
+           link and status word stays readable without touching each template. */
+        html:not(.dark) .text-green-400  { color: #15803d; }
+        html:not(.dark) .text-red-400    { color: #b91c1c; }
+        html:not(.dark) .text-yellow-400 { color: #a16207; }
+        html:not(.dark) .text-orange-400 { color: #c2410c; }
+        html:not(.dark) .text-blue-400   { color: #1d4ed8; }
+        html:not(.dark) .text-blue-300   { color: #1e40af; }
+        html:not(.dark) .text-blue-500   { color: #2563eb; }
+        html:not(.dark) .text-purple-400 { color: #7e22ce; }
+        html:not(.dark) .text-purple-300 { color: #6b21a8; }
+        html:not(.dark) .bg-green-900\/50,  html:not(.dark) .bg-green-900\/30  { background: #dcfce7; }
+        html:not(.dark) .bg-red-900\/50,    html:not(.dark) .bg-red-900\/30,
+        html:not(.dark) .bg-red-900\/20                                        { background: #fee2e2; }
+        html:not(.dark) .bg-yellow-900\/50, html:not(.dark) .bg-yellow-900\/30 { background: #fef9c3; }
+        html:not(.dark) .bg-orange-900\/50                                     { background: #ffedd5; }
+        html:not(.dark) .bg-blue-900\/50,   html:not(.dark) .bg-blue-900\/30   { background: #dbeafe; }
+        html:not(.dark) .bg-purple-900\/30                                     { background: #f3e8ff; }
+        html:not(.dark) .bg-gray-900\/30,   html:not(.dark) .bg-gray-700\/50,
+        html:not(.dark) .bg-gray-600\/40                                       { background: #e5e7eb; }
+        html:not(.dark) .border-green-800\/50 { border-color: #86efac; }
+        html:not(.dark) .border-red-800\/50   { border-color: #fca5a5; }
         /* Action buttons (start/stop/restart/uninstall) keep a saturated/dark
            background in light mode, so their label must stay white — the
            blanket .text-white remap above would otherwise make them
@@ -126,3 +152,5 @@
     </script>
 </body>
 </html>
+{{/* access_badge renders the PCE access level badge for a plugin. Argument: "readonly" | "readwrite". */}}
+{{define "access_badge"}}{{if eq . "readwrite"}}<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-orange-900/50 text-orange-400" title="Writes to the PCE: labels, workloads or policy">read-write</span>{{else}}<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-green-900/50 text-green-400" title="Only reads from the PCE">read-only</span>{{end}}{{end}}

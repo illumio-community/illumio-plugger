@@ -182,6 +182,7 @@ func (h *Handler) handleIndex(w http.ResponseWriter, r *http.Request) {
 	data := map[string]any{
 		"Plugins": plugins,
 		"Updates": updates,
+		"Access":  h.accessLevels(plugins),
 	}
 
 	h.render(w, "layout.html", "plugins.html", data)
@@ -220,6 +221,7 @@ func (h *Handler) handlePluginDetail(w http.ResponseWriter, r *http.Request) {
 	data := map[string]any{
 		"Plugin": p,
 		"Readme": readmeContent,
+		"Access": h.accessLevels([]*plugin.Plugin{p})[p.Name],
 	}
 
 	h.render(w, "layout.html", "plugin_detail.html", data)

@@ -19,7 +19,7 @@
             <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>Errored
         </span>
         {{else if eq (printf "%s" .State) "stopped"}}
-        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-gray-700/50 text-gray-400">
+        <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-gray-600/40 text-gray-200">
             <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span>Stopped
         </span>
         {{else if eq (printf "%s" .State) "starting"}}

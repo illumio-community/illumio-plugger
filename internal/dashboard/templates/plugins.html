@@ -50,7 +50,7 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-red-400"></span>Errored
                 </span>
                 {{else if eq (printf "%s" .State) "stopped"}}
-                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-gray-700/50 text-gray-400 shrink-0 ml-2">
+                <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium bg-gray-600/40 text-gray-200 shrink-0 ml-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-gray-500"></span>Stopped
                 </span>
                 {{else}}
@@ -77,8 +77,9 @@
                     event
                 </span>
                 {{else}}
-                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-dark-700 rounded">daemon</span>
+                <span class="inline-flex items-center gap-1 px-1.5 py-0.5 bg-dark-700 text-gray-300 rounded">daemon</span>
                 {{end}}
+                {{template "access_badge" (index $.Access .Name)}}
                 {{if .LastStarted}}
                 <span>{{if eq .Manifest.Schedule.Mode "cron"}}Ran{{else}}Started{{end}} {{timeAgo .LastStarted}}</span>
                 {{end}}
@@ -159,7 +160,7 @@
             <div class="flex items-center justify-between py-2 px-3 bg-dark-700/50 rounded-lg">
                 <div class="flex items-center gap-3">
                     <a href="/plugins/{{.Name}}" class="text-blue-400 hover:text-blue-300 font-medium text-sm">{{.Name}}</a>
-                    <code class="text-xs bg-dark-700 text-gray-400 px-2 py-0.5 rounded">{{.Manifest.Schedule.Cron}}</code>
+                    <code class="text-xs bg-dark-700 text-gray-300 px-2 py-0.5 rounded">{{.Manifest.Schedule.Cron}}</code>
                 </div>
                 <div class="flex items-center gap-3 text-xs">
                     {{if .NextRun}}
