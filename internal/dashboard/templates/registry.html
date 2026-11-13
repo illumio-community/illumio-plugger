@@ -10,20 +10,33 @@
         <p class="text-gray-400 text-sm mt-1" id="registry-subtitle">Loading...</p>
     </div>
     <div class="flex items-center gap-3">
-        <input type="text" id="search-input" placeholder="Search plugins..." oninput="filterPlugins()"
+        <input type="text" id="search-input" placeholder="Search plugins..." oninput="renderPlugins()"
             class="bg-dark-700 border border-gray-600 rounded-lg px-3 py-1.5 text-sm text-white placeholder-gray-500 focus:border-blue-500 focus:outline-none w-48">
         <button onclick="refreshRegistry()" class="px-3 py-1.5 text-sm rounded-lg bg-dark-700 text-gray-300 hover:bg-dark-700/80 transition-colors">Refresh</button>
     </div>
 </div>
 
-<!-- Filter tabs -->
-<div class="flex gap-2 mb-6" id="filter-tabs">
-    <button onclick="setFilter('all')" class="px-3 py-1 rounded-lg text-sm font-medium bg-blue-600 text-white" data-filter="all">All</button>
-    <button onclick="setFilter('daemon')" class="px-3 py-1 rounded-lg text-sm font-medium bg-dark-700 text-gray-400 hover:text-white" data-filter="daemon">Daemon</button>
-    <button onclick="setFilter('cron')" class="px-3 py-1 rounded-lg text-sm font-medium bg-dark-700 text-gray-400 hover:text-white" data-filter="cron">Cron</button>
-    <button onclick="setFilter('ui')" class="px-3 py-1 rounded-lg text-sm font-medium bg-dark-700 text-gray-400 hover:text-white" data-filter="ui">Has UI</button>
-    <button onclick="setFilter('installed')" class="px-3 py-1 rounded-lg text-sm font-medium bg-dark-700 text-gray-400 hover:text-white" data-filter="installed">Installed</button>
-    <button onclick="setFilter('available')" class="px-3 py-1 rounded-lg text-sm font-medium bg-dark-700 text-gray-400 hover:text-white" data-filter="available">Not Installed</button>
+<!-- Filters: one pill per value, grouped by dimension. Pills toggle; active
+     pills across groups AND together (e.g. read-write + installed). -->
+<div class="flex flex-wrap items-center gap-x-5 gap-y-2 mb-6" id="filter-bar">
+    <button onclick="clearFilters()" data-clear class="px-3 py-1 rounded-lg text-sm font-medium bg-blue-600 text-white">All</button>
+    <div class="flex items-center gap-1.5">
+        <span class="text-xs text-gray-500 uppercase tracking-wide mr-1">Mode</span>
+        <button data-group="mode" data-value="daemon" class="px-3 py-1 rounded-lg text-sm font-medium">Daemon</button>
+        <button data-group="mode" data-value="cron" class="px-3 py-1 rounded-lg text-sm font-medium">Cron</button>
+        <button data-group="ui" data-value="yes" class="px-3 py-1 rounded-lg text-sm font-medium">Has UI</button>
+    </div>
+    <div class="flex items-center gap-1.5">
+        <span class="text-xs text-gray-500 uppercase tracking-wide mr-1">Status</span>
+        <button data-group="installed" data-value="yes" class="px-3 py-1 rounded-lg text-sm font-medium">Installed</button>
+        <button data-group="installed" data-value="no" class="px-3 py-1 rounded-lg text-sm font-medium">Not Installed</button>
+    </div>
+    <div class="flex items-center gap-1.5">
+        <span class="text-xs text-gray-500 uppercase tracking-wide mr-1">PCE access</span>
+        <button data-group="access" data-value="readonly" class="px-3 py-1 rounded-lg text-sm font-medium">Read-only</button>
+        <button data-group="access" data-value="readwrite" class="px-3 py-1 rounded-lg text-sm font-medium">Read-write</button>
+    </div>
+    <span id="filter-count" class="text-xs text-gray-500"></span>
 </div>
 
 <div id="plugin-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8"></div>
@@ -36,7 +49,16 @@
 
 <script>
 let registryData = null;
-let currentFilter = 'all';
+// Active filters: group -> value. One value per group (daemon XOR cron,
+// installed XOR not installed, ...); groups combine with AND.
+const filters = {};
+
+const PILL_ON  = 'px-3 py-1 rounded-lg text-sm font-medium bg-blue-600 text-white';
+const PILL_OFF = 'px-3 py-1 rounded-lg text-sm font-medium bg-dark-700 text-gray-400 hover:text-white';
+
+function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
 
 async function fetchRegistry() {
     try {
@@ -47,66 +69,94 @@ async function fetchRegistry() {
     } catch(e) { console.error('Registry fetch failed:', e); }
 }
 
+function accessOf(p) { return p.access || 'readonly'; } // manifest default is read-only
+
+function accessBadge(p) {
+    return accessOf(p) === 'readwrite'
+        ? '<span class="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wide bg-orange-900/50 text-orange-400" title="Writes to the PCE: labels, workloads or policy">read-write</span>'
+        : '<span class="text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wide bg-green-900/50 text-green-400" title="Only reads from the PCE">read-only</span>';
+}
+
+function maturityBadge(p) {
+    if (!p.maturity) return '';
+    const cls = { production: 'bg-green-900/30 text-green-400', prototype: 'bg-yellow-900/30 text-yellow-400',
+                  beta: 'bg-orange-900/50 text-orange-400', preview: 'bg-blue-900/30 text-blue-400' }[p.maturity]
+                || 'bg-gray-600/40 text-gray-200';
+    return '<span class="text-[10px] px-1.5 py-0.5 rounded ' + cls + '">' + esc(p.maturity) + '</span>';
+}
+
+function matches(p, installed, search) {
+    if (search) {
+        const hay = [p.name, p.description, (p.tags || []).join(' ')].join(' ').toLowerCase();
+        if (!hay.includes(search)) return false;
+    }
+    if (filters.mode && p.mode !== filters.mode) return false;
+    if (filters.ui && !p.has_ui) return false;
+    if (filters.installed === 'yes' && !installed[p.name]) return false;
+    if (filters.installed === 'no' && installed[p.name]) return false;
+    if (filters.access && accessOf(p) !== filters.access) return false;
+    return true;
+}
+
 function renderPlugins() {
     if (!registryData) return;
     const plugins = registryData.plugins || [];
     const installed = registryData.installed || {};
     const updates = registryData.updates || {};
-    const search = (document.getElementById('search-input').value || '').toLowerCase();
+    const search = (document.getElementById('search-input').value || '').trim().toLowerCase();
 
-    const filtered = plugins.filter(p => {
-        if (search && !p.name.toLowerCase().includes(search) && !p.description.toLowerCase().includes(search) && !(p.tags||[]).some(t => t.includes(search))) return false;
-        if (currentFilter === 'daemon' && p.mode !== 'daemon') return false;
-        if (currentFilter === 'cron' && p.mode !== 'cron') return false;
-        if (currentFilter === 'ui' && !p.has_ui) return false;
-        if (currentFilter === 'installed' && !installed[p.name]) return false;
-        if (currentFilter === 'available' && installed[p.name]) return false;
-        return true;
-    });
+    const filtered = plugins.filter(p => matches(p, installed, search));
 
-    document.getElementById('registry-subtitle').textContent = `${plugins.length} plugins available, ${Object.keys(installed).length} installed`;
+    document.getElementById('registry-subtitle').textContent = plugins.length + ' plugins available, ' + Object.keys(installed).length + ' installed';
+    const active = Object.keys(filters).length > 0 || search;
+    document.getElementById('filter-count').textContent = active ? filtered.length + ' of ' + plugins.length + ' shown' : '';
+
+    if (filtered.length === 0) {
+        document.getElementById('plugin-grid').innerHTML = '<div class="col-span-full text-sm text-gray-500 py-8 text-center">No plugins match the current filters.</div>';
+        return;
+    }
 
     document.getElementById('plugin-grid').innerHTML = filtered.map(p => {
+        const name = esc(p.name);
         const isInstalled = installed[p.name];
         const hasUpdate = updates[p.name];
-        return `
-        <div class="bg-dark-800 rounded-xl border border-gray-700 hover:border-gray-600 transition-all hover:-translate-y-0.5 overflow-hidden">
-            <div class="p-5">
-                <div class="flex items-start justify-between mb-2">
-                    <div>
-                        <h3 class="text-white font-semibold">${p.name}</h3>
-                        <div class="flex items-center gap-2 mt-0.5">
-                            <span class="text-xs text-gray-500">v${p.version}</span>
-                            <span class="text-xs px-1.5 py-0.5 rounded ${p.mode==='cron'?'bg-blue-900/30 text-blue-400':'bg-green-900/30 text-green-400'}">${p.mode}</span>
-                            ${p.has_ui ? '<span class="text-xs px-1.5 py-0.5 rounded bg-purple-900/30 text-purple-400">UI</span>' : ''}
-                        </div>
-                    </div>
-                    ${isInstalled ? `
-                        <span class="px-2 py-0.5 rounded text-xs font-medium bg-green-900/50 text-green-400">Installed</span>
-                    ` : ''}
-                    ${hasUpdate ? `
-                        <span class="px-2 py-0.5 rounded text-xs font-medium bg-yellow-900/50 text-yellow-400">Update: v${hasUpdate}</span>
-                    ` : ''}
-                </div>
-                <p class="text-sm text-gray-400 mt-2 line-clamp-2">${p.description}</p>
-                <div class="flex flex-wrap gap-1 mt-3">
-                    ${(p.tags||[]).map(t => '<span class="text-[10px] px-1.5 py-0.5 rounded bg-dark-700 text-gray-300">'+t+'</span>').join('')}
-                </div>
-            </div>
-            <div class="border-t border-gray-700/50 px-5 py-3 bg-dark-700/20 flex items-center justify-between">
-                <span class="text-xs text-gray-500">${p.author || ''}</span>
-                <div class="flex items-center gap-2">
-                    ${p.homepage ? '<a href="'+p.homepage+'" target="_blank" class="text-xs text-gray-500 hover:text-gray-400">GitHub</a>' : ''}
-                    ${!isInstalled ? `
-                        <button onclick="installFromRegistry('${p.name}')" class="px-3 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 text-white transition-colors">Install</button>
-                    ` : hasUpdate ? `
-                        <button onclick="upgradeFromRegistry('${p.name}')" class="px-3 py-1 text-xs rounded bg-yellow-600 hover:bg-yellow-500 text-white transition-colors">Upgrade</button>
-                    ` : `
-                        <span class="text-xs text-green-400">✓</span>
-                    `}
-                </div>
-            </div>
-        </div>`;
+        const modeCls = p.mode === 'cron' ? 'bg-blue-900/30 text-blue-400' : (p.mode === 'event' ? 'bg-purple-900/30 text-purple-400' : 'bg-green-900/30 text-green-400');
+        return '' +
+        '<div class="bg-dark-800 rounded-xl border border-gray-700 hover:border-gray-600 transition-all hover:-translate-y-0.5 overflow-hidden">' +
+            '<div class="p-5">' +
+                '<div class="flex items-start justify-between mb-2 gap-2">' +
+                    '<div class="min-w-0">' +
+                        '<h3 class="text-white font-semibold truncate">' + name + '</h3>' +
+                        '<div class="flex flex-wrap items-center gap-1.5 mt-1">' +
+                            '<span class="text-xs text-gray-500">v' + esc(p.version) + '</span>' +
+                            '<span class="text-xs px-1.5 py-0.5 rounded ' + modeCls + '">' + esc(p.mode) + '</span>' +
+                            (p.has_ui ? '<span class="text-xs px-1.5 py-0.5 rounded bg-purple-900/30 text-purple-400">UI</span>' : '') +
+                            accessBadge(p) +
+                            maturityBadge(p) +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="flex flex-col items-end gap-1 shrink-0">' +
+                        (isInstalled ? '<span class="px-2 py-0.5 rounded text-xs font-medium bg-green-900/50 text-green-400">Installed</span>' : '') +
+                        (hasUpdate ? '<span class="px-2 py-0.5 rounded text-xs font-medium bg-yellow-900/50 text-yellow-400">Update: v' + esc(hasUpdate) + '</span>' : '') +
+                    '</div>' +
+                '</div>' +
+                '<p class="text-sm text-gray-400 mt-2 line-clamp-2">' + esc(p.description) + '</p>' +
+                '<div class="flex flex-wrap gap-1 mt-3">' +
+                    (p.tags || []).map(t => '<span class="text-[10px] px-1.5 py-0.5 rounded bg-dark-700 text-gray-300 cursor-pointer" onclick="searchFor(this.textContent)" title="Search this tag">' + esc(t) + '</span>').join('') +
+                '</div>' +
+            '</div>' +
+            '<div class="border-t border-gray-700/50 px-5 py-3 bg-dark-700/20 flex items-center justify-between">' +
+                '<span class="text-xs text-gray-500">' + esc(p.author || '') + '</span>' +
+                '<div class="flex items-center gap-2">' +
+                    (p.homepage ? '<a href="' + esc(p.homepage) + '" target="_blank" class="text-xs text-gray-500 hover:text-gray-400">GitHub</a>' : '') +
+                    (!isInstalled
+                        ? '<button onclick="installFromRegistry(\'' + name + '\')" class="px-3 py-1 text-xs rounded bg-blue-600 hover:bg-blue-500 text-white transition-colors">Install</button>'
+                        : hasUpdate
+                            ? '<button onclick="upgradeFromRegistry(\'' + name + '\')" class="px-3 py-1 text-xs rounded bg-yellow-600 hover:bg-yellow-500 text-white transition-colors">Upgrade</button>'
+                            : '<span class="text-xs text-green-400">✓</span>') +
+                '</div>' +
+            '</div>' +
+        '</div>';
     }).join('');
 }
 
@@ -114,24 +164,42 @@ function renderRepos() {
     if (!registryData) return;
     const repos = registryData.repos || [];
     document.getElementById('repos-list').innerHTML = repos.map(r =>
-        `<div class="flex items-center justify-between py-1">
-            <span class="text-sm text-white">${r.name}</span>
-            <code class="text-xs text-gray-500">${r.url}</code>
-        </div>`
+        '<div class="flex items-center justify-between py-1">' +
+            '<span class="text-sm text-white">' + esc(r.name) + '</span>' +
+            '<code class="text-xs text-gray-500">' + esc(r.url) + '</code>' +
+        '</div>'
     ).join('');
 }
 
-function filterPlugins() { renderPlugins(); }
-
-function setFilter(f) {
-    currentFilter = f;
-    document.querySelectorAll('#filter-tabs button').forEach(b => {
-        b.className = b.dataset.filter === f
-            ? 'px-3 py-1 rounded-lg text-sm font-medium bg-blue-600 text-white'
-            : 'px-3 py-1 rounded-lg text-sm font-medium bg-dark-700 text-gray-400 hover:text-white';
+function paintPills() {
+    document.querySelectorAll('#filter-bar button[data-group]').forEach(b => {
+        b.className = filters[b.dataset.group] === b.dataset.value ? PILL_ON : PILL_OFF;
     });
+    const any = Object.keys(filters).length > 0;
+    document.querySelector('#filter-bar button[data-clear]').className = any ? PILL_OFF : PILL_ON;
+}
+
+function toggleFilter(group, value) {
+    if (filters[group] === value) delete filters[group]; else filters[group] = value;
+    paintPills();
     renderPlugins();
 }
+
+function clearFilters() {
+    Object.keys(filters).forEach(k => delete filters[k]);
+    document.getElementById('search-input').value = '';
+    paintPills();
+    renderPlugins();
+}
+
+function searchFor(text) {
+    document.getElementById('search-input').value = text;
+    renderPlugins();
+}
+
+document.querySelectorAll('#filter-bar button[data-group]').forEach(b => {
+    b.addEventListener('click', () => toggleFilter(b.dataset.group, b.dataset.value));
+});
 
 async function installFromRegistry(name) {
     if (!confirm('Install plugin "' + name + '" from registry?')) return;
@@ -156,6 +224,7 @@ async function upgradeFromRegistry(name) {
 
 function refreshRegistry() { fetchRegistry(); }
 
+paintPills();
 fetchRegistry();
 </script>
 {{end}}

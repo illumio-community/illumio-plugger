@@ -24,6 +24,22 @@ html:not(.dark) .bg-dark-900 { background:#f9fafb; } html:not(.dark) .bg-dark-80
 html:not(.dark) .bg-dark-700 { background:#f3f4f6; } html:not(.dark) .text-gray-200 { color:#1f2937; }
 html:not(.dark) .text-gray-300 { color:#4b5563; } html:not(.dark) .text-gray-400 { color:#6b7280; } html:not(.dark) .text-gray-500 { color:#9ca3af; }
 html:not(.dark) .text-white { color:#111827; } html:not(.dark) .border-gray-700 { border-color:#e5e7eb; }
+/* Badges: the dark palette (pastel -300 text on a 15% tint) is unreadable on white.
+   Remap to a solid light tint with -700 text so maturity/access/mode badges keep contrast. */
+html:not(.dark) .text-sky-300 { color:#0369a1; } html:not(.dark) .text-amber-300, html:not(.dark) .text-amber-300\/80 { color:#b45309; }
+html:not(.dark) .text-rose-300 { color:#be123c; } html:not(.dark) .text-emerald-300 { color:#047857; } html:not(.dark) .text-violet-300 { color:#6d28d9; }
+html:not(.dark) .text-green-300, html:not(.dark) .text-green-400 { color:#15803d; } html:not(.dark) .text-orange-300 { color:#c2410c; }
+html:not(.dark) .text-yellow-300, html:not(.dark) .text-yellow-400 { color:#a16207; } html:not(.dark) .text-slate-300 { color:#334155; }
+html:not(.dark) .text-blue-300 { color:#1e40af; } html:not(.dark) .text-blue-400 { color:#1d4ed8; } html:not(.dark) .text-red-400 { color:#b91c1c; }
+html:not(.dark) .text-purple-400 { color:#7e22ce; }
+html:not(.dark) .bg-sky-500\/15 { background:#e0f2fe; } html:not(.dark) .bg-amber-500\/15 { background:#fef3c7; } html:not(.dark) .bg-rose-500\/15 { background:#ffe4e6; }
+html:not(.dark) .bg-emerald-500\/15 { background:#d1fae5; } html:not(.dark) .bg-violet-500\/15 { background:#ede9fe; } html:not(.dark) .bg-orange-500\/15 { background:#ffedd5; }
+html:not(.dark) .bg-slate-500\/15 { background:#e2e8f0; } html:not(.dark) .bg-green-500\/15, html:not(.dark) .bg-green-500\/20 { background:#dcfce7; }
+html:not(.dark) .bg-yellow-500\/20 { background:#fef9c3; } html:not(.dark) .bg-purple-500\/20 { background:#f3e8ff; } html:not(.dark) .bg-blue-500\/20 { background:#dbeafe; }
+html:not(.dark) .border-sky-500\/30 { border-color:#7dd3fc; } html:not(.dark) .border-amber-500\/30 { border-color:#fcd34d; } html:not(.dark) .border-rose-500\/30 { border-color:#fda4af; }
+html:not(.dark) .border-emerald-500\/30 { border-color:#6ee7b7; } html:not(.dark) .border-violet-500\/30 { border-color:#c4b5fd; } html:not(.dark) .border-green-500\/30 { border-color:#86efac; }
+html:not(.dark) .border-orange-500\/30 { border-color:#fdba74; } html:not(.dark) .border-slate-500\/30 { border-color:#cbd5e1; } html:not(.dark) .border-gray-500\/30 { border-color:#d1d5db; }
+html:not(.dark) .border-blue-500\/30 { border-color:#93c5fd; }
 html:not(.dark) .border-gray-800 { border-color:#e5e7eb; } html:not(.dark) code { background:#e5e7eb; color:#374151; }
 /* Docs modal */
 .docs-overlay { position:fixed;inset:0;z-index:100;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);display:none;align-items:start;justify-content:center;overflow-y:auto;padding:2rem 1rem; }
@@ -753,12 +769,36 @@ html:not(.dark) .docs-content ul,html:not(.dark) .docs-content ol { color:#37415
 
     <div class="space-y-8">
 
+        <!-- v0.15.10 -->
+        <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
+            <div class="flex items-center justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <span class="text-lg font-bold text-white">v0.15.10</span>
+                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
+                </div>
+                <span class="text-sm text-gray-500">November 13, 2026</span>
+            </div>
+            <div class="space-y-3 text-sm">
+                <div>
+                    <h4 class="font-semibold text-purple-400 mb-1">Features</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>Registry search filters combine</strong> &mdash; the dashboard registry page now has toggle filters for mode, UI, install state and PCE access that AND together (e.g. read-write + installed), plus access and maturity badges on every registry card.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-red-400 mb-1">Bug Fixes</h4>
+                    <ul class="text-gray-300 space-y-1 ml-4 list-disc">
+                        <li><strong>Portal badges in light mode</strong> &mdash; maturity, access and mode badges on this site now use a solid tint with dark text in light mode instead of pastel-on-white.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
         <!-- v0.15.9 -->
         <div class="bg-dark-800 rounded-xl border border-gray-700 p-6">
             <div class="flex items-center justify-between mb-3">
                 <div class="flex items-center gap-3">
                     <span class="text-lg font-bold text-white">v0.15.9</span>
-                    <span class="text-xs px-2 py-0.5 rounded bg-green-500/15 text-green-300 border border-green-500/30">latest</span>
                 </div>
                 <span class="text-sm text-gray-500">November 13, 2026</span>
             </div>
