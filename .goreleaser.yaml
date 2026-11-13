@@ -65,6 +65,8 @@ nfpms:
     contents:
       - src: packaging/plugger.service
         dst: /usr/lib/systemd/system/plugger.service
+      - src: LICENSE
+        dst: /usr/share/doc/plugger/LICENSE
       - src: README.md
         dst: /usr/share/doc/plugger/README.md
       - src: docs/installation.md
